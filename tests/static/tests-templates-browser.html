@@ -1,0 +1,64 @@
+<html>
+<head>
+    <title>"Browser" Templates Tests</title>
+
+    <!-- Bring in jQuery and other dependencies -->
+    <script type="text/javascript" src="/node_modules/infusion/src/lib/jquery/core/js/jquery.js"></script>
+
+    <!-- Bring in Handlebars dependency -->
+    <script type="text/javascript" src="/node_modules/handlebars/dist/handlebars.js"></script>
+
+    <!-- Bring in markdown-it dependencies -->
+    <script type="text/javascript" src="/node_modules/markdown-it/dist/markdown-it.js"></script>
+
+
+    <!-- Bring in the minimum fluid dependencies required to test a fluid.component using IoC tests -->
+    <script type="text/javascript" src="/node_modules/infusion/src/framework/core/js/Fluid.js"></script>
+    <script type="text/javascript" src="/node_modules/infusion/src/framework/core/js/FluidDocument.js"></script>
+    <script type="text/javascript" src="/node_modules/infusion/src/framework/core/js/FluidDOMUtilities.js"></script>
+    <script type="text/javascript" src="/node_modules/infusion/src/framework/core/js/FluidIoC.js"></script>
+    <script type="text/javascript" src="/node_modules/infusion/src/framework/core/js/DataBinding.js"></script>
+
+    <!-- Bring in the dependencies required to render our content -->
+    <script type="text/javascript" src="/node_modules/gpii-handlebars/src/js/common/helper.js"></script>
+    <script type="text/javascript" src="/node_modules/gpii-handlebars/src/js/common/equals.js"></script>
+    <script type="text/javascript" src="/node_modules/gpii-handlebars/src/js/common/jsonify.js"></script>
+    <script type="text/javascript" src="/node_modules/gpii-handlebars/src/js/common/md-common.js"></script>
+    <script type="text/javascript" src="/node_modules/gpii-handlebars/src/js/client/hasRequiredOptions.js"></script>
+    <script type="text/javascript" src="/node_modules/gpii-handlebars/src/js/client/ajaxCapable.js"></script>
+    <script type="text/javascript" src="/node_modules/gpii-handlebars/src/js/client/md-client.js"></script>
+    <script type="text/javascript" src="/node_modules/gpii-handlebars/src/js/client/renderer.js"></script>
+
+    <!-- QUnit/jqUnit dependencies -->
+    <script type="text/javascript" src="/node_modules/infusion/tests/lib/qunit/js/qunit.js"></script>
+
+    <!-- testem must be loaded after QUnit -->
+    <script src="/testem.js"></script>
+
+    <script type="text/javascript" src="/node_modules/infusion/tests/test-core/jqUnit/js/jqUnit.js"></script>
+    <script type="text/javascript" src="/node_modules/infusion/tests/test-core/jqUnit/js/jqUnit-browser.js"></script>
+
+    <link rel="stylesheet" href="/node_modules/node-jqunit/node_modules/infusion/tests/lib/qunit/css/qunit.css"/>
+
+    <!-- Wire up a coverage reporter to save test coverage reports after the run completes -->
+    <script type="text/javascript" src="/coverage/client/coverageSender.js"></script>
+
+    <!-- Our client dependencies under test -->
+    <script type="text/javascript" src="/src/js/diff.js"></script>
+    <script type="text/javascript" src="/src/js/isDiffArray-helper.js"></script>
+</head>
+<body>
+<h1 id="qunit-header">"Browser" Templates Tests</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+
+<div id="qunit-fixture"></div>
+
+<script type="text/javascript" src="/tests/js/tests-templates-common.js"></script>
+<script type="text/javascript">
+    gpii.tests.diff.templates.browser();
+</script>
+</body>
+</html>

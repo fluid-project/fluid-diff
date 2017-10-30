@@ -1,0 +1,9 @@
+<ul>
+{{~#each .}}{{#each arrayValue}}
+    <li class="diff-{{../type}}">
+        {{~#equals ../type "added"~}}{{>single-item-added}}{{/equals~}}
+        {{~#equals ../type "removed"~}}{{>single-item-removed}}{{/equals~}}
+        {{~#equals ../type "unchanged"~}}{{.}}{{/equals~}}
+    </li>
+{{~/each}}{{/each}}
+</ul>
