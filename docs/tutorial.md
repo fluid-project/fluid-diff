@@ -1,75 +1,137 @@
+# Tutorial
 
+This tutorial will take you through the process of generating a "diff" report comparing two objects, and then using a
+handlebars template to generate a summary of the changes.  The examples are written with the Node.js environment
+in mind.  For examples of using [gpii-handlebars](https://github.com/GPII/gpii-handlebars) in a browser, see that
+package's documentation.
 
+## The Data
 
-Let's say we have a record like the following:
+Let's say we have an old and a new version of a record, and we want to explore the differences.  To compare these
+versions, we will use [`gpii.diff.compare`](functions.md#gpiidiffcompareleftelement-rightelement), as shown in this
+example:
 
-```json
-{
+```javascript
+var fluid = require("infusion");
+fluid.require("%gpii-diff");
+
+var oldVersion = {
     "title": "This is the old title.",
     "description": "This is the old description.",
     "author": {
         "name": "This is the old author."
     }
-}
-```
+};
 
-We want to explore the differences between this record and a new version of the same record:
-
-```json
-{
+var newVersion = {
     "title": "This is the new title.",
     "description": "This is the new description.",
     "author": {
         "name": "This is the new author."
     }
-}
+};
+
+var diff = gpii.diff.compare(oldVersion, newVersion);
+/*
+
+    Returns:
+
+    {
+        "title": [{ "value": "This is the ", "type": "unchanged"}, { "value": "old", "type": "deleted"}, { "value": "new", "type": "added"}, { "value": "title.", "type": "unchanged"}]
+        "description": [{ "value": "This is the ", "type": "unchanged"}, { "value": "old", "type": "deleted"}, { "value": "new", "type": "added"}, { "value": "description.", "type": "unchanged"}],
+        "author": {
+            "name": [{ "value": "This is the ", "type": "unchanged"}, { "value": "old", "type": "deleted"}, { "value": "new", "type": "added"}, { "value": "author.", "type": "unchanged"}]
+        }
+    }
+
+ */
 ```
 
-The output of [our "diff" function] would look like:
+## Creating a Handlebars Template
 
-```json
-{
-    "title": [{ "value": "This is the ", "type": "unchanged"}, { "value": "old", "type": "deleted"}, { "value": "new", "type": "added"}, { "value": "title.", "type": "unchanged"}]
-}
+To create your own templates, you will need to:
+
+1. Create a template directory that contains a `pages`, `layouts`, and `partials` directory.
+2. Add your pages in the `pages` subdirectory.
+3. Register your package using `fluid.module.registerPath`.
+4. Add your template directory (something like `%your-package/path/to/templates`)to the renderer's `templateDirs`.
+
+See the [gpii-handlebars](https://github.com/GPII/gpii-handlebars) documentation for more details.  Let's say we want
+to create a template to display the changes as text.  Our template might look like:
+
+```handlebars
+{{#if title~}}
+    Title: {{>diff-text title}}
+{{/if}}
+{{#if description~}}
+    Description: {{>diff-text description}}
+{{/if}}
+{{#if author.name~}}
+    Author Name: {{>diff-text author.name}}
+{{/if}}
 ```
 
-# JSON "diff"
+Note that we use the tildes (`~`) to indicate that each block's output should strip leading whitespace.  This template
+is saved to our test content, so you can simply include `%gpii-diff/tests/templates` in your `templateDirs`, as shown in
+the next section.
 
+## Rendering Content
 
-<!-- TODO: write the function and then expand this -->
+So, now we need to create a renderer and use that to render our "diff" using our template:
 
-## Example 1:  A Deep Structure with Strings
+```javascript
+/* eslint-env node */
+"use strict";
+var fluid = require("infusion");
+var gpii  = fluid.registerNamespace("gpii");
+var my    = fluid.registerNamespace("my");
 
-Let's say we have a record like the following:
+fluid.require("%gpii-handlebars");
+fluid.require("%gpii-diff");
 
-```json
-{
+var oldVersion = {
     "title": "This is the old title.",
     "description": "This is the old description.",
     "author": {
         "name": "This is the old author."
     }
-}
-```
+};
 
-We want to explore the differences between this record and a new version of the same record:
-
-```json
-{
+var newVersion = {
     "title": "This is the new title.",
     "description": "This is the new description.",
     "author": {
         "name": "This is the new author."
     }
-}
+};
+
+var diff = gpii.diff.compare(oldVersion, newVersion);
+
+fluid.defaults("my.renderer", {
+    gradeNames: ["gpii.handlebars.standaloneRenderer"],
+    templateDirs: ["%gpii-diff/tests/templates", "%gpii-diff/src/templates"],
+    components: {
+        isDiffArray: {
+            type: "gpii.diff.helper.isDiffArray"
+        }
+    }
+});
+
+var renderer = my.renderer();
+var text = renderer.render("tutorial-text", diff);
+console.log(text);
+
+/*
+    The console output is:
+
+    Title: This is the -old-+new+ title.
+
+    Description: This is the -old-+new+ description.
+
+    Author: This is the -old-+new+ author.
+
+ */
 ```
 
-The output of [our "diff" function] would look like:
-
-```json
-{
-    "title": [{ "value": "This is the ", "type": "unchanged"}, { "value": "old", "type": "deleted"}, { "value": "new", "type": "added"}, { "value": "title.", "type": "unchanged"}]
-}
-```
-
-## Example 2: Array Comparisons
+If you'd like to try this one your own, you might start by creating a template that outputs HTML, by using the `diff`
+partial instead of the `diff-text` partial.

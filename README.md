@@ -16,7 +16,7 @@ Our goal is to produce a more expansive structure that includes:
 The focus here is not on changes to the deep structure, only changes in values (strings, numbers, etc.) are represented.
 This is intended to provide just enough information to present an annotated representation of a given set of changes.
 For this purpose, there are [Handlebars](http://handlebarsjs.com) templates provided in this package, which can be used
-with  [`gpii-handlebars`](https://github.com/GPII/gpii-handlebars) to convert the "diff" JSON structure produced by 
+with  [`gpii-handlebars`](https://github.com/GPII/gpii-handlebars) to convert the "diff" JSON structure produced by
 this package into:
 
 * text
@@ -29,5 +29,5 @@ To add this package to your project, use a command like `npm install --save gpii
 
 ## Further Reading
 
-1. For more details about generating a "diff", see the list of [available functions](docs/functions.md). 
+1. For more details about generating a "diff", see the list of [available functions](docs/functions.md).
 2. For examples of using a "diff" on its own and in combination with handlebars templates, see the [tutorial](docs/tutorial.md).
