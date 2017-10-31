@@ -47,48 +47,6 @@ gpii.diff.singleValueDiff = function (leftValue, rightValue, isArray) {
     return segments;
 };
 
-// // TODO: Remove this and also update the docs.
-// /**
-//  *
-//  * Find the longest matching segment in two strings.  If there are two of the same length, the first will be returned.
-//  *
-//  * @param leftString {String} - One of the two strings, which will be used to search for matching patterns.
-//  * @param rightString {String} - The other string, which will be compared against all possible sub-patterns.
-//  * @return {Object} - See below.
-//  *
-//  * The object returned has three keys:
-//  *
-//  * `leftIndex`:  The position of the matching segment in `leftString`.  If there is no matching segment, this will be `-1`.
-//  * `rightIndex`: The position of the matching segment in `rightString`.  If there is no matching segment, this will be `-1`.
-//  * `segment`:    The longest matching string common to both strings.  If there are multiple matching strings of the same length, the first is returned.
-//  *
-//  */
-// gpii.diff.longestCommonStringSegment = function (leftString, rightString) {
-//     var matchDef = {
-//         leftIndex: -1,
-//         rightIndex: -1,
-//         segment: ""
-//     };
-//
-//     if (leftString && rightString) {
-//         for (var a = 0;  a <= leftString.length; a++) {
-//             for (var b = a + 1; b <= leftString.length; b++) {
-//                 var forwardMatch = leftString.substring(a, b);
-//                 var rightIndex = rightString.indexOf(forwardMatch);
-//                 if (rightIndex  === -1) {
-//                     break;
-//                 }
-//                 else if (forwardMatch.length > matchDef.segment.length) {
-//                     matchDef.segment    = forwardMatch;
-//                     matchDef.rightIndex = rightIndex;
-//                     matchDef.leftIndex  = a;
-//                 }
-//             }
-//         }
-//     }
-//     return matchDef;
-// };
-
 /**
  *
  * Find the longest matching "phrase" in two strings, which prefers one or more whole words.
@@ -151,36 +109,6 @@ gpii.diff.sortPhraseDefsByLength = function (a, b) {
     }
 };
 
-// /**
-//  *
-//  * Return the whitespace immediately before a given point in a longer string.
-//  *
-//  * @param fullString {String} - The original String.
-//  * @param index {Integer} - The position in `fullString` to stop matching at.
-//  * @returns {String} - The whitespace immediately before `index` or an empty string if there is no whitespace.
-//  *
-//  */
-// gpii.diff.leadingWhiteSpace = function (fullString, index) {
-//     var leadingSubString = fullString.substring(0, index);
-//     var matches = leadingSubString.match(/\W+$/);
-//     return matches ? matches[0][0] : "";
-// };
-//
-// /**
-//  *
-//  * Return the whitespace immediately after a given point in a longer string.
-//  *
-//  * @param fullString {String} - The original String.
-//  * @param index {Integer} - The position in `fullString` to start matching at.
-//  * @returns {String} - The whitespace immediately after `index` or an empty string if there is no whitespace.
-//  *
-//  */
-// gpii.diff.trailingWhiteSpace = function (fullString, index) {
-//     var trailingSubstring = fullString.substring(index);
-//     var matches = trailingSubstring.match(/^\W+/);
-//     return matches ? matches[0][0] : "";
-// };
-
 /**
  *
  * Break down a string into an array of "phrase segments", ordered from longest (the original string) to shortest (the
@@ -212,7 +140,7 @@ gpii.diff.extractPhraseSegments = function (originalString) {
     else {
         var segments = [];
         // Check for leading whitespace first.
-        var leadingWhitespaceMatches = originalString.match(/^(\W+)/)
+        var leadingWhitespaceMatches = originalString.match(/^(\W+)/);
         if (leadingWhitespaceMatches) {
             segments.push({
                 value: leadingWhitespaceMatches[1],
@@ -357,7 +285,6 @@ gpii.diff.compareArrays = function (leftArray, rightArray) {
         }
         else {
             // Find the longest match, then process the remaining "tail" and "head", as with the string engine above.
-            // TODO: Update to work with new structure
             var longestCommonSegmentDef = gpii.diff.longestCommonArraySegment(leftArray, rightArray);
             if (longestCommonSegmentDef.segment.length) {
                 // Compare the "leaders"

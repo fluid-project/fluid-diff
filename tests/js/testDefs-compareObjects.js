@@ -88,7 +88,6 @@ fluid.defaults("gpii.test.diff.testDefs.compareObjects", {
                 rightValue: { foo: { bar: { baz: { qux: "quux" } } } },
                 expected:  { foo: { bar: { baz: { qux: [{ value: "quux", type: "added"}] } } } }
             },
-            // TODO: This may be problematic longer term, review after writing templates.
             emptyAddedArray: {
                 message:   "We should be able to detect empty 'added' arrays...",
                 leftValue: {},
