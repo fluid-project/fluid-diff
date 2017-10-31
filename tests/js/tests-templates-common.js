@@ -42,25 +42,25 @@ fluid.defaults("gpii.tests.diff.templates.common", {
         justAdded: {
             message:      "We should be able to handle content that has been entirely added.",
             input:        [{ value: "Added.", type: "added"}],
-            expectedHtml: "<span hidden=\"true\" aria-hidden=\"false\">Content added:</span><ins>Added.</ins><span hidden=\"true\" aria-hidden=\"false\">End added content.</span>\n",
+            expectedHtml: "<ins><span class=\"gpii-diff-announcement\">Content added:</span>Added.<span class=\"gpii-diff-announcement\">End added content.</span></ins>\n",
             expectedText: "+Added.+\n"
         },
         justDeleted: {
             message:      "We should be able to handle content that has been completely removed.",
             input:        [{ value: "Deleted.", type: "removed"}],
-            expectedHtml: "<del aria-label=\"Content Deleted:\"><span style=\"display:none;\" aria-hidden=\"false\">Content deleted:</span>Deleted.<span style=\"display:none\" aria-hidden=\"false\">End deleted content.</span></del>\n",
+            expectedHtml: "<del><span class=\"gpii-diff-announcement\">Content deleted:</span>Deleted.<span class=\"gpii-diff-announcement\">End deleted content.</span></del>\n",
             expectedText: "-Deleted.-\n"
         },
         replaced: {
             message:      "We should be able to handle content that has been replaced.",
             input:        [{ value: "foo", type: "removed"}, { value: "bar", type: "added"}],
-            expectedHtml: "<del aria-label=\"Content Deleted:\"><span style=\"display:none;\" aria-hidden=\"false\">Content deleted:</span>foo<span style=\"display:none\" aria-hidden=\"false\">End deleted content.</span></del><span hidden=\"true\" aria-hidden=\"false\">Content added:</span><ins>bar</ins><span hidden=\"true\" aria-hidden=\"false\">End added content.</span>\n",
+            expectedHtml: "<del><span class=\"gpii-diff-announcement\">Content deleted:</span>foo<span class=\"gpii-diff-announcement\">End deleted content.</span></del><ins><span class=\"gpii-diff-announcement\">Content added:</span>bar<span class=\"gpii-diff-announcement\">End added content.</span></ins>\n",
             expectedText: "-foo-+bar+\n"
         },
         arrayContent: {
             message:      "We should be able to handle array content.",
             input:        [{ arrayValue: ["old"], type: "removed"}, { arrayValue: ["new"], type: "added"}],
-            expectedHtml: "<ul>\n    <li class=\"diff-removed\"><del aria-label=\"Content Deleted:\"><span style=\"display:none;\" aria-hidden=\"false\">Content deleted:</span>old<span style=\"display:none\" aria-hidden=\"false\">End deleted content.</span></del></li>\n    <li class=\"diff-added\"><span hidden=\"true\" aria-hidden=\"false\">Content added:</span><ins>new</ins><span hidden=\"true\" aria-hidden=\"false\">End added content.</span></li>\n</ul>\n",
+            expectedHtml:  "<ul>\n    <li class=\"diff-removed\"><del><span class=\"gpii-diff-announcement\">Content deleted:</span>old<span class=\"gpii-diff-announcement\">End deleted content.</span></del></li>\n    <li class=\"diff-added\"><ins><span class=\"gpii-diff-announcement\">Content added:</span>new<span class=\"gpii-diff-announcement\">End added content.</span></ins></li>\n</ul>\n",
             expectedText: "* -old-\n* +new+\n"
         },
         normalArray: {
