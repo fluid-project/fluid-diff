@@ -22,7 +22,7 @@
     "homepage": "https://github.com/GPII/gpii-diff#readme",
     "dependencies": {
         "gpii-handlebars": "1.1.0-dev.20170927T151006Z.df42535",
-        "infusion": "3.0.0-dev.20171006T195039Z.a128358"
+        "infusion": "3.0.0-dev.20171020T203359Z.17fbd6f"
     },
     "devDependencies": {
         "eslint": "4.9.0",
