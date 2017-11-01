@@ -16,7 +16,7 @@ var stringPayload = gpii.diff.compare("A string with no edits.", "An updated str
 var arrayPayload  = gpii.diff.compare(["bacon", "lettuce", "tomato"], ["chicken", "avocado", "lettuce", "tomato"]);
 
 fluid.defaults("gpii.tests.diff.harness", {
-    gradeNames:  ["gpii.testem.coverage.express"],
+    gradeNames:  ["gpii.testem.coverage.express", "gpii.express"],
     baseUrl: {
         expander: {
             funcName: "fluid.stringTemplate",
