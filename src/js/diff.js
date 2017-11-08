@@ -33,9 +33,9 @@ var cheerio    = typeof require !== "undefined" ? require("cheerio") : gpii.diff
  * should be used instead.  For string values, `gpii.diff.compareStrings` should be used instead.  For object values
  * `gpii.diff.compareObjects` should be used instead.
  *
- * @param leftValue - The left-hand value.
- * @param rightValue - The right-hand value.
- * @param isArray - Whether we are dealing with arrays or not
+ * @param leftValue {Any} - The left-hand value.
+ * @param rightValue {Any} - The right-hand value.
+ * @param isArray {Boolean} - Whether we are dealing with arrays or not
  * @return {Array} - An array of segments representing everything that has changed (or not changed).
  *
  */
@@ -112,6 +112,7 @@ gpii.diff.longestCommonStringPhrase = function (leftString, rightString) {
  * @param a {Object} - An item in the array to compare.
  * @param b {Object} - The item to compare with `a`.
  * @returns {number} - -1 if `a` is "first", 1 if `b` is "first", 0 if their position is interchangeable.
+ *
  */
 gpii.diff.sortPhraseDefs = function (a, b) {
     if (a.value.length > b.value.length) {
@@ -226,8 +227,8 @@ gpii.diff.extractPhraseSegments = function (originalString) {
  * segments, which consist of a segment value and details about whether the segment is unchanged, added, or removed
  * when compared to `leftString`.
  *
- * @param `leftString` - The first string, from whose perspective the "diff" results will be represented.
- * @param `rightString` - The second string, to compare to the first string.
+ * @param `leftString` {String} - The first string, from whose perspective the "diff" results will be represented.
+ * @param `rightString` {String} - The second string, to compare to the first string.
  * @return {Array} - An array of "segments" representing `rightString` as compared to `leftString`.
  *
  */
@@ -412,9 +413,10 @@ gpii.diff.longestCommonArraySegment = function (leftArray, rightArray) {
  *
  * Compare two arrays to see if their values are equal.
  *
- * @param leftArray - An array of values.
- * @param rightArray - An array of values to compare to `leftArray`.
- * @return {boolean} - Returns `true` if all elements in both arrays are equal, `false` otherwise.
+ * @param leftArray {Array} - An array of values.
+ * @param rightArray {Array} - An array of values to compare to `leftArray`.
+ * @return {Boolean} - Returns `true` if all elements in both arrays are equal, `false` otherwise.
+ *
  */
 gpii.diff.arraysEqual = function (leftArray, rightArray) {
     if (typeof leftArray !== typeof rightArray) {
@@ -454,9 +456,10 @@ gpii.diff.arraysEqual = function (leftArray, rightArray) {
  *
  * Deeply compare two objects to see if their values are equal.
  *
- * @param leftObject - An object.
- * @param rightObject - An object to compare to `leftObject`.
- * @return {boolean} - Returns `true` if the objects are deeply equal, `false` otherwise.
+ * @param leftObject {Object} - An object.
+ * @param rightObject {Object} - An object to compare to `leftObject`.
+ * @return {Boolean} - Returns `true` if the objects are deeply equal, `false` otherwise.
+ *
  */
 gpii.diff.objectsEqual = function (leftObject, rightObject) {
     if (typeof leftObject !== typeof rightObject) {
@@ -499,10 +502,11 @@ gpii.diff.objectsEqual = function (leftObject, rightObject) {
  *
  * Compare two objects and product a report about their differences.
  *
- * @param leftObject - An object.
- * @param rightObject - An object to compare with `leftObject`.
- * @param compareStringsAsMarkdown - Whether to compare strings as markdown.
+ * @param leftObject {Object} - An object.
+ * @param rightObject {Object} - An object to compare with `leftObject`.
+ * @param compareStringsAsMarkdown {Boolean} - Whether to compare strings as markdown.
  * @return results - An object that describes the differences (and similarities) between the two objects.
+ *
  */
 gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMarkdown) {
     var results = {};
@@ -531,9 +535,9 @@ gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMa
  *
  * Compare a single element, using the correct comparison depending on the variable type.
  *
- * @param leftElement - An element (array, object, number, etc.).
- * @param rightElement - An element to compare to `leftElement`.
- * @param compareStringsAsMarkdown - Whether to compare strings as markdown.
+ * @param leftElement {Any} - An element (array, object, number, etc.).
+ * @param rightElement {Any} - An element to compare to `leftElement`.
+ * @param compareStringsAsMarkdown {Boolean} - Whether to compare strings as markdown.
  * @return {Object} - An object that describes the differences between the two elements.
  *
  */
