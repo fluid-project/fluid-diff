@@ -161,6 +161,36 @@ fluid.defaults("gpii.test.diff.testDefs.compareObjects", {
                 rightValue: { deep: { md: "*italic*" } },
                 expected:   { deep: { md: [{value: "bold", type: "removed"}, { value: "italic", type: "added"}]} },
                 compareStringsAsMarkdown: true
+            },
+            // real example from the UL
+            deepComplexHtml: {
+                message:    "We should be able to handle HTML tables...",
+                leftValue:  { deep: { html: "<table border='0'><tr><td colspan='3'>The following specifications may only comply to some variants.</td></tr><tr><td colspan='3'><strong>Intended/suitable for one-hand operation</strong></td></tr><tr><td colspan='3'><strong>Left-hand keyboard</strong></td></tr><tr><td colspan='3'><strong>Wireless</strong></td></tr></table>" } },
+                rightValue: { deep: { html: "<table border='0'><tr><td colspan='3'>The following specifications may only apply to some variants.</td></tr><tr><td colspan='3'><strong>Intended/suitable for one-hand operation</strong></td></tr><tr><td colspan='3'><strong>Left-hand keyboard</strong></td></tr><tr><td colspan='3'><strong>Wireless</strong></td></tr></table>" } },
+                compareStringsAsMarkdown: true,
+                markdownitOptions: { html: true},
+                expected:   {
+                    deep: {
+                        html: [
+                            {
+                                "value": "The following specifications may only ",
+                                "type": "unchanged"
+                            },
+                            {
+                                "value": "comply",
+                                "type": "removed"
+                            },
+                            {
+                                "value": "apply",
+                                "type": "added"
+                            },
+                            {
+                                "value": " to some variants.Intended/suitable for one-hand operationLeft-hand keyboardWireless",
+                                "type": "unchanged"
+                            }
+                        ]
+                    }
+                }
             }
         }
     }

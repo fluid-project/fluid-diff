@@ -75,6 +75,30 @@ fluid.defaults("gpii.test.diff.testDefs.compareMarkdown", {
                 leftValue:  true,
                 rightValue: -1,
                 expected:   [{ value: true, type: "removed" }, { value: -1, type: "added" }]
+            },
+            // real example from the UL
+            complexHtml: {
+                message:    "We should be able to handle HTML tables...",
+                leftValue:  "<table border='0'><tr><td colspan='3'>The following specifications may only comply to some variants.</td></tr><tr><td colspan='3'><strong>Intended/suitable for one-hand operation</strong></td></tr><tr><td colspan='3'><strong>Left-hand keyboard</strong></td></tr><tr><td colspan='3'><strong>Wireless</strong></td></tr></table>",
+                rightValue: "<table border='0'><tr><td colspan='3'>The following specifications may only apply to some variants.</td></tr><tr><td colspan='3'><strong>Intended/suitable for one-hand operation</strong></td></tr><tr><td colspan='3'><strong>Left-hand keyboard</strong></td></tr><tr><td colspan='3'><strong>Wireless</strong></td></tr></table>",
+                expected:   [
+                    {
+                        "value": "The following specifications may only ",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": "comply",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "apply",
+                        "type": "added"
+                    },
+                    {
+                        "value": " to some variants.Intended/suitable for one-hand operationLeft-hand keyboardWireless",
+                        "type": "unchanged"
+                    }
+                ]
             }
         }
     }

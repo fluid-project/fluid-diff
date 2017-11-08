@@ -25,11 +25,11 @@ gpii.test.diff.compare.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
         if (testDef.expectedError) {
             jqUnit.expectFrameworkDiagnostic(testDef.message, function () {
-                gpii.diff.compare(testDef.leftValue, testDef.rightValue, testDef.compareStringsAsMarkdown);
+                gpii.diff.compare(testDef.leftValue, testDef.rightValue, testDef.compareStringsAsMarkdown, testDef.markdownitOptions);
             }, fluid.makeArray(testDef.expectedError));
         }
         else {
-            var result = gpii.diff.compare(testDef.leftValue, testDef.rightValue, testDef.compareStringsAsMarkdown);
+            var result = gpii.diff.compare(testDef.leftValue, testDef.rightValue, testDef.compareStringsAsMarkdown, testDef.markdownitOptions);
             jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
         }
     });

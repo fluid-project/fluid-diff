@@ -19,7 +19,7 @@ gpii.test.diff.compareObjects.runAllTests = function (that) {
 
 gpii.test.diff.compareObjects.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
-        var result = gpii.diff.compareObjects(testDef.leftValue, testDef.rightValue, testDef.compareStringsAsMarkdown);
+        var result = gpii.diff.compareObjects(testDef.leftValue, testDef.rightValue, testDef.compareStringsAsMarkdown, testDef.markdownitOptions);
         jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
     });
 };
