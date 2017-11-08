@@ -11,6 +11,21 @@ var gpii  = fluid.registerNamespace("gpii");
 
 fluid.registerNamespace("gpii.diff");
 
+/*
+
+    Cheerio.js is a node-based jQuery alternative to allow parsing and interrogating HTML.  This stub allows us to use
+    the same `load` method on both node and the browser.
+
+*/
+gpii.diff.cheerioBrowser = {
+    load: function (htmlString) {
+        return $(htmlString);
+    }
+};
+
+var MarkDownIt = typeof require !== "undefined" ? require("markdown-it") : window.markdownit;
+var cheerio    = typeof require !== "undefined" ? require("cheerio") : gpii.diff.cheerioBrowser;
+
 /**
  *
  * Produce a representation of a "single value" change, with no deeper comparison.  Intended for use when either the
@@ -264,6 +279,20 @@ gpii.diff.compareStrings = function (leftString, rightString) {
     }
 };
 
+gpii.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, markdownItOptions) {
+    var leftString = gpii.diff.markdownToText(leftMarkdown, markdownItOptions);
+    var rightString = gpii.diff.markdownToText(rightMarkdown, markdownItOptions);
+    return gpii.diff.compareStrings(leftString, rightString);
+};
+
+gpii.diff.markdownToText = function (markdown, markdownItOptions) {
+    var mdRenderer = new MarkDownIt(markdownItOptions);
+    var html = mdRenderer.render(markdown);
+    var $ = cheerio.load(html);
+    // The rendering cycle introduces a trailing carriage return that we explicitly remove.
+    return $.text().replace(/[\r\n]+$/, "");
+};
+
 /**
  *
  * A function to compare two arrays and report their differences.
@@ -463,9 +492,10 @@ gpii.diff.objectsEqual = function (leftObject, rightObject) {
  *
  * @param leftObject - An object.
  * @param rightObject - An object to compare with `leftObject`.
+ * @param compareStringsAsMarkdown - Whether to compare strings as markdown.
  * @return results - An object that describes the differences (and similarities) between the two objects.
  */
-gpii.diff.compareObjects = function (leftObject, rightObject) {
+gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMarkdown) {
     var results = {};
     var leftKeys = leftObject !== undefined ? Object.keys(leftObject) : [];
     var rightKeys = rightObject !== undefined ? Object.keys(rightObject) : [];
@@ -475,7 +505,7 @@ gpii.diff.compareObjects = function (leftObject, rightObject) {
             var key = combinedKeys[a];
             var leftValue  = leftObject !== undefined ? leftObject[key] : undefined;
             var rightValue = rightObject !== undefined ? rightObject[key] : undefined;
-            results[key] = gpii.diff.compare(leftValue, rightValue);
+            results[key] = gpii.diff.compare(leftValue, rightValue, compareStringsAsMarkdown);
         }
     }
     // Both values are either an empty object or `undefined`.
@@ -494,10 +524,11 @@ gpii.diff.compareObjects = function (leftObject, rightObject) {
  *
  * @param leftElement - An element (array, object, number, etc.).
  * @param rightElement - An element to compare to `leftElement`.
+ * @param compareStringsAsMarkdown - Whether to compare strings as markdown.
  * @return {Object} - An object that describes the differences between the two elements.
  *
  */
-gpii.diff.compare = function (leftElement, rightElement) {
+gpii.diff.compare = function (leftElement, rightElement, compareStringsAsMarkdown) {
     var firstDefinedElement = leftElement !== undefined ? leftElement : rightElement;
     // Both are undefined
     if (firstDefinedElement === undefined) {
@@ -507,10 +538,10 @@ gpii.diff.compare = function (leftElement, rightElement) {
         return gpii.diff.compareArrays(leftElement, rightElement);
     }
     else if (typeof firstDefinedElement === "string") {
-        return gpii.diff.compareStrings(leftElement, rightElement);
+        return compareStringsAsMarkdown ? gpii.diff.compareMarkdown(leftElement, rightElement) : gpii.diff.compareStrings(leftElement, rightElement);
     }
     else if (typeof firstDefinedElement === "object") {
-        return gpii.diff.compareObjects(leftElement, rightElement);
+        return gpii.diff.compareObjects(leftElement, rightElement, compareStringsAsMarkdown);
     }
     else {
         return gpii.diff.singleValueDiff(leftElement, rightElement);

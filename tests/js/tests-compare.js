@@ -26,11 +26,11 @@ gpii.test.diff.compare.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
         if (testDef.expectedError) {
             jqUnit.expectFrameworkDiagnostic(testDef.message, function () {
-                gpii.diff.compare(testDef.leftValue, testDef.rightValue);
+                gpii.diff.compare(testDef.leftValue, testDef.rightValue, testDef.compareStringsAsMarkdown);
             }, fluid.makeArray(testDef.expectedError));
         }
         else {
-            var result = gpii.diff.compare(testDef.leftValue, testDef.rightValue);
+            var result = gpii.diff.compare(testDef.leftValue, testDef.rightValue, testDef.compareStringsAsMarkdown);
             jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
         }
     });
@@ -38,6 +38,23 @@ gpii.test.diff.compare.runSingleTest = function (testDef) {
 
 fluid.defaults("gpii.test.diff.compare", {
     gradeNames: ["gpii.test.diff.testDefs.compareArrays", "gpii.test.diff.testDefs.compareObjects", "gpii.test.diff.testDefs.compareStrings"],
+    testDefs: {
+        markdown: {
+            markdownAsString: {
+                message:    "Markdown should be treated like a string by default...",
+                leftValue:  "**bold**",
+                rightValue: "*italic*",
+                expected:   [{ value: "**bold**", type: "removed"}, { value: "*italic*", type: "added"}]
+            },
+            markdownAsMarkdown: {
+                message:   "We should be able to compare markdown as markdown using an additional argument...",
+                leftValue: "**bold**",
+                rightValue: "*italic*",
+                compareStringsAsMarkdown: true,
+                expected:  [{ value: "bold", type: "removed" }, { value: "italic", type: "added" }]
+            }
+        }
+    },
     listeners: {
         "onCreate.runTests": {
             funcName: "gpii.test.diff.compare.runAllTests",

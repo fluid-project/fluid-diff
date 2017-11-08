@@ -16,10 +16,10 @@ var testemComponent = gpii.testem({
         "tests/static/tests-compare.html",
         "tests/static/tests-compareArrays.html",
         "tests/static/tests-compareObjects.html",
+        "tests/static/tests-compareMarkdown.html",
         "tests/static/tests-compareStrings.html",
         "tests/static/tests-extractPhraseSegments.html",
         "tests/static/tests-longestCommonArraySegment.html",
-        // "tests/static/tests-longestCommonStringSegment.html",
         "tests/static/tests-objectsEqual.html",
         "tests/static/tests-singleValueDiff.html",
         "tests/static/tests-templates-browser.html"

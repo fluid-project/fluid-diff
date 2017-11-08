@@ -129,7 +129,25 @@ fluid.defaults("gpii.test.diff.testDefs.compareStrings", {
                 leftValue: "",
                 rightValue: "",
                 expected:  [{ value: "", type: "unchanged"}]
-            }
+            },
+            // prefix: {
+            //     message:    "A word prefix should be handled correctly...",
+            //     leftValue:  "animate",
+            //     rightValue: "preanimate",
+            //     expected:   [{value: "animate", type: "removed"}, { value: "preanimate", type: "added"}]
+            // },
+            // suffix: {
+            //     message:    "A word suffix should be handled correctly...",
+            //     leftValue:  "stream",
+            //     rightValue: "streaming",
+            //     expected:   [{value: "stream", type: "removed"}, { value: "streaming", type: "added"}]
+            // },
+            // subWord: {
+            //     message:    "A smaller word should not match the middle of a longer word...",
+            //     leftValue:  "no",
+            //     rightValue: "ignoble",
+            //     expected:   [{value: "no", type: "removed"}, { value: "ignoble", type: "added"}]
+            // }
         }
     }
 });
