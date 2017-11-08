@@ -104,7 +104,16 @@ gpii.diff.longestCommonStringPhrase = function (leftString, rightString) {
     return matchDef;
 };
 
-gpii.diff.sortPhraseDefsByLength = function (a, b) {
+/**
+ *
+ * A sort function to sort "phrase definitions" by their length (longest first), and then by their position in the
+ * string (earliest first).
+ *
+ * @param a {Object} - An item in the array to compare.
+ * @param b {Object} - The item to compare with `a`.
+ * @returns {number} - -1 if `a` is "first", 1 if `b` is "first", 0 if their position is interchangeable.
+ */
+gpii.diff.sortPhraseDefs = function (a, b) {
     if (a.value.length > b.value.length) {
         return -1;
     }
@@ -129,8 +138,8 @@ gpii.diff.sortPhraseDefsByLength = function (a, b) {
  * Break down a string into an array of "phrase segments", ordered from longest (the original string) to shortest (the
  * shortest individual word).  Each "phrase segment" looks like:
  * {
- *  value: "a word or phrase, possibly including whitespace ",
- *  index: 0 // The position of the phrase in `originalString`
+ *    value: "a word or phrase, possibly including whitespace ",
+ *    index: 0 // The position of the phrase in `originalString`
  * }
  *
  * @param originalString {String} - The original string to break down.
@@ -206,7 +215,7 @@ gpii.diff.extractPhraseSegments = function (originalString) {
             }
         }
 
-        combinedSegments.sort(gpii.diff.sortPhraseDefsByLength);
+        combinedSegments.sort(gpii.diff.sortPhraseDefs);
         return combinedSegments;
     }
 };
