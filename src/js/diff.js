@@ -289,12 +289,35 @@ gpii.diff.compareStrings = function (leftString, rightString) {
     }
 };
 
+/**
+ *
+ * Compare two Markdown strings and report their textual differences.
+ *
+ * @param leftMarkdown {String} - A string containing markdown.
+ * @param rightMarkdown {String} - A string to compare to `leftMarkdown`.
+ * @param markdownItOptions {Object} - Configuration options to pass to MarkdownIt.  See their docs for supported options.
+ * @returns {*}
+ */
 gpii.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, markdownItOptions) {
-    var leftString = gpii.diff.markdownToText(leftMarkdown, markdownItOptions);
-    var rightString = gpii.diff.markdownToText(rightMarkdown, markdownItOptions);
-    return gpii.diff.compareStrings(leftString, rightString);
+    if (typeof leftMarkdown !== "string" && typeof rightMarkdown !== "string") {
+        return gpii.diff.compare(leftMarkdown, rightMarkdown);
+    }
+    else {
+        var leftString = gpii.diff.markdownToText(leftMarkdown, markdownItOptions);
+        var rightString = gpii.diff.markdownToText(rightMarkdown, markdownItOptions);
+        return gpii.diff.compareStrings(leftString, rightString);
+    }
 };
 
+/**
+ *
+ * Render a string containing markdown as HTML, then return the textual content.
+ *
+ * @param markdown {String} - A string containing markdown.
+ * @param markdownItOptions {Object} - Configuration options to pass to MarkdownIt.  See their docs for supported options.
+ * @returns {String} - The textual content.
+ *
+ */
 gpii.diff.markdownToText = function (markdown, markdownItOptions) {
     var mdRenderer = new MarkDownIt(markdownItOptions);
     var html = mdRenderer.render(markdown);
@@ -505,10 +528,11 @@ gpii.diff.objectsEqual = function (leftObject, rightObject) {
  * @param leftObject {Object} - An object.
  * @param rightObject {Object} - An object to compare with `leftObject`.
  * @param compareStringsAsMarkdown {Boolean} - Whether to compare strings as markdown.
+ * @param markdownitOptions {Object} - Configuration options to pass to markdownit when dealing with markdown.  See their documentation for details.
  * @return results - An object that describes the differences (and similarities) between the two objects.
  *
  */
-gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMarkdown) {
+gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMarkdown, markdownitOptions) {
     var results = {};
     var leftKeys = leftObject !== undefined ? Object.keys(leftObject) : [];
     var rightKeys = rightObject !== undefined ? Object.keys(rightObject) : [];
@@ -518,7 +542,7 @@ gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMa
             var key = combinedKeys[a];
             var leftValue  = leftObject !== undefined ? leftObject[key] : undefined;
             var rightValue = rightObject !== undefined ? rightObject[key] : undefined;
-            results[key] = gpii.diff.compare(leftValue, rightValue, compareStringsAsMarkdown);
+            results[key] = gpii.diff.compare(leftValue, rightValue, compareStringsAsMarkdown, markdownitOptions);
         }
     }
     // Both values are either an empty object or `undefined`.
@@ -538,10 +562,11 @@ gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMa
  * @param leftElement {Any} - An element (array, object, number, etc.).
  * @param rightElement {Any} - An element to compare to `leftElement`.
  * @param compareStringsAsMarkdown {Boolean} - Whether to compare strings as markdown.
+ * @param markdownitOptions {Object} - Configuration options to pass to markdownit when dealing with markdown.  See their documentation for details.
  * @return {Object} - An object that describes the differences between the two elements.
  *
  */
-gpii.diff.compare = function (leftElement, rightElement, compareStringsAsMarkdown) {
+gpii.diff.compare = function (leftElement, rightElement, compareStringsAsMarkdown, markdownitOptions) {
     var firstDefinedElement = leftElement !== undefined ? leftElement : rightElement;
     // Both are undefined
     if (firstDefinedElement === undefined) {
@@ -551,10 +576,10 @@ gpii.diff.compare = function (leftElement, rightElement, compareStringsAsMarkdow
         return gpii.diff.compareArrays(leftElement, rightElement);
     }
     else if (typeof firstDefinedElement === "string") {
-        return compareStringsAsMarkdown ? gpii.diff.compareMarkdown(leftElement, rightElement) : gpii.diff.compareStrings(leftElement, rightElement);
+        return compareStringsAsMarkdown ? gpii.diff.compareMarkdown(leftElement, rightElement, markdownitOptions) : gpii.diff.compareStrings(leftElement, rightElement);
     }
     else if (typeof firstDefinedElement === "object") {
-        return gpii.diff.compareObjects(leftElement, rightElement, compareStringsAsMarkdown);
+        return gpii.diff.compareObjects(leftElement, rightElement, compareStringsAsMarkdown, markdownitOptions);
     }
     else {
         return gpii.diff.singleValueDiff(leftElement, rightElement);
