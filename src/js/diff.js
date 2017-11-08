@@ -202,16 +202,14 @@ gpii.diff.extractPhraseSegments = function (originalString) {
         var combinedSegments = [];
         for (var a = 0; a < segments.length; a++) {
             for (var b = a + 1; b <= segments.length; b++) {
-                if (a + b > 0) {
-                    var subslice = segments.slice(a, b);
-                    var values = fluid.transform(subslice, function (item) { return item.value; });
-                    var substring = values.join("");
-                    if (substring.match(/\w/)) {
-                        combinedSegments.push({
-                            value: substring,
-                            index: segments[a].index
-                        });
-                    }
+                var subslice = segments.slice(a, b);
+                var values = fluid.transform(subslice, function (item) { return item.value; });
+                var substring = values.join("");
+                if (substring.match(/\w/)) {
+                    combinedSegments.push({
+                        value: substring,
+                        index: segments[a].index
+                    });
                 }
             }
         }
