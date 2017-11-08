@@ -8,11 +8,10 @@ var jqUnit = jqUnit || require("node-jqunit");
 if (typeof require !== "undefined") {
     fluid.require("%gpii-diff");
     require("./testDefs-compareArrays");
+    require("./testDefs-compareMarkdown");
     require("./testDefs-compareObjects");
     require("./testDefs-compareStrings");
 }
-
-
 
 fluid.registerNamespace("gpii.test.diff.compare");
 gpii.test.diff.compare.runAllTests = function (that) {
@@ -37,7 +36,7 @@ gpii.test.diff.compare.runSingleTest = function (testDef) {
 };
 
 fluid.defaults("gpii.test.diff.compare", {
-    gradeNames: ["gpii.test.diff.testDefs.compareArrays", "gpii.test.diff.testDefs.compareObjects", "gpii.test.diff.testDefs.compareStrings"],
+    gradeNames: ["gpii.test.diff.testDefs.compareArrays", "gpii.test.diff.testDefs.compareMarkdown", "gpii.test.diff.testDefs.compareObjects", "gpii.test.diff.testDefs.compareStrings"],
     testDefs: {
         markdown: {
             markdownAsString: {
