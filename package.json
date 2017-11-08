@@ -1,45 +1,45 @@
 {
-  "name": "gpii-diff",
-  "version": "1.0.0",
-  "description": "A library for describing the differences between two JSON structures.",
-  "main": "index.js",
-  "scripts": {
-    "pretest": "node node_modules/rimraf/bin.js reports/* coverage/*",
-    "test": "npm run test:node && npm run test:browser",
-    "test:node": "node node_modules/istanbul/lib/cli.js cover tests/node-tests.js --report none --print none",
-    "test:browser": "node node_modules/testem/testem.js --file tests/testem.js ci --skip Safari",
-    "posttest": "node node_modules/istanbul/lib/cli.js report --root coverage --dir reports text-summary html"
-  },
-  "bugs": {
-    "url": "https://issues.gpii.net/"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/GPII/gpii-diff.git"
-  },
-  "author": "Tony Atkins <tony@raisingthefloor.org>",
-  "license": "BSD-3-Clause",
-  "homepage": "https://github.com/GPII/gpii-diff#readme",
-  "dependencies": {
-    "cheerio": "1.0.0-rc.2",
-    "gpii-handlebars": "1.1.0-dev.20170927T151006Z.df42535",
-    "infusion": "3.0.0-dev.20171020T203359Z.17fbd6f",
-    "markdown-it": "8.4.0"
-  },
-  "devDependencies": {
-    "eslint": "4.9.0",
-    "eslint-config-fluid": "1.1.0",
-    "eslint-plugin-markdown": "1.0.0-beta.6",
-    "fluid-grunt-eslint": "18.1.2",
-    "fluid-grunt-json5lint": "1.0.0",
-    "gpii-grunt-mdjson-lint": "1.0.0-dev.20171024T123903Z.3c91988",
-    "gpii-launcher": "1.0.0-dev.20170712T140305Z.aa60d4a",
-    "gpii-testem": "1.0.1",
-    "grunt": "1.0.1",
-    "grunt-markdownlint": "1.0.42",
-    "grunt-jsonlint": "1.1.0",
-    "istanbul": "0.4.5",
-    "node-jqunit": "1.1.7",
-    "rimraf": "2.6.2"
-  }
+    "name": "gpii-diff",
+    "version": "1.0.0",
+    "description": "A library for describing the differences between two JSON structures.",
+    "main": "index.js",
+    "scripts": {
+        "pretest": "node node_modules/rimraf/bin.js reports/* coverage/*",
+        "test": "npm run test:node && npm run test:browser",
+        "test:node": "node node_modules/istanbul/lib/cli.js cover tests/node-tests.js --report none --print none",
+        "test:browser": "node node_modules/testem/testem.js --file tests/testem.js ci --skip Safari",
+        "posttest": "node node_modules/istanbul/lib/cli.js report --root coverage --dir reports text-summary html"
+    },
+    "bugs": {
+        "url": "https://issues.gpii.net/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/GPII/gpii-diff.git"
+    },
+    "author": "Tony Atkins <tony@raisingthefloor.org>",
+    "license": "BSD-3-Clause",
+    "homepage": "https://github.com/GPII/gpii-diff#readme",
+    "dependencies": {
+        "cheerio": "1.0.0-rc.2",
+        "gpii-handlebars": "1.1.0-dev.20170927T151006Z.df42535",
+        "infusion": "3.0.0-dev.20171102T191539Z.c0636b395",
+        "markdown-it": "8.4.0"
+    },
+    "devDependencies": {
+        "eslint": "4.9.0",
+        "eslint-config-fluid": "1.1.0",
+        "eslint-plugin-markdown": "1.0.0-beta.6",
+        "fluid-grunt-eslint": "18.1.2",
+        "fluid-grunt-json5lint": "1.0.0",
+        "gpii-grunt-mdjson-lint": "1.0.0-dev.20171024T123903Z.3c91988",
+        "gpii-launcher": "1.0.0-dev.20170712T140305Z.aa60d4a",
+        "gpii-testem": "1.0.1",
+        "grunt": "1.0.1",
+        "grunt-markdownlint": "1.0.42",
+        "grunt-jsonlint": "1.1.0",
+        "istanbul": "0.4.5",
+        "node-jqunit": "1.1.7",
+        "rimraf": "2.6.2"
+    }
 }

@@ -11,8 +11,7 @@ fluid.registerNamespace("gpii.diff.helper.isDiffArray");
 
 gpii.diff.helper.isDiffArray.getHelperFunction = function () {
     return function (diffDef, options) {
-        // TODO: Convert this to a single fluid.get check once https://issues.fluidproject.org/browse/FLUID-6217 is resolved.
-        if (Array.isArray(diffDef) && diffDef[0] !== undefined && diffDef[0].arrayValue !== undefined && Array.isArray(diffDef[0].arrayValue)) {
+        if (Array.isArray(fluid.get(diffDef, "0.arrayValue"))) {
             return options.fn(this);
         }
         else {
