@@ -231,10 +231,7 @@ gpii.diff.extractPhraseSegments = function (originalString) {
  *
  */
 gpii.diff.compareStrings = function (leftString, rightString) {
-    if (typeof leftString !== "string" && typeof rightString !== "string") {
-        return gpii.diff.compare(leftString, rightString);
-    }
-    else {
+    if (typeof leftString === "string" || typeof rightString === "string") {
         // Start by looking for a match against the longest section of our leading material that matches.
         if (leftString && leftString.length > 0) {
             var segments = [];
@@ -285,6 +282,9 @@ gpii.diff.compareStrings = function (leftString, rightString) {
             return gpii.diff.singleValueDiff(leftString, rightString);
         }
     }
+    else {
+        return gpii.diff.compare(leftString, rightString);
+    }
 };
 
 /**
@@ -297,8 +297,8 @@ gpii.diff.compareStrings = function (leftString, rightString) {
  * @returns {*}
  */
 gpii.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, markdownItOptions) {
-    if (typeof leftMarkdown !== "string" && typeof rightMarkdown !== "string") {
-        return gpii.diff.compare(leftMarkdown, rightMarkdown);
+    if (leftMarkdown === undefined || rightMarkdown === undefined || typeof leftMarkdown !== "string" || typeof rightMarkdown !== "string") {
+        return gpii.diff.singleValueDiff(leftMarkdown, rightMarkdown);
     }
     else {
         var leftString = gpii.diff.markdownToText(leftMarkdown, markdownItOptions);

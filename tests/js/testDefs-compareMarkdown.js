@@ -38,25 +38,43 @@ fluid.defaults("gpii.test.diff.testDefs.compareMarkdown", {
                 message:    "Changes to the markdown but not the text should not be reported as changes...",
                 leftValue:  "*emphasis*",
                 rightValue: "_emphasis_",
-                expected:   [{value: "emphasis", type: "unchanged"}]
+                expected:   [{ value: "emphasis", type: "unchanged" }]
             },
             markdownChanged: {
                 message:    "Text changes within Markdown should be reported correctly...",
                 leftValue:  "**This is bold**",
                 rightValue: "*This is italic*",
-                expected:   [{ value: "This is ", type: "unchanged"}, {value: "bold", type: "removed"}, { value: "italic", type: "added"}]
+                expected:   [{ value: "This is ", type: "unchanged" }, {value: "bold", type: "removed" }, { value: "italic", type: "added" }]
             },
             markdownAdded: {
                 message:    "Markdown that is added should not be reported as a change...",
                 leftValue:  "This is strong.",
                 rightValue: "This is *strong*.",
-                expected:   [{value: "This is strong.", type: "unchanged"}]
+                expected:   [{ value: "This is strong.", type: "unchanged"}]
             },
             markdownRemoved: {
                 message:    "Markdown that is removed should not be reported as a change...",
                 leftValue:  "This is *strong*.",
                 rightValue: "This is strong.",
-                expected:   [{value: "This is strong.", type: "unchanged"}]
+                expected:   [{ value: "This is strong.", type: "unchanged"}]
+            },
+            nonStringLeft: {
+                message:    "We should be able to handle non-strings on the left side of the comparison...",
+                leftValue:  1,
+                rightValue: "string value",
+                expected:   [{ value: 1, type: "removed"}, { value: "string value", type: "added"}]
+            },
+            nonStringRight: {
+                message:    "We should be able to handle non-strings on the left side of the comparison...",
+                leftValue:  "string value",
+                rightValue: 1,
+                expected:   [{ value: "string value", type: "removed" }, { value: 1, type: "added" }]
+            },
+            bothNonStrings: {
+                message:    "We should be able to handle non-strings on both sides of the comparison...",
+                leftValue:  true,
+                rightValue: -1,
+                expected:   [{ value: true, type: "removed" }, { value: -1, type: "added" }]
             }
         }
     }
