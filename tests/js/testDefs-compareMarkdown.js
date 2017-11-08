@@ -28,7 +28,7 @@ fluid.defaults("gpii.test.diff.testDefs.compareMarkdown", {
                 rightValue: "This is bold",
                 expected:   [{value: "This is bold", type: "unchanged"}]
             },
-            htmlAddedd: {
+            htmlAdded: {
                 message:    "HTML tags that are added should not be reported as changes...",
                 leftValue:  "This is bold",
                 rightValue: "This is <b>bold</b>",
