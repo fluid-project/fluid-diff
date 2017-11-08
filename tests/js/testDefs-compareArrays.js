@@ -99,7 +99,14 @@ fluid.defaults("gpii.test.diff.testDefs.compareArrays", {
                 leftValue:  0,
                 rightValue: 1,
                 expected:   [{ value: 0, type: "removed"}, { value: 1, type: "added"}]
-            }
+            },
+            // TODO: Update compareArrays so that this works.
+            // objectMembers: {
+            //     message:    "We should be able to compare objects as well as static values...",
+            //     leftValue:  [{a: 1}, {b: 2}, 3],
+            //     rightValue: [{a: 1}, {b: 2}],
+            //     expected:   [{ arrayValue: [{a: 1}, {b: 2}], type: "unchanged"}, { arrayValue: [3], type: "added"}]
+            // }
         }
     }
 });
