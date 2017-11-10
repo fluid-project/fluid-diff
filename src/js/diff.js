@@ -106,6 +106,43 @@ gpii.diff.longestCommonStringPhrase = function (leftString, rightString) {
 
 /**
  *
+ * Sort arrays by the highest length, and then by the lowest `leftIndex` of the leftmost element.
+ *
+ * @param a {Object} - An array.
+ * @param b {Object} - An array to compare with `a`.
+ * @returns {number} - -1 if `a` is "first", 1 if `b` is "first", 0 if their position is interchangeable.
+ *
+ */
+gpii.diff.sortByLengthThenLeftIndex = function (a, b) {
+    // a is a longer array
+    if (a.length > b.length) {
+        return -1;
+    }
+    // the arrays are the same length
+    else if (a.length === b.length) {
+        var aIndex = a[0].leftIndex;
+        var bIndex = b[0].leftIndex;
+        // a has the earliest occurring subsequence
+        if (aIndex < bIndex) {
+            return -1;
+        }
+        // It's not possible to reach this through normal operation, but it's included to complete the "sort" contract.
+        else if (aIndex === bIndex) {
+            return 0;
+        }
+        // b has the earliest occurring subsequence
+        else if (bIndex < aIndex) {
+            return 1;
+        }
+    }
+    // b is a longer array.
+    else {
+        return 1;
+    }
+};
+
+/**
+ *
  * A sort function to sort "phrase definitions" by their length (longest first), and then by their position in the
  * string (earliest first).
  *
@@ -322,6 +359,143 @@ gpii.diff.markdownToText = function (markdown, markdownItOptions) {
     var $ = cheerio.load(html);
     // The rendering cycle introduces a trailing carriage return that we explicitly remove.
     return $.text().replace(/[\r\n]+$/, "");
+};
+
+/**
+ *
+ * Compare two arrays, returning the longest common sequence (not necessarily contiguous).  When comparing `[1,3,5,7]`
+ * to `[0,1,2,3,4,5,6]`, `[1,3,5,7]` is the longest sequence.  Follows a modified version of the LCS approach outlined
+ * here:
+ *
+ * http://en.wikipedia.org/wiki/Longest_common_subsequence_problem
+ *
+ * The output returned describes the match in terms of the position of each segment in `leftArray` and `rightArray`.
+ * So, for example, when comparing `["foo","bar", "quux"]` to `["bar","baz", "qux", "quux"]`, this function would return:
+ *
+ * [{ leftIndex: 1, rightIndex: 0 }, { leftIndex: 2, rightIndex: 3} ] // "bar" and "quux"
+ *
+ * @param leftArray {Array} - An array.
+ * @param rightArray {Array} - An array to compare to `leftArray`.
+ * @returns {Array} - An array of objects describing the position of each segment in the longest common subsequence in the original arrays.
+ *
+ */
+gpii.diff.longestCommonSequence = function (leftArray, rightArray) {
+    var longestCommonSequence = [];
+
+    if (Array.isArray(leftArray) && leftArray.length && Array.isArray(rightArray) && rightArray.length) {
+        var previousRow = fluid.generate(leftArray.length, []);
+        var currentRow = fluid.generate(rightArray.length, []);
+        for (var a = 0; a < leftArray.length; a++) {
+            for (var b = 0; b < rightArray.length; b++) {
+                var cellSequences = [];
+                // This should only pull the longest of the previous sequences, or both if they are of equal length.
+                var inheritedSequences = [];
+                // Pull in results from our "upstairs neighbor".
+                if (a > 0 && previousRow[b].length) {
+                    inheritedSequences = inheritedSequences.concat(previousRow[b]);
+                }
+                // Pull in additional results from our immediately prior "neighbor".
+                if (b > 0 && currentRow[b - 1].length) {
+                    inheritedSequences = inheritedSequences.concat(currentRow[b - 1]);
+                }
+
+                // Add the longest distinct sequences to our set of longest matches.
+                if (inheritedSequences.length) {
+                    cellSequences = cellSequences.concat(gpii.diff.longestDistinctSequences(inheritedSequences));
+                }
+
+                if (gpii.diff.equals(leftArray[a], rightArray[b])) {
+                    if (cellSequences.length === 0) {
+                        cellSequences.push([]);
+                    }
+
+                    for (var c = 0; c < cellSequences.length; c++) {
+                        var sequence = cellSequences[c];
+                        var cellMatchSegment = { leftIndex: a, rightIndex: b };
+                        if (sequence.length) {
+                            var lastSequenceSegment = sequence[sequence.length - 1];
+                            if ((lastSequenceSegment.leftIndex === undefined || lastSequenceSegment.leftIndex < a) && (lastSequenceSegment.rightIndex === undefined || lastSequenceSegment.rightIndex < b)) {
+                                sequence.push(cellMatchSegment);
+                            }
+                        }
+                        else {
+                            sequence.push(cellMatchSegment);
+                        }
+                    }
+                }
+                // TODO: Remove this when we no longer need to look at the complete solution table.
+                // console.log("a:", a, "b:", b, " = ", JSON.stringify(cellSequences));
+                currentRow[b] = cellSequences;
+            }
+            previousRow = currentRow;
+        }
+        var lastCell = currentRow[rightArray.length - 1];
+        if (lastCell.length) {
+            lastCell.sort(gpii.diff.sortByLengthThenLeftIndex);
+            longestCommonSequence = lastCell[0];
+        }
+    }
+
+    return longestCommonSequence;
+};
+
+/**
+ *
+ * Return the longest distinct sequences from an array.
+ *
+ * @param sequences {Array} - An array of arrays of match segments, ala `[[{ leftIndex:0, rightIndex:1}]]`
+ * @returns {Array} - An array of only the longest distinct sequences.
+ *
+ */
+gpii.diff.longestDistinctSequences = function (sequences) {
+    var longestSequences = [];
+    if (sequences.length > 0) {
+        var sortedSequences = fluid.copy(sequences).sort(gpii.diff.sortByLengthThenLeftIndex);
+        var longestEntry = sortedSequences[0];
+        longestSequences.push(longestEntry);
+        fluid.each(sortedSequences.slice(1), function (sequence) {
+            if (sequence.length === longestEntry.length && !gpii.diff.arraysEqual(sequence, longestEntry)) {
+                longestSequences.push(sequence);
+            }
+        });
+    }
+    return longestSequences;
+};
+
+/**
+ *
+ * Compare any two elements for equality, including Arrays and Objects.
+ *
+ * @param leftElement {Any} - An {Object}, {Array}, {String}, or any other type of element.
+ * @param rightElement {Any} - A second element of any type to compare to `leftElement`.
+ * @returns {Boolean} - `true` if the elements are equal, `false` if they are not.
+ *
+ */
+gpii.diff.equals = function (leftElement, rightElement) {
+    if (typeof leftElement !== typeof rightElement) {
+        return false;
+    }
+    // Need to run these two checks early because `typeof undefined` is `object`.
+    else if (leftElement === undefined && rightElement === undefined) {
+        return true;
+    }
+    else if (leftElement === undefined || rightElement === undefined) {
+        return false;
+    }
+    // Need to run these checks before the "object" branch because `typeof []` is also `object`.
+    else if (Array.isArray(leftElement) && Array.isArray(rightElement)) {
+        return gpii.diff.arraysEqual(leftElement, rightElement);
+    }
+    else if (Array.isArray(leftElement) || Array.isArray(rightElement)) {
+        return false;
+    }
+    // Now that undefined and Array values have been dealt with, anything remaining of type "object" can be handled as such.
+    else if (typeof leftElement === "object") {
+        return gpii.diff.objectsEqual(leftElement, rightElement);
+    }
+    else {
+        return leftElement === rightElement;
+    }
 };
 
 /**

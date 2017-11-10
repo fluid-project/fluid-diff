@@ -18,6 +18,7 @@ var testemComponent = gpii.testem({
         "tests/static/tests-compareObjects.html",
         "tests/static/tests-compareMarkdown.html",
         "tests/static/tests-compareStrings.html",
+        "tests/static/tests-equals.html",
         "tests/static/tests-extractPhraseSegments.html",
         "tests/static/tests-longestCommonArraySegment.html",
         "tests/static/tests-objectsEqual.html",

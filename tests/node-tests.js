@@ -7,6 +7,7 @@ require("./js/tests-compareArrays");
 require("./js/tests-compareMarkdown");
 require("./js/tests-compareObjects");
 require("./js/tests-compareStrings");
+require("./js/tests-equals");
 require("./js/tests-extractPhraseSegments");
 require("./js/tests-longestCommonArraySegment");
 require("./js/tests-objectsEqual");
