@@ -37,6 +37,18 @@ gpii.diff.compareArrays([0,1,2],[2,1,0]);
 */
 ```
 
+### `gpii.diff.compareMarkdown(leftMarkdown, rightMarkdown, markdownItOptions)`
+
+* `leftMarkdown` - A string containing markdown.
+* `rightMarkdown` - A string to compare to `leftMarkdown`.
+* `markdownItOptions` - An object representing configuration options to pass to MarkdownIt.  See their docs for supported options.
+* Returns: `{Object}` A "diff" of the textual content of the two blocks of Markdown.
+
+Compare the text of two Markdown strings and report their textual differences.  This function uses
+[Markdown-It](https://github.com/markdown-it/markdown-it) to render the Markdown as HTML, and then extracts the text
+using jQuery (in the browser) or [Cheerio.js](https://github.com/cheeriojs/cheerio) in Node.js.  Note that in order to
+use this function in Node.js, you must have the optional Cheerio.js and Markdown-It dependencies installed.
+
 ### `gpii.diff.compareObjects(leftObject, rightObject)`
 
 * `leftObject`: An object.
@@ -119,131 +131,81 @@ features of this package
 
 Compare two arrays to see if all of their values are equal.
 
-### `gpii.diff.extractPhraseSegments(originalString)`
+### `gpii.diff.calculateTightness(lcsSegments)`
 
-* `originalString`: A string to break down.
-* Returns: `{Array}` - An array of "phrase segments", in order from longest (and first) to shortest (and last).  See below.
+* `lcsSegments` - An array of LCS segments, as returned from `gpii.diff.longestCommonSequence`.
+* Returns: `{Number}` - A number representing the "tightness" (see below).
 
-Break down a string into an array of "phrase segments", ordered from longest (the original string, including all
-whitespace) to shortest (the shortest individual word, with no whitespace).  This is used by `gpii.diff.compareStrings`
-(see above) to compare two strings starting with the longest contiguous match.
+This function calculates the "tightness" of an array of LCS segments, where lower values are "tighter".  An array of
+adjoining segments has a "tightness" of 0, as when evaluating the following:
 
-Each "phrase segment" looks like:
+`[{ leftIndex:0, rightIndex:0 }, { leftIndex:1, rightIndex:1}]`
 
-```json5
-{
-    "value": "a word or phrase, possibly including whitespace ",
-    "index": 0 // The position of the phrase in `originalString`
-}
+An array that skips a single segment has a "tightness" of 1, as when evaluating the following:
 
-```
+`[{ leftIndex:0, rightIndex:0 }, { leftIndex:1, rightIndex:2}]`
 
-To give a more complete example, the phrase "Hello, world." would be broken down into the following output:
+This is used to sort segments so that the match with the most adjacent segments is preferred.
 
-```json
-[
-    { "value": "Hello, world.", "index": 0 },
-    { "value": "Hello, world", "index": 0 },
-    { "value": ", world.", "index": 5 },
-    { "value": "Hello, ", "index": 0 },
-    { "value": ", world", "index": 5 },
-    { "value": "world.", "index": 7 },
-    { "value": "Hello", "index": 0 },
-    { "value": "world", "index": 7 }
-]
-```
+### `gpii.diff.equals(leftElement, rightElement)`
 
-### `gpii.diff.longestCommonArraySegment(leftArray, rightArray)`
+* `leftElement` `{Any}` - An `{Object}`, `{Array}`, `{String}`, or any other type of element.
+* `rightElement` `{Any}` - A second element of any type to compare to `leftElement`.
+* Returns: `{Boolean}` - `true` if the elements are equal, `false` if they are not.
 
-* `leftArray`: An array of values.
-* `rightArray`: An array of values to compare to `leftArray`.
-* Returns: `{Object}` - See below.
+This function compares any two elements for equality, including Arrays and Objects.  It calls the type-specific
+comparison functions (`gpii.diff.compareArrays`, et cetera) as needed.
 
-A function that returns the (first) longest matching segment found in two arrays.  We use this to tree out from the
-best match within an array, so that we can produce a change report with the least changes possible.
+### `gpii.diff.extractSegments(originalString)`
 
-The object returned has three keys:
+* `originalString` - A string to break down into segments.
+* Returns: `{Array}` - An array of substrings of alternating "word" and "non-word" content.
 
-* `leftIndex`:  The position of the matching segment in `leftArray`.  If there is no matching segment, this will be `-1`.
-* `rightIndex`: The position of the matching segment in `rightArray`.  If there is no matching segment, this will be `-1`.
-* `segment`:    The longest set of matching elements (in order) common to both arrays.  If there are multiple sets of the same length, the first is returned.
+Break down a string into an array of "segments" of alternating "word" and "non-word" content.  So, for example, the
+phrase "Stop, please." would be broken down into:
 
-For example, `gpii.diff.longestCommonArraySegment([0,1],[1,2])` would return:
+`["Stop", ", ", "please", "."]`
 
-```json
-{
-    "segment": [1],
-    "leftIndex": 1,
-    "rightIndex": 0
-}
-```
+Please note, this function treats `null` and `undefined` values the same as empty strings.
 
-### `gpii.diff.longestCommonStringPhrase(leftString, rightString)`
+### `gpii.diff.isStringNullOrUndefined(value)`
 
-* `leftString` The "left" `{String}` in the comparison.
-* @param `rightString` `{String}` - The "right" string in the comparison.
-* Returns: `{Object}` - An object that describes the longest common phrase (including whitespace) and its position in both `leftString` and `rightString`.  See below.
+* `value` `{Any}` - A value to evaluate.
+* Returns: `{Boolean}` - Returns `true` if the value is a {String}, `undefined`, or `null`.  Returns `false` otherwise.
 
-This function searches for the longest matching "phrase" in two strings.  The object returned has three keys:
+`gpii.diff.compareStrings` can perform a deeper comparison of {String}, `undefined`, and `null` values.  This function
+is used to determine whether we can perform that deeper comparison.
 
-* `leftIndex`:  The position of the matching segment in `leftString`.  If there is no matching segment, this will be `-1`.
-* `rightIndex`: The position of the matching segment in `rightString`.  If there is no matching segment, this will be `-1`.
-* `segment`:    The longest matching string common to both strings.  If there are multiple matching strings of the same length, the first is returned.
+### `gpii.diff.longestCommonSequence(leftArray, rightArray)`
 
-A "phrase" consists of at least one block of non-whitespace interleaved with blocks of whitespace. So, for example,
-there is no common phrase found in the following comparison:
+* `leftArray` `{Array}` - An array.
+* `rightArray` `{Array}` - An array to compare to `leftArray`.
+* Returns: `{Array}` - An array of objects describing the position of each segment in the longest common subsequence in the original arrays.
 
-```javascript
-gpii.diff.longestCommonStringPhrase("Yup.", "Nope.");
-/*
+Compare two arrays, returning the longest common sequence (not necessarily contiguous).  When comparing `[1,3,5,7]`
+to `[0,1,2,3,4,5,6]`, `[1,3,5,7]` is the longest sequence.  Follows a modified version of the LCS approach outlined
+in [the Wikipedia entry for LCS](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem).
 
-    Returns:
+The output returned describes the match in terms of the position of each segment in `leftArray` and `rightArray`.
+So, for example, when comparing `["foo","bar", "quux"]` to `["bar","baz", "qux", "quux"]`, this function would return:
 
-    {
-        "leftIndex": -1,
-        "rightIndex": -1,
-        "segment": ""
-    }
+`[{ leftIndex: 1, rightIndex: 0 }, { leftIndex: 2, rightIndex: 3} ] // "bar" and "quux"`
 
- */
-```
+### `gpii.diff.longestDistinctSequences(sequences)`
 
-Note that both index values are set to `-1`, indicating that there was no match.  The next example demonstrates the
-output when there is a leading match:
+* `sequences` `{Array}` - An array of arrays of match segments, ala `[[{ leftIndex:0, rightIndex:1}]]`
+* Returns: `{Array}` - An array of only the longest distinct sequences.
 
-```javascript
-gpii.diff.longestCommonStringPhrase("My hot dog had onions, chili, and ketchup on it.", "My hot dog had onions, mustard, and ketchup on it.");
-/*
-    Returns:
+Return the longest distinct LCS sequences from an array.  Used to ensure that each sub-match only propagates once.
 
-    {
-      "segment": "My hot dog had onions, ",
-      "leftIndex": 0,
-      "rightIndex": 0
-    }
+### `gpii.diff.markdownToText(markdown, markdownItOptions)`
 
-*/
-```
+* `markdown` `{String}` - A string containing markdown.
+* `markdownItOptions` `{Object}` - Configuration options to pass to MarkdownIt.  See their docs for supported options.
+* Returns: `{String}` - The textual content.
 
-Note that the trailing whitespace is included in the match.  Note also that both index values are set to value, as the
-match occurs at the beginning of both strings.  The next example demonstrates non-zero index values:
-
-```javascript
-JSON.stringify(gpii.diff.longestCommonStringPhrase("My hot dog had ketchup on it.", "Your hot dog had mustard on it."), null, 2);
-/*
-
-    Returns;
-
-    {
-      "segment": " hot dog had ",
-      "leftIndex": 2,
-      "rightIndex": 4
-    }
-
-*/
-```
-
-This function is used by `gpii.diff.compareStrings`, see above for details.
+Use [Markdown-It](https://github.com/markdown-it/markdown-it) to render a string containing markdown as HTML, then
+return the textual content.
 
 ### `gpii.diff.objectsEqual(leftObject, rightObject)`
 
@@ -252,3 +214,12 @@ This function is used by `gpii.diff.compareStrings`, see above for details.
 * Returns: `{Boolean}` - `true` if the objects are deeply equal, `false` otherwise.
 
 Deeply compare two objects to see if all of their values are equal.
+
+### `gpii.diff.sortByLengthThenTightnessThenIndex(a, b)`
+
+* `a` `{Array}` - An array of LCS segments.
+* `b` `{Array}` - An array to compare with `a`.
+* Returns: `{Number}` - `-1` if `a` is "first", `1` if `b` is "first", `0` if their position is interchangeable.
+
+Sort arrays by the highest length, and then by the "tightest" grouping of elements (see `gpii.diff.calculateTightness`
+above), then by the lowest (average) index of the first segment.
