@@ -40,14 +40,20 @@ fluid.defaults("gpii.test.diff.testDefs.compareArrays", {
                 rightValue: [1, 2],
                 expected:   [{arrayValue: [0], type: "removed"}, {arrayValue: [1, 2], type: "unchanged"}]
             },
+            overlapping: {
+                message:    "Sequences that overlap should be handled correctly...",
+                leftValue:  [0, 1, 2],
+                rightValue: [1, 2, 3],
+                expected:   [{arrayValue: [0], type: "removed"}, {arrayValue: [1, 2], type: "unchanged"}, { arrayValue: [3], type: "added"}]
+            },
             trailingDeletion: {
-                message:    "Deleting a trailing element should be handled correctly...",
+                message:    "Removing a trailing element should be handled correctly...",
                 leftValue:  [0, 1, 2],
                 rightValue: [0, 1],
                 expected:   [{arrayValue: [0, 1], type: "unchanged"}, {arrayValue: [2], type: "removed"}]
             },
             intermediateDeletion: {
-                message:    "Deleting an intermediate element should be handled correctly...",
+                message:    "Removing an intermediate element should be handled correctly...",
                 leftValue:  [0, 1, 2],
                 rightValue: [0, 2],
                 expected:   [{arrayValue: [0], type: "unchanged"}, {arrayValue: [1], type: "removed"}, { arrayValue: [2], type: "unchanged"}]
@@ -100,13 +106,12 @@ fluid.defaults("gpii.test.diff.testDefs.compareArrays", {
                 rightValue: 1,
                 expected:   [{ value: 0, type: "removed"}, { value: 1, type: "added"}]
             },
-            // TODO: Update compareArrays so that this works.
-            // objectMembers: {
-            //     message:    "We should be able to compare objects as well as static values...",
-            //     leftValue:  [{a: 1}, {b: 2}, 3],
-            //     rightValue: [{a: 1}, {b: 2}],
-            //     expected:   [{ arrayValue: [{a: 1}, {b: 2}], type: "unchanged"}, { arrayValue: [3], type: "added"}]
-            // }
+            objectMembers: {
+                message:    "We should be able to compare objects as well as static values...",
+                leftValue:  [{a: 1}, {b: 2}, 3],
+                rightValue: [{a: 1}, {b: 2}],
+                expected:   [{ arrayValue: [{a: 1}, {b: 2}], type: "unchanged"}, { arrayValue: [3], type: "removed"}]
+            }
         }
     }
 });

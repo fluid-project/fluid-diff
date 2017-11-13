@@ -20,13 +20,15 @@ var testemComponent = gpii.testem({
         "tests/static/tests-compareStrings.html",
         "tests/static/tests-equals.html",
         "tests/static/tests-extractPhraseSegments.html",
-        "tests/static/tests-longestCommonArraySegment.html",
+        "tests/static/tests-longestCommonSequence.html",
         "tests/static/tests-objectsEqual.html",
         "tests/static/tests-singleValueDiff.html",
         "tests/static/tests-templates-browser.html"
     ],
+    instrumentSource: true,
     generateCoverageReport: false, // We will need to generate this ourselves once the entire run is finished...
     coveragePort: 7015,
+    coverageDir: "%gpii-diff/coverage",
     components: {
         coverageExpressInstance: {
             type: "gpii.tests.diff.harness"

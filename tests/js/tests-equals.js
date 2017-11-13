@@ -36,7 +36,32 @@ gpii.test.diff.equals.runSingleTest = function (testDef) {
 fluid.defaults("gpii.test.diff.equals", {
     gradeNames: ["gpii.test.diff.testDefs.arraysEqual", "gpii.test.diff.testDefs.objectsEqual"],
     testDefs: {
-        // TODO: Add tests unique to this function, such as those comparing disparate types of data.
+        mixedTypes: {
+            undefinedAndObject: {
+                message:    "We should be able to distinguish undefined from an Object.",
+                leftValue:  undefined,
+                rightValue: {foo: "bar"},
+                expected:   false
+            },
+            arrayAndObject: {
+                message:    "We should be able to distinguish an Array from an Object.",
+                leftValue:  [],
+                rightValue: {},
+                expected:   false
+            },
+            objectAndUndefined: {
+                message:    "We should be able to distinguish an Object from undefined.",
+                leftValue:  {foo: "bar"},
+                rightValue: undefined,
+                expected:   false
+            },
+            objectAndArray: {
+                message:    "We should be able to distinguish an Object from an Array.",
+                leftValue:  {},
+                rightValue: [],
+                expected:   false
+            }
+        }
     },
     listeners: {
         "onCreate.runTests": {

@@ -1,6 +1,7 @@
 /* eslint-env node */
 "use strict";
 var fluid = fluid || require("infusion");
+fluid.logObjectRenderChars = 4098 * 1024;
 var gpii = fluid.registerNamespace("gpii");
 
 var jqUnit = jqUnit || require("node-jqunit");

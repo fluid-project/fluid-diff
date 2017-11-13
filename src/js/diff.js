@@ -432,6 +432,8 @@ gpii.diff.longestCommonSequence = function (leftArray, rightArray) {
         var lastCell = currentRow[rightArray.length - 1];
         if (lastCell.length) {
             lastCell.sort(gpii.diff.sortByLengthThenLeftIndex);
+
+            // Return only the first, longest sequence.
             longestCommonSequence = lastCell[0];
         }
     }
@@ -475,13 +477,6 @@ gpii.diff.equals = function (leftElement, rightElement) {
     if (typeof leftElement !== typeof rightElement) {
         return false;
     }
-    // Need to run these two checks early because `typeof undefined` is `object`.
-    else if (leftElement === undefined && rightElement === undefined) {
-        return true;
-    }
-    else if (leftElement === undefined || rightElement === undefined) {
-        return false;
-    }
     // Need to run these checks before the "object" branch because `typeof []` is also `object`.
     else if (Array.isArray(leftElement) && Array.isArray(rightElement)) {
         return gpii.diff.arraysEqual(leftElement, rightElement);
@@ -518,23 +513,54 @@ gpii.diff.compareArrays = function (leftArray, rightArray) {
             segments.push({ arrayValue: leftArray, type: "unchanged"});
         }
         else {
-            // Find the longest match, then process the remaining "tail" and "head", as with the string engine above.
-            var longestCommonSegmentDef = gpii.diff.longestCommonArraySegment(leftArray, rightArray);
-            if (longestCommonSegmentDef.segment.length) {
+            // Find the longest match, process it, then process any trailing and leading material.
+            var longestCommonSequence = gpii.diff.longestCommonSequence(leftArray, rightArray);
+            if (longestCommonSequence.length) {
+                var firstSegment = longestCommonSequence[0];
                 // Compare the "leaders"
-                var leftLeader = leftArray.slice(0, longestCommonSegmentDef.leftIndex);
-                var rightLeader = rightArray.slice(0, longestCommonSegmentDef.rightIndex);
+                var leftLeader = leftArray.slice(0, firstSegment.leftIndex);
+                var rightLeader = rightArray.slice(0, firstSegment.rightIndex);
                 if (leftLeader.length || rightLeader.length) {
                     var leadingSegments = gpii.diff.compareArrays(leftLeader, rightLeader);
                     segments = segments.concat(leadingSegments);
                 }
 
-                // Add the longest segment itself
-                segments.push({ arrayValue: longestCommonSegmentDef.segment, type: "unchanged"});
+                // Add all parts of the longest common sequence, and any material between adjoining segments.
+                var adjoiningSegments  = [leftArray[longestCommonSequence[0].leftIndex]];
+                var previousLeftIndex  = longestCommonSequence[0].leftIndex;
+                var previousRightIndex = longestCommonSequence[0].rightIndex;
+                fluid.each(longestCommonSequence.slice(1), function (sequenceSegment) {
+                    var segmentValue = leftArray[sequenceSegment.leftIndex];
+                    // adjoining segment
+                    if ((sequenceSegment.leftIndex === previousLeftIndex + 1) && (sequenceSegment.rightIndex === previousRightIndex + 1)) {
+                        adjoiningSegments.push(segmentValue);
+                    }
+                    // non-adjoining segment
+                    else {
+                        segments.push({ arrayValue: adjoiningSegments, type: "unchanged"});
+                        adjoiningSegments = [segmentValue];
+
+                        // Iterate through the "removed" left elements.
+                        var deletedSegments = leftArray.slice(previousLeftIndex + 1, sequenceSegment.leftIndex);
+                        if (deletedSegments.length) {
+                            segments.push({arrayValue: deletedSegments, type: "removed"});
+                        }
+
+                        // Iterate through the "added" right elements.
+                        var addedSegments = rightArray.slice(previousRightIndex + 1, sequenceSegment.rightIndex);
+                        if (addedSegments.length) {
+                            segments.push({arrayValue: addedSegments, type: "added"});
+                        }
+                    }
+                    previousLeftIndex = sequenceSegment.leftIndex;
+                    previousRightIndex = sequenceSegment.rightIndex;
+                });
+                segments.push({ arrayValue: adjoiningSegments, type: "unchanged"});
 
                 // Compare the "trailers"
-                var leftTrailer = leftArray.slice(longestCommonSegmentDef.leftIndex + longestCommonSegmentDef.segment.length);
-                var rightTrailer = rightArray.slice(longestCommonSegmentDef.rightIndex + longestCommonSegmentDef.segment.length);
+                var lastSegment = longestCommonSequence[longestCommonSequence.length - 1];
+                var leftTrailer = leftArray.slice(lastSegment.leftIndex + 1);
+                var rightTrailer = rightArray.slice(lastSegment.rightIndex + 1);
                 if (leftTrailer.length || rightTrailer.length) {
                     var trailingSegments = gpii.diff.compareArrays(leftTrailer, rightTrailer);
                     segments = segments.concat(trailingSegments);
@@ -547,61 +573,6 @@ gpii.diff.compareArrays = function (leftArray, rightArray) {
 
         return segments;
     }
-};
-
-/***
- *
- * A function that returns the (first) longest matching segment found in two arrays.  We use this to tree out from the
- * best match within an array, so that we produce a change report with the least changes possible.
- *
- * @param leftArray - An array of values.
- * @param rightArray - An array of values to compare to `leftArray`.
- * @return {Object} - See below.
- *
- * The object returned has three keys:
- *
- * `leftIndex`:  The position of the matching segment in `leftArray`.  If there is no matching segment, this will be `-1`.
- * `rightIndex`: The position of the matching segment in `rightArray`.  If there is no matching segment, this will be `-1`.
- * `segment`:    The longest set of matching elements (in order) common to both arrays.  If there are multiple sets of the same length, the first is returned.
- *
- */
-gpii.diff.longestCommonArraySegment = function (leftArray, rightArray) {
-    var segmentDef = {
-        leftIndex: -1,
-        rightIndex: -1,
-        segment: []
-    };
-
-    if (Array.isArray(leftArray) && Array.isArray(rightArray)) {
-        for (var a = 0; a < leftArray.length; a++) {
-            for (var b = a + 1; b <= leftArray.length; b++) {
-                if ((b - a) > segmentDef.segment.length) {
-                    var leftSlice = leftArray.slice(a, b);
-                    var noMoreMatches = false;
-                    var rightIndex = 0;
-                    while (!noMoreMatches) {
-                        rightIndex = rightArray.indexOf(leftSlice[0], rightIndex);
-                        if (rightIndex !== -1) {
-                            var rightSlice = rightArray.slice(rightIndex, rightIndex + leftSlice.length);
-                            if (gpii.diff.arraysEqual(leftSlice, rightSlice) && leftSlice.length > segmentDef.segment.length) {
-                                segmentDef.leftIndex  = a;
-                                segmentDef.rightIndex = rightIndex;
-                                segmentDef.segment    = leftSlice;
-                            }
-                            else {
-                                noMoreMatches = true;
-                            }
-                        }
-                        else {
-                            noMoreMatches = true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    return segmentDef;
 };
 
 /**
