@@ -7,6 +7,8 @@ var jqUnit = jqUnit || require("node-jqunit");
 
 if (typeof require !== "undefined") {
     fluid.require("%gpii-diff");
+    gpii.diff.loadMarkdownSupport();
+
     require("./testDefs-compareArrays");
     require("./testDefs-compareMarkdown");
     require("./testDefs-compareObjects");
