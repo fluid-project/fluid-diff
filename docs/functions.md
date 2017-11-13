@@ -4,10 +4,13 @@ All of the functions provided by this package are static, and do not require you
 
 ## The "diff" Functions
 
-### `gpii.diff.compare(leftElement, rightElement)`
+### `gpii.diff.compare(leftElement, rightElement, [compareStringsAsMarkdown], [markdownitOptions])`
 
 * `leftElement`: An element (array, object, number, etc.).
 * `rightElement`: An element to compare to `leftElement`.
+* `compareStringsAsMarkdown` `{Boolean}` - Whether to compare strings as markdown.  You must install `Markdown-It` and `Cheerio.js` as dependencies and call `gpii.diff.loadMarkdownSupport()` before you can safely set this option to `true`.
+* `markdownitOptions` `{Object}` - Configuration options to pass to markdownit when dealing with markdown.  See their documentation for details.
+
 * Returns: `{Object}` - An object that describes the differences between the two elements.
 
 This function compares two elements of any type and returns the most fine-grained comparison possible.  It automatically
@@ -37,7 +40,7 @@ gpii.diff.compareArrays([0,1,2],[2,1,0]);
 */
 ```
 
-### `gpii.diff.compareMarkdown(leftMarkdown, rightMarkdown, markdownItOptions)`
+### `gpii.diff.compareMarkdown(leftMarkdown, rightMarkdown, [markdownItOptions])`
 
 * `leftMarkdown` - A string containing markdown.
 * `rightMarkdown` - A string to compare to `leftMarkdown`.
@@ -46,13 +49,16 @@ gpii.diff.compareArrays([0,1,2],[2,1,0]);
 
 Compare the text of two Markdown strings and report their textual differences.  This function uses
 [Markdown-It](https://github.com/markdown-it/markdown-it) to render the Markdown as HTML, and then extracts the text
-using jQuery (in the browser) or [Cheerio.js](https://github.com/cheeriojs/cheerio) in Node.js.  Note that in order to
-use this function in Node.js, you must have the optional Cheerio.js and Markdown-It dependencies installed.
+using jQuery (in the browser) or [Cheerio.js](https://github.com/cheeriojs/cheerio) in Node.js.  You must install
+`Markdown-It` and `Cheerio.js` as dependencies and call `gpii.diff.loadMarkdownSupport()` before you can use this
+function.
 
-### `gpii.diff.compareObjects(leftObject, rightObject)`
+### `gpii.diff.compareObjects(leftObject, rightObject, [compareStringsAsMarkdown], [markdownitOptions])`
 
 * `leftObject`: An object.
 * `rightObject`: An object to compare to `leftObject`.
+* `compareStringsAsMarkdown` `{Boolean}` - Whether to compare strings as markdown.  You must install `Markdown-It` and `Cheerio.js` as dependencies and call `gpii.diff.loadMarkdownSupport()` before you can safely set this option to `true`.
+* `markdownitOptions` `{Object}` - Configuration options to pass to markdownit when dealing with markdown.  See their documentation for details.
 * Returns: `{Object}` - An object that describes the differences (and similarities) between the two objects (see below).
 
 This function compares two objects (including `undefined`) to one another and produces a report regarding their
@@ -198,14 +204,15 @@ So, for example, when comparing `["foo","bar", "quux"]` to `["bar","baz", "qux",
 
 Return the longest distinct LCS sequences from an array.  Used to ensure that each sub-match only propagates once.
 
-### `gpii.diff.markdownToText(markdown, markdownItOptions)`
+### `gpii.diff.markdownToText(markdown, [markdownItOptions])`
 
 * `markdown` `{String}` - A string containing markdown.
 * `markdownItOptions` `{Object}` - Configuration options to pass to MarkdownIt.  See their docs for supported options.
 * Returns: `{String}` - The textual content.
 
 Use [Markdown-It](https://github.com/markdown-it/markdown-it) to render a string containing markdown as HTML, then
-return the textual content.
+return the textual content.  You must install `Markdown-It` and `Cheerio.js` as dependencies and call 
+`gpii.diff.loadMarkdownSupport()` before you can use this function.
 
 ### `gpii.diff.objectsEqual(leftObject, rightObject)`
 
