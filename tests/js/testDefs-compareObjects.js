@@ -131,10 +131,10 @@ fluid.defaults("gpii.test.diff.testDefs.compareObjects", {
                 expected:   { "foo": [{ value: "bar", type: "removed"}] }
             },
             bothUndefined: {
-                message:    "We should be able to compare 'undefined' objects...",
+                message:    "We should be able to compare 'undefined' values...",
                 leftValue:  undefined,
                 rightValue: undefined,
-                expected:   { "": [{ value: undefined, type: "unchanged"}] }
+                expected:   [{ value: undefined, type: "unchanged"}]
             },
             shallowMarkdownAsString: {
                 message:    "Shallow markdown should be handled as a string by default...",

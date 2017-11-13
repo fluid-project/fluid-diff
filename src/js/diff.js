@@ -64,74 +64,43 @@ gpii.diff.singleValueDiff = function (leftValue, rightValue, isArray) {
 
 /**
  *
- * Find the longest matching "phrase" in two strings, which prefers one or more whole words.
- *
- * @param leftString {String} - One of the two strings, which will be used to search for matching patterns.
- * @param rightString {String} - The other string, which will be compared against all possible sub-patterns.
- * @return {Object} - See below.
- *
- * The object returned has three keys:
- *
- * `leftIndex`:  The position of the matching segment in `leftString`.  If there is no matching segment, this will be `-1`.
- * `rightIndex`: The position of the matching segment in `rightString`.  If there is no matching segment, this will be `-1`.
- * `segment`:    The longest matching string common to both strings.  If there are multiple matching strings of the same length, the first is returned.
- *
- */
-gpii.diff.longestCommonStringPhrase = function (leftString, rightString) {
-    var matchDef = {
-        leftIndex: -1,
-        rightIndex: -1,
-        segment: ""
-    };
-
-    if (leftString && rightString) {
-        var leftWordPhraseDefs = gpii.diff.extractPhraseSegments(leftString);
-
-        var firstMatchDef = fluid.find(leftWordPhraseDefs, function (phraseDef) {
-            var rightIndex = rightString.indexOf(phraseDef.value);
-            if (rightIndex !== -1) {
-                return {
-                    segment: phraseDef.value,
-                    leftIndex: phraseDef.index,
-                    rightIndex: rightIndex
-                };
-            }
-        });
-        if (firstMatchDef) {
-            matchDef = firstMatchDef;
-        }
-    }
-    return matchDef;
-};
-
-/**
- *
- * Sort arrays by the highest length, and then by the lowest `leftIndex` of the leftmost element.
+ * Sort arrays by the highest length, and then by the "tightest" grouping of elements, then by the lowest (average)
+ * index of the first segment.
  *
  * @param a {Object} - An array.
  * @param b {Object} - An array to compare with `a`.
  * @returns {number} - -1 if `a` is "first", 1 if `b` is "first", 0 if their position is interchangeable.
  *
  */
-gpii.diff.sortByLengthThenLeftIndex = function (a, b) {
+gpii.diff.sortByLengthThenTightnessThenIndex = function (a, b) {
     // a is a longer array
     if (a.length > b.length) {
         return -1;
     }
     // the arrays are the same length
     else if (a.length === b.length) {
-        var aIndex = a[0].leftIndex;
-        var bIndex = b[0].leftIndex;
-        // a has the earliest occurring subsequence
-        if (aIndex < bIndex) {
-            return -1;
+        var aTightness = gpii.diff.calculateTightness(a);
+        var bTightness = gpii.diff.calculateTightness(b);
+        if (aTightness < bTightness) {
+            return -1 ;
         }
-        // It's not possible to reach this through normal operation, but it's included to complete the "sort" contract.
-        else if (aIndex === bIndex) {
-            return 0;
+        else if (aTightness === bTightness) {
+            var aIndex = (a[0].leftIndex + a[0].rightIndex) / 2;
+            var bIndex = (b[0].leftIndex + b[0].rightIndex) / 2;
+            // a has the earliest occurring subsequence
+            if (aIndex < bIndex) {
+                return -1;
+            }
+            // It's not possible to reach this through normal operation, but it's included to complete the "sort" contract.
+            else if (aIndex === bIndex) {
+                return 0;
+            }
+            // b has the earliest occurring subsequence
+            else if (bIndex < aIndex) {
+                return 1;
+            }
         }
-        // b has the earliest occurring subsequence
-        else if (bIndex < aIndex) {
+        else if (aTightness > bTightness) {
             return 1;
         }
     }
@@ -143,117 +112,56 @@ gpii.diff.sortByLengthThenLeftIndex = function (a, b) {
 
 /**
  *
- * A sort function to sort "phrase definitions" by their length (longest first), and then by their position in the
- * string (earliest first).
+ * Calculate the "tightness" of an array of LCS segments, where lower values are "tighter".  An array of adjoining
+ * segments has a "tightness" of 0, as when evaluating the following:
  *
- * @param a {Object} - An item in the array to compare.
- * @param b {Object} - The item to compare with `a`.
- * @returns {number} - -1 if `a` is "first", 1 if `b` is "first", 0 if their position is interchangeable.
+ * `[{ leftIndex:0, rightIndex:0 }, { leftIndex:1, rightIndex:1}]`
+ *
+ * An array that skips a single segment has a "tightness" of 1, as when evaluating the following:
+ *
+ * `[{ leftIndex:0, rightIndex:0 }, { leftIndex:1, rightIndex:2}]`
+ *
+ * @param lcsSegments {Array} - An array of LCS segments.
+ * @returns {Number} - A number representing the "tightness".
  *
  */
-gpii.diff.sortPhraseDefs = function (a, b) {
-    if (a.value.length > b.value.length) {
-        return -1;
-    }
-    else if (a.value.length === b.value.length) {
-        if (a.index < b.index) {
-            return -1;
-        }
-        else if (a.index === b.index) {
-            return 0;
-        }
-        else if (b.index < a.index) {
-            return 1;
-        }
+gpii.diff.calculateTightness = function (lcsSegments) {
+    if (lcsSegments.length <= 1) {
+        return 0;
     }
     else {
-        return 1;
+        var firstSegment = lcsSegments[0];
+        var lastSegment  = lcsSegments[lcsSegments.length - 1];
+
+        var leftDistance = lastSegment.leftIndex - firstSegment.leftIndex - (lcsSegments.length - 1);
+        var rightDistance = lastSegment.rightIndex - firstSegment.rightIndex - (lcsSegments.length - 1);
+
+        return (leftDistance + rightDistance) / 2;
     }
 };
 
 /**
  *
- * Break down a string into an array of "phrase segments", ordered from longest (the original string) to shortest (the
- * shortest individual word).  Each "phrase segment" looks like:
- * {
- *    value: "a word or phrase, possibly including whitespace ",
- *    index: 0 // The position of the phrase in `originalString`
- * }
+ * Break down a string into an array of "segments" of alternating "word" and "non-word" content.  Treats `null` and
+ * `undefined` values the same as empty strings.
  *
- * @param originalString {String} - The original string to break down.
- * @returns {Array} - An array of "phrase segments".
- *
+ * @param originalString {String} - A string to break down into segments.
+ * @returns {Array} - An array of substrings.
  */
-gpii.diff.extractPhraseSegments = function (originalString) {
-    var regexp = /(\b[\w']+\b)(\W+)/gm;
-    var currentPhraseDef = regexp.exec(originalString);
+gpii.diff.extractSegments = function (originalString) {
+    var segments = [];
 
-    // This was an empty string or undefined, it's not possible to match it with anything.
-    if (!originalString || originalString.length === 0) {
-        return [];
+    if (typeof originalString === "string") {
+        var matches = originalString.match(/([\w]+|[\W]+)/mg);
+        if (matches) {
+            segments = segments.concat(matches);
+        }
     }
-    // There is only one "word" in this string.
-    else if (currentPhraseDef === null) {
-        return [{
-            value: originalString,
-            index: 0
-        }];
+    else if (originalString !== undefined && originalString !== null) {
+        fluid.fail("gpii.diff.extractStrings can only be used with string, undefined, or null values.");
     }
-    else {
-        var segments = [];
-        // Check for leading whitespace first.
-        var leadingWhitespaceMatches = originalString.match(/^(\W+)/);
-        if (leadingWhitespaceMatches) {
-            segments.push({
-                value: leadingWhitespaceMatches[1],
-                index: 0
-            });
-        }
-        while (currentPhraseDef !== null) {
-            // The first capture match is a "word"
-            var word = currentPhraseDef[1];
-            segments.push({
-                value: word,
-                index: currentPhraseDef.index
-            });
-            // The second (optional) match is the trailing whitespace.
-            var trailingWhitespace = currentPhraseDef[2];
-            if (trailingWhitespace.length) {
-                segments.push({
-                    value: trailingWhitespace,
-                    index: currentPhraseDef.index + word.length
-                });
-            }
-            currentPhraseDef = regexp.exec(originalString);
-        }
-        // Look for any trailing non-whitespace material after the initial pass.
-        var trailingNonWhitespaceRegexp = /\w+\W+(\w+)$/m;
-        var trailingMatches = originalString.match(trailingNonWhitespaceRegexp);
-        if (trailingMatches) {
-            segments.push({
-                value: trailingMatches[1],
-                index: originalString.length - trailingMatches[1].length
-            });
-        }
 
-        var combinedSegments = [];
-        for (var a = 0; a < segments.length; a++) {
-            for (var b = a + 1; b <= segments.length; b++) {
-                var subslice = segments.slice(a, b);
-                var values = fluid.transform(subslice, function (item) { return item.value; });
-                var substring = values.join("");
-                if (substring.match(/\w/)) {
-                    combinedSegments.push({
-                        value: substring,
-                        index: segments[a].index
-                    });
-                }
-            }
-        }
-
-        combinedSegments.sort(gpii.diff.sortPhraseDefs);
-        return combinedSegments;
-    }
+    return segments;
 };
 
 /**
@@ -268,60 +176,35 @@ gpii.diff.extractPhraseSegments = function (originalString) {
  *
  */
 gpii.diff.compareStrings = function (leftString, rightString) {
-    if (typeof leftString === "string" || typeof rightString === "string") {
-        // Start by looking for a match against the longest section of our leading material that matches.
-        if (leftString && leftString.length > 0) {
-            var segments = [];
-            var longestCommonPhraseDef = gpii.diff.longestCommonStringPhrase(leftString, rightString);
-            // var longestCommonStringSegmentDef = longestCommonPhraseDef.segment.length ? longestCommonPhraseDef : gpii.diff.longestCommonStringSegment(leftString, rightString);
-            if (longestCommonPhraseDef.segment.length > 1) {
-                var leftLeader  = leftString.substring(0, longestCommonPhraseDef.leftIndex);
-                var rightLeader = rightString.substring(0, longestCommonPhraseDef.rightIndex);
-                if (longestCommonPhraseDef.leftIndex && longestCommonPhraseDef.rightIndex) {
-                    var segmentsBeforeMatch = gpii.diff.compareStrings(leftLeader, rightLeader);
-                    segments = segmentsBeforeMatch.concat(segments);
-                }
-                else if (longestCommonPhraseDef.leftIndex) {
-                    var deletedLeader = leftLeader;
-                    segments.push({value: deletedLeader, type: "removed"});
-                }
-                else if (longestCommonPhraseDef.rightIndex) {
-                    var addedLeader = rightLeader;
-                    segments.push({value: addedLeader, type: "added"});
-                }
-
-                segments.push({ value: longestCommonPhraseDef.segment, type: "unchanged"});
-
-                var leftTrailer  = leftString.substring(longestCommonPhraseDef.leftIndex + longestCommonPhraseDef.segment.length);
-                var rightTrailer = rightString.substring(longestCommonPhraseDef.rightIndex + longestCommonPhraseDef.segment.length);
-
-                if (leftTrailer.length && rightTrailer.length) {
-                    var segmentsAfterMatch = gpii.diff.compareStrings(leftTrailer, rightTrailer);
-                    segments = segments.concat(segmentsAfterMatch);
-                }
-                else if (leftTrailer.length) {
-                    segments.push({ value: leftTrailer, type: "removed"});
-                }
-                else if (rightTrailer.length) {
-                    segments.push({ value: rightTrailer, type: "added"});
-                }
-            }
-            else {
-                segments.push({ value: leftString, type: "removed"});
-                if (rightString !== undefined) {
-                    segments.push({ value: rightString, type: "added"});
-                }
-            }
-
-            return segments;
-        }
-        else {
-            return gpii.diff.singleValueDiff(leftString, rightString);
-        }
+    if (leftString === undefined && rightString === undefined) {
+        return gpii.diff.singleValueDiff(leftString, rightString);
+    }
+    else if (gpii.diff.isStringNullOrUndefined(leftString) && gpii.diff.isStringNullOrUndefined(rightString)) {
+        var leftSegments  = gpii.diff.extractSegments(leftString);
+        var rightSegments = gpii.diff.extractSegments(rightString);
+        var arrayDiff = gpii.diff.compareArrays(leftSegments, rightSegments);
+        var stringDiff = [];
+        fluid.each(arrayDiff, function (arrayDiffSegment) {
+            stringDiff.push({ value: arrayDiffSegment.arrayValue.join(""), type: arrayDiffSegment.type});
+        });
+        return stringDiff;
     }
     else {
         return gpii.diff.compare(leftString, rightString);
     }
+};
+
+/**
+ *
+ * `gpii.diff.compareStrings` can perform a deeper comparison of {String}, `undefined`, and `null` values.  This
+ * function is used to determine whether we can perform that deeper comparison.
+ *
+ * @param value {Any} - A value to evaluate.
+ * @returns {boolean} - Returns `true` if the value is a {String}, `undefined`, or `null`.  Returns `false` otherwise.
+ *
+ */
+gpii.diff.isStringNullOrUndefined = function (value) {
+    return typeof value === "string" || value === undefined || value === null;
 };
 
 /**
@@ -431,7 +314,7 @@ gpii.diff.longestCommonSequence = function (leftArray, rightArray) {
         }
         var lastCell = currentRow[rightArray.length - 1];
         if (lastCell.length) {
-            lastCell.sort(gpii.diff.sortByLengthThenLeftIndex);
+            lastCell.sort(gpii.diff.sortByLengthThenTightnessThenIndex);
 
             // Return only the first, longest sequence.
             longestCommonSequence = lastCell[0];
@@ -452,7 +335,7 @@ gpii.diff.longestCommonSequence = function (leftArray, rightArray) {
 gpii.diff.longestDistinctSequences = function (sequences) {
     var longestSequences = [];
     if (sequences.length > 0) {
-        var sortedSequences = fluid.copy(sequences).sort(gpii.diff.sortByLengthThenLeftIndex);
+        var sortedSequences = fluid.copy(sequences).sort(gpii.diff.sortByLengthThenTightnessThenIndex);
         var longestEntry = sortedSequences[0];
         longestSequences.push(longestEntry);
         fluid.each(sortedSequences.slice(1), function (sequence) {
@@ -688,8 +571,12 @@ gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMa
             results[key] = gpii.diff.compare(leftValue, rightValue, compareStringsAsMarkdown, markdownitOptions);
         }
     }
-    // Both values are either an empty object or `undefined`.
-    else if ((leftObject === undefined && rightObject === undefined) || gpii.diff.objectsEqual(leftObject, rightObject)) {
+    // Both leftObject and rightObject are `undefined`.
+    else if ((leftObject === undefined && rightObject === undefined)) {
+        results = gpii.diff.singleValueDiff(leftObject, rightObject);
+    }
+    // Both values are an empty object.
+    else if (gpii.diff.objectsEqual(leftObject, rightObject)) {
         results[""] = [{ value: leftObject, type: "unchanged"}];
     }
     else {
@@ -713,7 +600,7 @@ gpii.diff.compare = function (leftElement, rightElement, compareStringsAsMarkdow
     var firstDefinedElement = leftElement !== undefined ? leftElement : rightElement;
     // Both are undefined
     if (firstDefinedElement === undefined) {
-        return { "": gpii.diff.singleValueDiff(leftElement, rightElement) };
+        return gpii.diff.singleValueDiff(leftElement, rightElement);
     }
     else if (Array.isArray(firstDefinedElement)) {
         return gpii.diff.compareArrays(leftElement, rightElement);

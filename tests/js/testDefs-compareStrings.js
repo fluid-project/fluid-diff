@@ -26,7 +26,7 @@ fluid.defaults("gpii.test.diff.testDefs.compareStrings", {
                 message:   "We should be able to deal with cases in which material is added to the middle of a string...",
                 leftValue: "old string",
                 rightValue: "old and new string",
-                expected:  [{ value: "old", type: "unchanged"}, { value: " and new", type: "added"}, { value: " string", type: "unchanged"}]
+                expected:  [{ value: "old ", type: "unchanged"}, { value: "and new ", type: "added"}, { value: "string", type: "unchanged"}]
             },
             deleteLeadingMaterial: {
                 message:   "We should be able to deal with cases in which material is deleted from the beginning of a string...",
@@ -44,7 +44,7 @@ fluid.defaults("gpii.test.diff.testDefs.compareStrings", {
                 message:   "We should be able to deal with cases in which material is deleted from the middle of a string...",
                 leftValue: "Bacon, avocado, lettuce, and tomato",
                 rightValue: "Bacon, lettuce, and tomato",
-                expected:  [{ value: "Bacon", type: "unchanged"}, { value: ", avocado", type: "removed"}, { value: ", lettuce, and tomato", type: "unchanged"}]
+                expected:  [{ value: "Bacon, ", type: "unchanged"}, { value: "avocado, ", type: "removed"}, { value: "lettuce, and tomato", type: "unchanged"}]
             },
             completelyDifferent: {
                 message:   "We should be able to deal with two strings that do not match at all...",
@@ -84,20 +84,22 @@ fluid.defaults("gpii.test.diff.testDefs.compareStrings", {
                     { value: "catapults", type: "removed"},
                     { value: "cats", type: "added"},
                     { value: " can ", type: "unchanged"},
-                    { value: "throw things", type: "removed"},
+                    { value: "throw", type: "removed"},
                     { value: "jump", type: "added"},
-                    { value: " high in the air.", type: "unchanged"}
+                    { value: " ", type: "unchanged"},
+                    { value: "things ", type: "removed"},
+                    { value: "high in the air.", type: "unchanged"}
                 ]
             },
             multiLine: {
                 message:    "We should be able to compare multi-line strings...",
-                leftValue:  "On first thought I liked it.\nOn second thought I didn't.",
-                rightValue: "On second thought I didn't like it.\nOn third thought I did.",
+                leftValue:  "Days break.\nNights fall.",
+                rightValue: "Nights fall.\nMornings awaken.",
                 expected:  [
-                    { value: "On first thought I liked it.\n", type: "removed"},
-                    { value: "On second thought I didn't", type: "unchanged"},
-                    { value: ".", type: "removed"},
-                    { value: " like it.\nOn third thought I did.", type: "added"}
+                    { value: "Days break.\n", type: "removed"},
+                    { value: "Nights fall", type: "unchanged"},
+                    { value: ".\nMornings awaken", type: "added"},
+                    { value: ".", type: "unchanged"}
                 ]
             },
             rightHandUndefined: {
@@ -107,47 +109,52 @@ fluid.defaults("gpii.test.diff.testDefs.compareStrings", {
                 expected:  [{ value: "defined", type: "removed"}]
             },
             bothUndefined: {
-                message:   "We should be able to handle `undefined` on both sides of a comparison...",
-                leftValue: undefined,
+                message:    "We should be able to handle `undefined` on both sides of a comparison...",
+                leftValue:  undefined,
                 rightValue: undefined,
-                expected:  {"": [{ value: undefined, type: "unchanged"}] }
+                expected:   [
+                    {
+                        "type": "unchanged",
+                        "value": undefined
+                    }
+                ]
             },
             leftEmpty: {
-                message:   "We should be able to handle an empty string on the left side of a comparison...",
-                leftValue: "",
+                message:    "We should be able to handle an empty string on the left side of a comparison...",
+                leftValue:  "",
                 rightValue: "not empty",
-                expected:  [{value: "", type: "removed"}, { value: "not empty", type: "added"}]
+                expected:   [{ value: "not empty", type: "added"}]
             },
             rightEmpty: {
-                message:   "We should be able to handle an empty string on the right side of a comparison...",
-                leftValue: "not empty",
+                message:    "We should be able to handle an empty string on the right side of a comparison...",
+                leftValue:  "not empty",
                 rightValue: "",
-                expected:  [{ value: "not empty", type: "removed"}, { value: "", type: "added"}]
+                expected:   [{ value: "not empty", type: "removed"}]
             },
             bothEmpty: {
-                message:   "We should be able to handle an empty string on both sides of a comparison...",
-                leftValue: "",
+                message:    "We should be able to handle an empty string on both sides of a comparison...",
+                leftValue:  "",
                 rightValue: "",
-                expected:  [{ value: "", type: "unchanged"}]
+                expected:   [{ value: "", type: "unchanged"}]
             },
-            // prefix: {
-            //     message:    "A word prefix should be handled correctly...",
-            //     leftValue:  "animate",
-            //     rightValue: "preanimate",
-            //     expected:   [{value: "animate", type: "removed"}, { value: "preanimate", type: "added"}]
-            // },
-            // suffix: {
-            //     message:    "A word suffix should be handled correctly...",
-            //     leftValue:  "stream",
-            //     rightValue: "streaming",
-            //     expected:   [{value: "stream", type: "removed"}, { value: "streaming", type: "added"}]
-            // },
-            // subWord: {
-            //     message:    "A smaller word should not match the middle of a longer word...",
-            //     leftValue:  "no",
-            //     rightValue: "ignoble",
-            //     expected:   [{value: "no", type: "removed"}, { value: "ignoble", type: "added"}]
-            // }
+            prefix: {
+                message:    "A word prefix should be handled correctly...",
+                leftValue:  "animate",
+                rightValue: "preanimate",
+                expected:   [{value: "animate", type: "removed"}, { value: "preanimate", type: "added"}]
+            },
+            suffix: {
+                message:    "A word suffix should be handled correctly...",
+                leftValue:  "stream",
+                rightValue: "streaming",
+                expected:   [{value: "stream", type: "removed"}, { value: "streaming", type: "added"}]
+            },
+            subWord: {
+                message:    "A smaller word should not match the middle of a longer word...",
+                leftValue:  "no",
+                rightValue: "ignoble",
+                expected:   [{value: "no", type: "removed"}, { value: "ignoble", type: "added"}]
+            }
         }
     }
 });
