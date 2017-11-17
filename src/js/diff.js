@@ -264,19 +264,22 @@ gpii.diff.generateTracebackTable = function (leftArray, rightArray) {
     if (!Array.isArray(leftArray) || !Array.isArray(rightArray)) {
         fluid.fail("I can only generate traceback tables for arrays.");
     }
-    var tracebackTable = fluid.generate(leftArray.length, fluid.generate(rightArray.length, {}));
+    // var tracebackTable = fluid.generate(leftArray.length, fluid.generate(rightArray.length, {}));
+    var tracebackTable = [];
     for (var rowIndex = 0; rowIndex < leftArray.length; rowIndex++) {
+        var rowArray = []
         for (var colIndex = 0; colIndex < rightArray.length; colIndex++) {
             var longestPreviousByRow    = rowIndex > 0 && tracebackTable[rowIndex - 1][colIndex].matchLength ?  tracebackTable[rowIndex - 1][colIndex].matchLength : 0;
-            var longestPreviousByColumn = colIndex > 0 && tracebackTable[rowIndex][colIndex - 1].matchLength ?  tracebackTable[rowIndex][colIndex - 1].matchLength : 0;
+            var longestPreviousByColumn = colIndex > 0 && rowArray[colIndex - 1].matchLength ?  rowArray[colIndex - 1].matchLength : 0;
             var longestPrevious = Math.max(longestPreviousByRow, longestPreviousByColumn);
 
-            tracebackTable[rowIndex][colIndex] = {
+            rowArray.push({
                 fromLeft:    longestPrevious > 0 && (longestPreviousByColumn === longestPrevious),
                 fromAbove:   longestPrevious > 0 && (longestPreviousByRow === longestPrevious),
                 matchLength: gpii.diff.equals(leftArray[rowIndex], rightArray[colIndex]) ? longestPrevious + 1 : longestPrevious
-            };
+            });
         }
+        tracebackTable[rowIndex] = rowArray;
     }
     return tracebackTable;
 };
