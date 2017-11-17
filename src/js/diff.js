@@ -181,7 +181,123 @@ gpii.diff.compareStrings = function (leftString, rightString) {
     // }
 };
 
+gpii.diff.longestCommonSequence2 = function (leftArray, rightArray) {
+    var tracebackTable = gpii.diff.generateTracebackTable(leftArray, rightArray);
+    var longestSequences = gpii.diff.tracebackLongestSequences(leftArray.length - 1, rightArray.length - 1, tracebackTable);
+    return longestSequences;
+};
+
+/*
+
+ Instead of dehydrating, rehydrating the sequences, create a small structure that consists of a means of locating the previous subsequence, and the new material.
+
+ {
+ previousSequence: <REFERENCE>, // An object, inherited from a parent (above) or sibling (left), or a new sequence (null)
+ newSegment:       <CONTENT>,   // "A value"
+ length:           <NUMBER>     // length of the sequence to date, basically the inherited sequence length + 1
+ }
+
+ ["A", "B"] vs. ["A", "A"]
+ // first digit is relative to left side, second index is relative to right.
+
+ // Pass 0 0, "A" vs. "A"
+ // nothing to inherit in either direction
+ // match
+ [{ previousSequence: null, newSegment: "A", length: 1}]
+
+ // Pass 0 1, "A" vs. "B"
+ // nothing to inherit from above
+ // inherit from the left
+ [{ previousSequence: null, newSegment: "A", length: 1}]
+ // no match to add
+
+ // Pass 1 0, "B" vs. "A"
+ // nothing to inherit from the left
+ // inherit from above
+ [{ previousSequence: null, newSegment: "A", length: 1}]
+ // no match
+
+
+ // Pass 1 1, "B" vs. "A"
+ // inherit from the left
+ [{ previousSequence: null, newSegment: "A", length: 1}]
+ // inherit from above
+ [{ previousSequence: null, newSegment: "A", length: 1}]
+
+ This involves creating a full table rather than two rows. At the end of the process, you track backwards
+ from the last to the first, but only for the longest sequences.
+
+ results = array.unshift(newSegment);
+
+ Do the same for the previous segment until there is no previous segment (null).
+
+ Talking about using the traceback approach instead where we just store length and "direction" of previous match.
+
+ // Pass 0 0, "A" vs. "A"
+ // nothing to inherit in either direction
+ // match
+ [{ fromLeft: false, fromAbove: false, length: 1}]
+
+ // Pass 0 1, "A" vs. "B"
+ // nothing to inherit from above
+ // inherit from the left
+ [{ fromAbove: false, fromLeft: true, length: 1}]
+ // no match to add
+
+ // Pass 1 0, "B" vs. "A"
+ // nothing to inherit from the left
+ // inherit from above
+ [{ fromAbove: true, fromLeft: false, length: 1}]
+ // no match
+
+
+ // Pass 1 1, "B" vs. "A"
+ // inherit from the left
+ // inherit from above
+ [{ fromAbove: true, fromLeft:true, length: 1}]
+
+ Each segment will need to inherit the previousSequence value.  First row inherits null values from its lack of upper parent.  First column inherits null values from its lack of left sibling.
+
+ */
+
+gpii.diff.generateTracebackTable = function (leftArray, rightArray) {
+    if (!Array.isArray(leftArray) || !Array.isArray(rightArray)) {
+        fluid.fail("I can only generate traceback tables for arrays.");
+    }
+    var tracebackTable = fluid.generate(leftArray.length, fluid.generate(rightArray.length, {}));
+    for (var rowIndex = 0; rowIndex < leftArray.length; rowIndex++) {
+        for (var colIndex = 0; colIndex < rightArray.length; colIndex++) {
+            var longestPreviousByRow    = rowIndex > 0 && tracebackTable[rowIndex - 1][colIndex].matchLength ?  tracebackTable[rowIndex - 1][colIndex].matchLength : 0;
+            var longestPreviousByColumn = colIndex > 0 && tracebackTable[rowIndex][colIndex - 1].matchLength ?  tracebackTable[rowIndex][colIndex - 1].matchLength : 0;
+            var longestPrevious = Math.max(longestPreviousByRow, longestPreviousByColumn);
+
+            tracebackTable[rowIndex][colIndex] = {
+                fromLeft:    longestPrevious > 0 && (longestPreviousByColumn === longestPrevious),
+                fromAbove:   longestPrevious > 0 && (longestPreviousByRow === longestPrevious),
+                matchLength: gpii.diff.equals(leftArray[rowIndex], rightArray[colIndex]) ? longestPrevious + 1 : longestPrevious
+            };
+        }
+    }
+    return tracebackTable;
+};
+
+gpii.diff.tracebackLongestSequences = function (leftIndex, rightIndex, tracebackTable) {
+    var sequence = [];
+    var currentCell = tracebackTable[leftIndex][rightIndex];
+    if (currentCell.fromLeft && currentCell.fromAbove) {
+
+    }
+    else if (currentCell.fromLeft) {
+        var leftSequences = gpii.diff.tracebackLongestSequence(leftIndex - 1, rightIndex, tracebackTable);
+        fluid.each(leftSequences, sequence);
+    }
+    else if (currentCell.fromAbove) {
+
+    }
+};
+
 /**
+ *
  *
  * Compare strings as sequences of "non-carriage returns" and "carriage returns", looking for entire lines that match.
  *
@@ -236,6 +352,7 @@ gpii.diff.compareStringsByLine = function (leftString, rightString) {
                     segments.push(lastLeadingSegmentValue);
                 }
             }
+
 
             var adjoiningSegments    = [firstSegmentValue];
             var previousLeftIndex    = firstSegment.leftIndex;
