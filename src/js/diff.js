@@ -1,13 +1,13 @@
 /* eslint-env node */
 /*
 
-    Static functions to produce a "diff" report in comparing two values.  See the documentation in this package for
-    details.
+ Static functions to produce a "diff" report in comparing two values.  See the documentation in this package for
+ details.
 
  */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
+var gpii = fluid.registerNamespace("gpii");
 
 fluid.registerNamespace("gpii.diff");
 
@@ -28,18 +28,18 @@ gpii.diff.singleValueDiff = function (leftValue, rightValue, isArray) {
     var key = isArray ? "arrayValue" : "value";
     var segments = [];
     if ((isArray && gpii.diff.arraysEqual(leftValue, rightValue)) || (!isArray && leftValue === rightValue)) {
-        var unchangedSegment = { type: "unchanged"};
+        var unchangedSegment = {type: "unchanged"};
         unchangedSegment[key] = leftValue;
         segments.push(unchangedSegment);
     }
     else {
         if ((!isArray && leftValue !== undefined) || (isArray && leftValue.length)) {
-            var removedSegment = { type: "removed" };
+            var removedSegment = {type: "removed"};
             removedSegment[key] = leftValue;
             segments.push(removedSegment);
         }
         if ((!isArray && rightValue !== undefined) || (isArray && rightValue.length)) {
-            var addedSegment = { type: "added"};
+            var addedSegment = {type: "added"};
             addedSegment[key] = rightValue;
             segments.push(addedSegment);
         }
@@ -67,7 +67,7 @@ gpii.diff.sortByLengthThenTightnessThenIndex = function (a, b) {
         var aTightness = gpii.diff.calculateTightness(a);
         var bTightness = gpii.diff.calculateTightness(b);
         if (aTightness < bTightness) {
-            return -1 ;
+            return -1;
         }
         else if (aTightness === bTightness) {
             var aIndex = (a[0].leftIndex + a[0].rightIndex) / 2;
@@ -116,7 +116,7 @@ gpii.diff.calculateTightness = function (lcsSegments) {
     }
     else {
         var firstSegment = lcsSegments[0];
-        var lastSegment  = lcsSegments[lcsSegments.length - 1];
+        var lastSegment = lcsSegments[lcsSegments.length - 1];
 
         var leftDistance = lastSegment.leftIndex - firstSegment.leftIndex - (lcsSegments.length - 1);
         var rightDistance = lastSegment.rightIndex - firstSegment.rightIndex - (lcsSegments.length - 1);
@@ -143,7 +143,7 @@ gpii.diff.extractSegments = function (originalString) {
         }
     }
     else if (originalString !== undefined && originalString !== null) {
-        fluid.fail("gpii.diff.extractStrings can only be used with string, undefined, or null values.");
+        fluid.fail("gpii.diff.extractSegments can only be used with string, undefined, or null values.");
     }
 
     return segments;
@@ -161,16 +161,217 @@ gpii.diff.extractSegments = function (originalString) {
  *
  */
 gpii.diff.compareStrings = function (leftString, rightString) {
+    // if (leftString === undefined && rightString === undefined) {
+    //     return gpii.diff.singleValueDiff(leftString, rightString);
+    // }
+    if (typeof leftString !== "string" || typeof rightString !== "string") {
+        return gpii.diff.singleValueDiff(leftString, rightString);
+    }
+    else if (leftString === rightString) {
+        return [{ value: leftString, type: "unchanged"}];
+    }
+    else if (leftString.match(/\r\n/) || rightString.match(/\r\n/)) {
+        return gpii.diff.compareStringsByLine(leftString, rightString);
+    }
+    else {
+        return gpii.diff.compareStringsBySegment(leftString, rightString);
+    }
+    // else {
+    //     return gpii.diff.compare(leftString, rightString);
+    // }
+};
+
+/**
+ *
+ * Compare strings as sequences of "non-carriage returns" and "carriage returns", looking for entire lines that match.
+ *
+ * @param `leftString` {String} - The first string, from whose perspective the "diff" results will be represented.
+ * @param `rightString` {String} - The second string, to compare to the first string.
+ * @return {Array} - An array of "segments" representing `rightString` as compared to `leftString`.
+ *
+ */
+gpii.diff.compareStringsByLine = function (leftString, rightString) {
+    if (typeof leftString !== "string" || typeof rightString !== "string") {
+        return gpii.diff.singleValueDiff(leftString, rightString);
+    }
+    else if (leftString === rightString) {
+        return [{ value: leftString, type: "unchanged"}];
+    }
+    else if (!leftString.match(/[\r\n]/) && !rightString.match(/[\r\n]/)) {
+        return gpii.diff.compareStringsBySegment(leftString, rightString);
+    }
+    else {
+        var leftLines = gpii.diff.stringToLineSegments(leftString);
+        var rightLines = gpii.diff.stringToLineSegments(rightString);
+        var longestLineSequence = gpii.diff.longestCommonSequence(leftLines, rightLines);
+
+        var segments = [];
+        if (longestLineSequence.length) {
+            // calculate the real indexes in terms of the string lengths.
+            var leftIndices = gpii.diff.calculateStringSegmentIndices(leftLines);
+            var rightIndices = gpii.diff.calculateStringSegmentIndices(rightLines);
+
+            var firstSegment = longestLineSequence[0];
+
+            var leadingSegments = [];
+            // compare and add the leading material
+            if (firstSegment.leftIndex > 0 || firstSegment.rightIndex > 0) {
+                var leftLeader = leftString.substring(0, leftIndices[firstSegment.leftIndex]);
+                var rightLeader = rightString.substring(0, rightIndices[firstSegment.rightIndex]);
+                leadingSegments = gpii.diff.compareStringsByLine(leftLeader, rightLeader);
+            }
+
+            // Add all parts of the longest common sequence, and any material between adjoining segments.
+            var firstSegmentValue = leftLines[firstSegment.leftIndex];
+
+            if (leadingSegments.length) {
+                var lastLeadingSegmentValue = leadingSegments.pop();
+                segments = segments.concat(leadingSegments);
+
+                // "knit" together the last piece of leading material with the first segment if their types are the same.
+                if (lastLeadingSegmentValue.type === firstSegmentValue.type) {
+                    firstSegmentValue = { value: lastLeadingSegmentValue.value + firstSegmentValue.value, type: lastLeadingSegmentValue.type };
+                }
+                else {
+                    segments.push(lastLeadingSegmentValue);
+                }
+            }
+
+            var adjoiningSegments    = [firstSegmentValue];
+            var previousLeftIndex    = firstSegment.leftIndex;
+            var previousRightIndex   = firstSegment.rightIndex;
+            fluid.each(longestLineSequence.slice(1), function (sequenceSegment) {
+                var segmentValue = rightLines[sequenceSegment.rightIndex];
+                // adjoining segment
+                if ((sequenceSegment.leftIndex === previousLeftIndex + 1) && (sequenceSegment.rightIndex === previousRightIndex + 1)) {
+                    adjoiningSegments.push(segmentValue);
+                }
+                // non-adjoining segment
+                else {
+                    // Join the previously collected adjoining matching segments together and add them as a single "unchanged" block.
+                    segments.push({value: adjoiningSegments.join(""), type: "unchanged"});
+
+                    // Compare material in "the gap" using the "string segment comparison" function.
+                    var leftGapString = leftString.substring(leftIndices[previousLeftIndex] + segmentValue.length, leftIndices[sequenceSegment.leftIndex]);
+                    var rightGapString = rightString.substring(rightIndices[previousRightIndex] + segmentValue.length, rightIndices[sequenceSegment.rightIndex]);
+                    var gapSegments = gpii.diff.compareStringsBySegment(leftGapString, rightGapString);
+
+                    // Knit the first part of the gap into the last existing adjoining segment
+                    var lastPregapSegment = segments.pop();
+                    var firstGapSegment   = gapSegments.shift();
+                    if (lastPregapSegment.type === firstGapSegment.type) {
+                        segments.push({ value: lastPregapSegment.value + firstGapSegment.value, type: lastPregapSegment.type });
+                    }
+                    else {
+                        segments.push(lastPregapSegment);
+                        segments.push(firstGapSegment);
+                    }
+
+                    segments = segments.concat(gapSegments);
+
+                    // Reset the "adjoining segments" accumulator for the next batch.
+                    adjoiningSegments = [segmentValue];
+                }
+                previousLeftIndex    = sequenceSegment.leftIndex;
+                previousRightIndex   = sequenceSegment.rightIndex;
+            });
+
+            // Add any remaining adjoiningSegments we've accumulated, but do so as a considered "knit", so that we can merge with the trailing edge of a "gap sequence" if needed.
+            if (adjoiningSegments.length) {
+                var remainingAdjoiningSegmentValue = adjoiningSegments.join("");
+                if (segments.length) {
+                    var precedingSegment = segments.pop();
+                    if (precedingSegment.type === "unchanged") {
+                        segments.push({value: precedingSegment.value + remainingAdjoiningSegmentValue, type: "unchanged"});
+                    }
+                    else {
+                        segments.push(precedingSegment);
+                        segments.push({value: remainingAdjoiningSegmentValue, type: "unchanged"});
+                    }
+                }
+                else {
+                    segments.push({value: remainingAdjoiningSegmentValue, type: "unchanged"});
+                }
+            }
+
+            // trailing material
+            var trailingSegments = [];
+            var lastSegment = longestLineSequence[longestLineSequence.length - 1];
+            var lastLeftIndex = leftIndices[lastSegment.leftIndex] + leftLines[lastSegment.leftIndex].length;
+            var lastRightIndex = rightIndices[lastSegment.rightIndex] + rightLines[lastSegment.rightIndex].length;
+            if (lastLeftIndex < leftString.length || lastRightIndex < rightString.length) {
+                var leftTrailingString  = leftString.substring(lastLeftIndex);
+                var rightTrailingString = rightString.substring(lastRightIndex);
+                trailingSegments = gpii.diff.compareStringsBySegment(leftTrailingString, rightTrailingString);
+            }
+
+            // "knit" together the last piece of leading material with the first segment if their types are the same.
+            if (trailingSegments.length) {
+                var lastMiddleSegment = segments.pop();
+                var firstTrailingSegmentValue = trailingSegments.shift();
+                if (firstTrailingSegmentValue.type === lastMiddleSegment.type) {
+                    segments.push({ value: lastMiddleSegment.value + firstTrailingSegmentValue.value, type: lastMiddleSegment.type});
+                }
+                else {
+                    segments.push(lastMiddleSegment);
+                    segments.push(firstTrailingSegmentValue);
+                }
+                segments = segments.concat(trailingSegments);
+            }
+            return segments;
+        }
+        else {
+            return gpii.diff.compareStringsBySegment(leftString, rightString);
+        }
+    }
+};
+
+gpii.diff.stringToLineSegments = function (originalString) {
+    var segments = [];
+
+    if (typeof originalString === "string") {
+        var matches = originalString.match(/([^\r\n]+[\r\n]+)/mg);
+        if (matches) {
+            segments = segments.concat(matches);
+        }
+    }
+    else if (originalString !== undefined && originalString !== null) {
+        fluid.fail("gpii.diff.stringToLine can only be used with string, undefined, or null values.");
+    }
+
+    return segments;
+};
+
+gpii.diff.calculateStringSegmentIndices = function (arrayOfStrings) {
+    var indexValues = [];
+    var currentIndex = 0;
+    fluid.each(arrayOfStrings, function (string) {
+        indexValues.push(currentIndex);
+        currentIndex += string.length;
+    });
+    return indexValues;
+};
+
+/**
+ *
+ * Compare strings by "segment", where a segment is a block of non-word or word characters.
+ *
+ * @param `leftString` {String} - The first string, from whose perspective the "diff" results will be represented.
+ * @param `rightString` {String} - The second string, to compare to the first string.
+ * @return {Array} - An array of "segments" representing `rightString` as compared to `leftString`.
+ *
+ */
+gpii.diff.compareStringsBySegment = function (leftString, rightString) {
     if (leftString === undefined && rightString === undefined) {
         return gpii.diff.singleValueDiff(leftString, rightString);
     }
     else if (gpii.diff.isStringNullOrUndefined(leftString) && gpii.diff.isStringNullOrUndefined(rightString)) {
-        var leftSegments  = gpii.diff.extractSegments(leftString);
+        var leftSegments = gpii.diff.extractSegments(leftString);
         var rightSegments = gpii.diff.extractSegments(rightString);
         var arrayDiff = gpii.diff.compareArrays(leftSegments, rightSegments);
         var stringDiff = [];
         fluid.each(arrayDiff, function (arrayDiffSegment) {
-            stringDiff.push({ value: arrayDiffSegment.arrayValue.join(""), type: arrayDiffSegment.type});
+            stringDiff.push({value: arrayDiffSegment.arrayValue.join(""), type: arrayDiffSegment.type});
         });
         return stringDiff;
     }
@@ -214,62 +415,110 @@ gpii.diff.longestCommonSequence = function (leftArray, rightArray) {
     var longestCommonSequence = [];
 
     if (Array.isArray(leftArray) && leftArray.length && Array.isArray(rightArray) && rightArray.length) {
-        var previousRow = fluid.generate(leftArray.length, []);
+        var previousRow = fluid.generate(rightArray.length, []);
         var currentRow = fluid.generate(rightArray.length, []);
-        for (var a = 0; a < leftArray.length; a++) {
-            for (var b = 0; b < rightArray.length; b++) {
-                var cellSequences = [];
-                // This should only pull the longest of the previous sequences, or both if they are of equal length.
-                var inheritedSequences = [];
-                // Pull in results from our "upstairs neighbor".
-                if (a > 0 && previousRow[b].length) {
-                    inheritedSequences = inheritedSequences.concat(previousRow[b]);
-                }
-                // Pull in additional results from our immediately prior "neighbor".
-                if (b > 0 && currentRow[b - 1].length) {
-                    inheritedSequences = inheritedSequences.concat(currentRow[b - 1]);
-                }
-
-                // Add the longest distinct sequences to our set of longest matches.
-                if (inheritedSequences.length) {
-                    cellSequences = cellSequences.concat(gpii.diff.longestDistinctSequences(inheritedSequences));
-                }
-
-                if (gpii.diff.equals(leftArray[a], rightArray[b])) {
-                    if (cellSequences.length === 0) {
-                        cellSequences.push([]);
+        var sequences = [];
+        for (var rowIndex = 0; rowIndex < leftArray.length; rowIndex++) {
+            for (var colIndex = 0; colIndex < rightArray.length; colIndex++) {
+                var cellSequenceIds = [];
+                // Pull in distinct results from our "upstairs neighbor".
+                if (rowIndex > 0 && previousRow[colIndex].length) {
+                    for (var prevRowIndex = 0; prevRowIndex < previousRow[colIndex].length; prevRowIndex++) {
+                        var sequenceIndex = previousRow[colIndex][prevRowIndex];
+                        if (cellSequenceIds.indexOf(sequenceIndex) === -1) {
+                            cellSequenceIds.push(sequenceIndex);
+                        }
                     }
+                }
+                // Pull in additional distinct results from our immediately prior "neighbor".
+                if (colIndex > 0 && currentRow[colIndex - 1].length) {
+                    for (var prevColIndex = 0; prevColIndex < currentRow[colIndex - 1].length; prevColIndex++) {
+                        var prevColSequenceId = currentRow[colIndex - 1][prevColIndex];
+                        if (cellSequenceIds.indexOf(prevColSequenceId) === -1) {
+                            cellSequenceIds.push(prevColSequenceId);
+                        }
+                    }
+                }
 
-                    for (var c = 0; c < cellSequences.length; c++) {
-                        var sequence = cellSequences[c];
-                        var cellMatchSegment = { leftIndex: a, rightIndex: b };
-                        if (sequence.length) {
+                if (gpii.diff.equals(leftArray[rowIndex], rightArray[colIndex])) {
+                    var cellMatchSegment = [{leftIndex: rowIndex, rightIndex: colIndex}];
+                    var cellMatchSequenceId = sequences.push(cellMatchSegment) - 1;
+
+                    for (var c = 0; c < cellSequenceIds.length; c++) {
+                        var sequenceId = cellSequenceIds[c];
+                        var sequence = sequences[sequenceId];
+                        if (sequence !== undefined && sequence.length) {
                             var lastSequenceSegment = sequence[sequence.length - 1];
-                            if ((lastSequenceSegment.leftIndex === undefined || lastSequenceSegment.leftIndex < a) && (lastSequenceSegment.rightIndex === undefined || lastSequenceSegment.rightIndex < b)) {
-                                sequence.push(cellMatchSegment);
+                            if ((lastSequenceSegment.leftIndex === undefined || lastSequenceSegment.leftIndex < rowIndex) && (lastSequenceSegment.rightIndex === undefined || lastSequenceSegment.rightIndex < colIndex)) {
+                                var sequencePlusMatch = sequence.concat(cellMatchSegment);
+                                var sequencePlusMatchId = sequences.push(sequencePlusMatch) - 1;
+                                cellSequenceIds.push(sequencePlusMatchId);
                             }
                         }
-                        else {
-                            sequence.push(cellMatchSegment);
-                        }
                     }
+                    cellSequenceIds.push(cellMatchSequenceId);
                 }
-                // TODO: Remove this when we no longer need to look at the complete solution table.
-                // console.log("a:", a, "b:", b, " = ", JSON.stringify(cellSequences));
-                currentRow[b] = cellSequences;
+                currentRow[colIndex] = gpii.diff.longestDistinctSequenceIds(cellSequenceIds, sequences);
             }
-            previousRow = currentRow;
+
+            var collapsedResults = gpii.diff.collapseSequencesAndCurrentRow(sequences, currentRow);
+            sequences = collapsedResults.updatedSequences;
+            previousRow = collapsedResults.updatedRow;
+            // previousRow = currentRow;
         }
-        var lastCell = currentRow[rightArray.length - 1];
+
+        var lastCell = previousRow[previousRow.length - 1];
         if (lastCell.length) {
-            lastCell.sort(gpii.diff.sortByLengthThenTightnessThenIndex);
+            var lastCellSequences = [];
+            for (var d = 0; d < lastCell.length; d++) {
+                lastCellSequences.push(sequences[lastCell[d]]);
+            }
+            lastCellSequences.sort(gpii.diff.sortByLengthThenTightnessThenIndex);
 
             // Return only the first, longest sequence.
-            longestCommonSequence = lastCell[0];
+            longestCommonSequence = lastCellSequences[0];
         }
     }
 
     return longestCommonSequence;
+};
+
+/**
+ *
+ * Rebuild the array of known sequences so that it only includes the IDs found in the current row, and rebuild the
+ * current row to reflect the new sequence IDs.  Note that there is no effort made to preserve the existing ordering,
+ * even if all sequences are found in one or more cells, `updatedSequences`
+ *
+ * @param sequences `{Array}` - An array of full sequences.
+ * @param row `{Array}` - An array of "cells", each containing an array of sequence IDs.
+ * @returns results `{Object}` - An object containing `updatedSequences`, an updated array of sequences, and `updatedRow`, an updated version of `row` that points to the new indexes in `updatedSequences`.
+ *
+ */
+gpii.diff.collapseSequencesAndCurrentRow = function (sequences, row) {
+    // collapse the sequences array before passing it to the next row.
+    var updatedSequences = [];
+    var oldIdToNew = {};
+    var updatedRow = [];
+    fluid.each(row, function (cellSequences) {
+        var updatedCellSequenceIds = [];
+        fluid.each(cellSequences, function (oldSequenceId) {
+            if (oldIdToNew[oldSequenceId] !== undefined) {
+                updatedCellSequenceIds.push(oldIdToNew[oldSequenceId]);
+            }
+            else {
+                var sequenceToPreserve = sequences[oldSequenceId];
+                var newSequenceId = updatedSequences.push(sequenceToPreserve) - 1;
+                oldIdToNew[oldSequenceId] = newSequenceId;
+                updatedCellSequenceIds.push(newSequenceId);
+            }
+        });
+        updatedRow.push(updatedCellSequenceIds);
+    });
+
+    return {
+        updatedSequences: updatedSequences,
+        updatedRow: updatedRow
+    };
 };
 
 /**
@@ -283,7 +532,7 @@ gpii.diff.longestCommonSequence = function (leftArray, rightArray) {
 gpii.diff.longestDistinctSequences = function (sequences) {
     var longestSequences = [];
     if (sequences.length > 0) {
-        var sortedSequences = fluid.copy(sequences).sort(gpii.diff.sortByLengthThenTightnessThenIndex);
+        var sortedSequences = fluid.makeArray(sequences).sort(gpii.diff.sortByLengthThenTightnessThenIndex);
         var longestEntry = sortedSequences[0];
         longestSequences.push(longestEntry);
         fluid.each(sortedSequences.slice(1), function (sequence) {
@@ -293,6 +542,32 @@ gpii.diff.longestDistinctSequences = function (sequences) {
         });
     }
     return longestSequences;
+};
+
+/**
+ *
+ * "Rehydrate" a set of sequence IDs, then sort them using `gpii.diff.longestDistinctSequences`, then "dehydrate" them
+ * as sequence IDs.
+ *
+ * @param `sequenceIds` - An array of sequence IDs to evaluate.
+ * @param `sequences` - An array containing all possible sequences found to date.
+ * @returns `Array` - An array of the longest distinct sequence IDs.
+ *
+ */
+gpii.diff.longestDistinctSequenceIds = function (sequenceIds, sequences) {
+    var sequencesById = {};
+    fluid.each(sequenceIds, function (sequenceId) {
+        sequencesById[sequenceId] = sequences[sequenceId];
+    });
+    var longestDistinctSequences = gpii.diff.longestDistinctSequences(fluid.values(sequencesById));
+    var longestDistinctSequenceIds = fluid.transform(longestDistinctSequences, function (longestDistinctSequence) {
+        return fluid.find(sequences, function (sequence, sequenceIndex) {
+            if (gpii.diff.arraysEqual(sequence, longestDistinctSequence)) {
+                return sequenceIndex;
+            }
+        });
+    });
+    return longestDistinctSequenceIds;
 };
 
 /**
@@ -341,7 +616,7 @@ gpii.diff.compareArrays = function (leftArray, rightArray) {
         var segments = [];
 
         if (gpii.diff.arraysEqual(leftArray, rightArray)) {
-            segments.push({ arrayValue: leftArray, type: "unchanged"});
+            segments.push({arrayValue: leftArray, type: "unchanged"});
         }
         else {
             // Find the longest match, process it, then process any trailing and leading material.
@@ -357,8 +632,8 @@ gpii.diff.compareArrays = function (leftArray, rightArray) {
                 }
 
                 // Add all parts of the longest common sequence, and any material between adjoining segments.
-                var adjoiningSegments  = [leftArray[longestCommonSequence[0].leftIndex]];
-                var previousLeftIndex  = longestCommonSequence[0].leftIndex;
+                var adjoiningSegments = [leftArray[longestCommonSequence[0].leftIndex]];
+                var previousLeftIndex = longestCommonSequence[0].leftIndex;
                 var previousRightIndex = longestCommonSequence[0].rightIndex;
                 fluid.each(longestCommonSequence.slice(1), function (sequenceSegment) {
                     var segmentValue = leftArray[sequenceSegment.leftIndex];
@@ -368,7 +643,7 @@ gpii.diff.compareArrays = function (leftArray, rightArray) {
                     }
                     // non-adjoining segment
                     else {
-                        segments.push({ arrayValue: adjoiningSegments, type: "unchanged"});
+                        segments.push({arrayValue: adjoiningSegments, type: "unchanged"});
                         adjoiningSegments = [segmentValue];
 
                         // Iterate through the "removed" left elements.
@@ -386,7 +661,7 @@ gpii.diff.compareArrays = function (leftArray, rightArray) {
                     previousLeftIndex = sequenceSegment.leftIndex;
                     previousRightIndex = sequenceSegment.rightIndex;
                 });
-                segments.push({ arrayValue: adjoiningSegments, type: "unchanged"});
+                segments.push({arrayValue: adjoiningSegments, type: "unchanged"});
 
                 // Compare the "trailers"
                 var lastSegment = longestCommonSequence[longestCommonSequence.length - 1];
@@ -510,11 +785,13 @@ gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMa
     var results = {};
     var leftKeys = leftObject !== undefined ? Object.keys(leftObject) : [];
     var rightKeys = rightObject !== undefined ? Object.keys(rightObject) : [];
-    var combinedKeys = leftKeys.concat(rightKeys.filter(function (rightKey) { return leftKeys.indexOf(rightKey) === -1; }));
+    var combinedKeys = leftKeys.concat(rightKeys.filter(function (rightKey) {
+        return leftKeys.indexOf(rightKey) === -1;
+    }));
     if (combinedKeys.length) {
         for (var a = 0; a < combinedKeys.length; a++) {
             var key = combinedKeys[a];
-            var leftValue  = leftObject !== undefined ? leftObject[key] : undefined;
+            var leftValue = leftObject !== undefined ? leftObject[key] : undefined;
             var rightValue = rightObject !== undefined ? rightObject[key] : undefined;
             results[key] = gpii.diff.compare(leftValue, rightValue, compareStringsAsMarkdown, markdownitOptions);
         }
@@ -525,10 +802,10 @@ gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMa
     }
     // Both values are an empty object.
     else if (gpii.diff.objectsEqual(leftObject, rightObject)) {
-        results[""] = [{ value: leftObject, type: "unchanged"}];
+        results[""] = [{value: leftObject, type: "unchanged"}];
     }
     else {
-        results[""] = [{ value: leftObject, type: "removed"}, { value: rightObject, type: "added"}];
+        results[""] = [{value: leftObject, type: "removed"}, {value: rightObject, type: "added"}];
     }
     return results;
 };

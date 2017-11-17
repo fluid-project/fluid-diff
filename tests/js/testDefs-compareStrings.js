@@ -77,7 +77,7 @@ fluid.defaults("gpii.test.diff.testDefs.compareStrings", {
                 expected:  [{ value: "defined", type: "added"}]
             },
             wholeWords: {
-                message:   "Our algorithm should err on the side of matching whole words...",
+                message:   "Our algorithm should only match whole words...",
                 leftValue: "catapults can throw things high in the air.",
                 rightValue: "cats can jump high in the air.",
                 expected:  [

@@ -21,6 +21,10 @@ gpii.test.diff.longestCommonSequence.runSingleTest = function (testDef) {
     });
 };
 
+gpii.test.diff.generateMassiveMatch = function (index) {
+    return { leftIndex: index, rightIndex: index };
+};
+
 fluid.defaults("gpii.test.diff.longestCommonSequence", {
     gradeNames: ["fluid.component"],
     // We want to compare to undefined values, so we need to avoid trying to expand or merge them.
@@ -94,6 +98,19 @@ fluid.defaults("gpii.test.diff.longestCommonSequence", {
             leftValue:  [1, undefined, 0],
             rightValue: [2, undefined, 0],
             expected:   [{ leftIndex: 1, rightIndex: 1 }, { leftIndex: 2, rightIndex: 2}]
+        },
+        // This is an unusually gruelling comparison because there are very many sub-matches of the same length.
+        tenByTenMatches: {
+            message:    "We should be able to complete a 10 x 10 comparison with matches...",
+            leftValue:  fluid.generate(10, "a"),
+            rightValue: fluid.generate(10, "a"),
+            expected:   fluid.generate(10, gpii.test.diff.generateMassiveMatch, true)
+        },
+        fiveHundredByfiveHundredNoMatch: {
+            message:    "We should be able to complete a 500 x 500 comparison with no matches...",
+            leftValue:  fluid.generate(500, "a"),
+            rightValue: fluid.generate(500, "b"),
+            expected:   []
         }
     },
     listeners: {

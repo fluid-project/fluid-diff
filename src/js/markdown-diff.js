@@ -33,6 +33,7 @@ var cheerio    = typeof require !== "undefined" ? require("cheerio") : gpii.diff
  * @param rightMarkdown {String} - A string to compare to `leftMarkdown`.
  * @param markdownItOptions {Object} - Configuration options to pass to MarkdownIt.  See their docs for supported options.
  * @returns {*}
+ *
  */
 gpii.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, markdownItOptions) {
     if (leftMarkdown === undefined || rightMarkdown === undefined || typeof leftMarkdown !== "string" || typeof rightMarkdown !== "string") {
@@ -57,7 +58,11 @@ gpii.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, markdownItOpt
 gpii.diff.markdownToText = function (markdown, markdownItOptions) {
     var mdRenderer = new MarkDownIt(markdownItOptions);
     var html = mdRenderer.render(markdown);
-    var $ = cheerio.load(html);
-    // The rendering cycle introduces a trailing carriage return that we explicitly remove.
-    return $.text().replace(/[\r\n]+$/, "");
+    var htmlWithHarderBreaks = html.replace(/<br\/?>(?![\r\n])/mig,"<br/>\n");
+    var $ = cheerio.load(htmlWithHarderBreaks);
+    // Replace all break tags with a break and a carriage return to assist in splitting up the output into lines.
+    // The rendering cycle also introduces a trailing carriage return that we explicitly remove.
+    var rawText = $.text();
+    var textMinusTrailingReturn = rawText.replace(/[\r\n]+$/, "");
+    return textMinusTrailingReturn;
 };

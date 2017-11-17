@@ -162,7 +162,6 @@ fluid.defaults("gpii.test.diff.testDefs.compareObjects", {
                 expected:   { deep: { md: [{value: "bold", type: "removed"}, { value: "italic", type: "added"}]} },
                 compareStringsAsMarkdown: true
             },
-            // real example from the UL
             deepComplexHtml: {
                 message:    "We should be able to handle HTML tables...",
                 leftValue:  { deep: { html: "<table border='0'><tr><td colspan='3'>The following specifications may only comply to some variants.</td></tr><tr><td colspan='3'><strong>Intended/suitable for one-hand operation</strong></td></tr><tr><td colspan='3'><strong>Left-hand keyboard</strong></td></tr><tr><td colspan='3'><strong>Wireless</strong></td></tr></table>" } },

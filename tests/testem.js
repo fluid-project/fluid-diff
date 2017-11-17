@@ -21,6 +21,7 @@ var testemComponent = gpii.testem({
         "tests/static/tests-compareStrings.html",
         "tests/static/tests-equals.html",
         "tests/static/tests-longestCommonSequence.html",
+        "tests/static/tests-longestDistinctSequenceIds.html",
         "tests/static/tests-objectsEqual.html",
         "tests/static/tests-singleValueDiff.html",
         "tests/static/tests-sort.html",
