@@ -33,7 +33,7 @@
         "fluid-grunt-json5lint": "1.0.0",
         "gpii-grunt-mdjson-lint": "1.0.0-dev.20171024T123903Z.3c91988",
         "gpii-launcher": "1.0.0-dev.20170712T140305Z.aa60d4a",
-        "gpii-testem": "1.0.2-dev.20170915T134457Z.727095d",
+        "gpii-testem": "1.0.2-dev.20171120T141143Z.86d40cd",
         "grunt": "1.0.1",
         "grunt-markdownlint": "1.0.42",
         "grunt-jsonlint": "1.1.0",

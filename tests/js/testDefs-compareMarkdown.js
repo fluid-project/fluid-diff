@@ -14,7 +14,7 @@ fluid.defaults("gpii.test.diff.testDefs.compareMarkdown", {
                 message:    "Changes within tags should be handled correctly...",
                 leftValue:  "<b>This is bold</b>",
                 rightValue: "<b>This is no less bold</b>",
-                expected:   [{value: "This is ", type: "unchanged"}, { value:  "no less ", type: "added"}, { value: "bold", type: "unchanged"}]
+                expected:   [{value: "This is", type: "unchanged"}, { value:  " no less", type: "added"}, { value: " bold", type: "unchanged"}]
             },
             htmlTagsChanged: {
                 message:    "Changes to only HTML tags should not be reported as changes...",

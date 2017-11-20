@@ -26,7 +26,7 @@ fluid.defaults("gpii.test.diff.testDefs.compareStrings", {
                 message:   "We should be able to deal with cases in which material is added to the middle of a string...",
                 leftValue: "old string",
                 rightValue: "old and new string",
-                expected:  [{ value: "old ", type: "unchanged"}, { value: "and new ", type: "added"}, { value: "string", type: "unchanged"}]
+                expected:  [{ value: "old", type: "unchanged"}, { value: " and new", type: "added"}, { value: " string", type: "unchanged"}]
             },
             deleteLeadingMaterial: {
                 message:   "We should be able to deal with cases in which material is deleted from the beginning of a string...",
@@ -44,7 +44,7 @@ fluid.defaults("gpii.test.diff.testDefs.compareStrings", {
                 message:   "We should be able to deal with cases in which material is deleted from the middle of a string...",
                 leftValue: "Bacon, avocado, lettuce, and tomato",
                 rightValue: "Bacon, lettuce, and tomato",
-                expected:  [{ value: "Bacon, ", type: "unchanged"}, { value: "avocado, ", type: "removed"}, { value: "lettuce, and tomato", type: "unchanged"}]
+                expected:  [{ value: "Bacon", type: "unchanged"}, { value: ", avocado", type: "removed"}, { value: ", lettuce, and tomato", type: "unchanged"}]
             },
             completelyDifferent: {
                 message:   "We should be able to deal with two strings that do not match at all...",
@@ -56,7 +56,7 @@ fluid.defaults("gpii.test.diff.testDefs.compareStrings", {
                 message:   "We should be able to deal with cases in which duplicate information is added to a string...",
                 leftValue: "foo",
                 rightValue: "foo foo",
-                expected:  [{ value: "foo", type: "unchanged"}, { value: " foo", type: "added"}]
+                expected:  [{ value: "foo ", type: "added"}, { value: "foo", type: "unchanged"}]
             },
             alternateEnding: {
                 message:   "We should be able to deal with cases in which only the endings are different...",
@@ -84,11 +84,9 @@ fluid.defaults("gpii.test.diff.testDefs.compareStrings", {
                     { value: "catapults", type: "removed"},
                     { value: "cats", type: "added"},
                     { value: " can ", type: "unchanged"},
-                    { value: "throw", type: "removed"},
+                    { value: "throw things", type: "removed"},
                     { value: "jump", type: "added"},
-                    { value: " ", type: "unchanged"},
-                    { value: "things ", type: "removed"},
-                    { value: "high in the air.", type: "unchanged"}
+                    { value: " high in the air.", type: "unchanged"}
                 ]
             },
             multiLine: {

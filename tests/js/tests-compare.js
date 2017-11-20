@@ -13,7 +13,6 @@ if (typeof require !== "undefined") {
     require("./testDefs-compareMarkdown");
     require("./testDefs-compareObjects");
     require("./testDefs-compareStrings");
-    require("./testDefs-compareStringsByLine");
 }
 
 fluid.registerNamespace("gpii.test.diff.compare");
