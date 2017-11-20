@@ -10,6 +10,7 @@ if (typeof require !== "undefined") {
     gpii.diff.loadMarkdownSupport();
 
     require("./testDefs-compareMarkdown");
+    require("./lib/diagramTracebackTable");
 };
 
 jqUnit.module("Unit tests for markdown diff function...");

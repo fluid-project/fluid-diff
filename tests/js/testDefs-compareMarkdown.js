@@ -99,13 +99,333 @@ fluid.defaults("gpii.test.diff.testDefs.compareMarkdown", {
                     }
                 ]
             },
-            // // TODO:  This one does not OOM, but never seems to complete, I suspect the sequence collection takes too long...
-            // massive: {
-            //     message:    "We should be able to handle a fairly large comparison.",
-            //     leftValue:  "-Machine translation- Main Features: - Capture system: digital camera - OCR-module: Abby FinReader - Battery: no - Automatic language detection: yes Additional information: - In Belgium EasyReaderPlus is also sold under the name Retina. There are four versions of the Retina: Basic, Pro, Zoom and Touch. - The base unit is a narrow and high enclosure with a sloping top. At the top there are seven control buttons en the camera slides via a folding arm into the base unit. This is Retina Basic. - Retina Pro consists of the base unit with an extra keyboard. The keyboard is used fot advanced features such as save, import (PDF, BMP, JPEG, PNG and TIFF), placing bookmarks, multi-page processing (up to 20 pages per minute) and exporting tect as MP3 sound files. - Retina Zoom consists of four elements: the base unit, the keyboard, a trackball and a widescreen display. - On the display the text can be showed enlarged an in different color combinations (max. 64). The text can either be moved horizantally or vertically with the trackball. In the mean time the text is read. - Retina Touch comes with a touchscreen instead of an ordinary screen. Now you can use your finger to indicate the word where Retina should start to read. - Text on round objects such as cans can also be read. - The text is placed in front of the unit and under the camera to then be read. You can listen to the sound via the built-in stereo speakers or a headphone. - The unit comes standard wtih one language of choice. Each language contains multiple voices. You can choose form 17 languages, of which up to four can be intstalled on the device. The reading unit automatically switches to the appropriate language. - Includes accessoires: headphone with volume control an a high-contrast mat to position the text under the camera. - Power supply: 110-240 V - Dimensions base unit: 22 x 12 x 26 cm - Weight base unti: 2,45 kg Producer VISIONAID INTERNATIONAL Great Britain E-mail: sales@visionaid-international.com Suppliers and prices Belgium: Ergra Angels: EUR 1 860 for a Basic language (May 2011, including VAT) Belgium: Integra: EUR 1995-3395 (April 2011, including VAT) Netherlands: Slechtziend.nl: EUR 1,055 for the basic version (April 2011, including VAT)",
-            //     rightValue: "Main Features:<br>- Capture system: digital camera<br>- OCR-module: Abby FinReader<br>- Battery: no<br>- Automatic language detection: yes<br>Additional information:<br>- In Belgium EasyReaderPlus is also sold under the name Retina. There are four versions of the Retina: Basic, Pro, Zoom and Touch.<br>- The base unit is a narrow and high enclosure with a sloping top. At the top there are seven control buttons en the camera slides via a folding arm into the base unit. This is Retina Basic.<br>- Retina Pro consists of the base unit with an extra keyboard. The keyboard is used fot advanced features such as save, import (PDF, BMP, JPEG, PNG and TIFF), placing bookmarks, multi-page processing (up to 20 pages per minute) and exporting tect as MP3 sound files.<br>- Retina Zoom consists of four elements: the base unit, the keyboard, a trackball and a widescreen display.<br>- On the display the text can be showed enlarged an in different color combinations (max. 64). The text can either be moved horizantally or vertically with the trackball. In the mean time the text is read.<br>- Retina Touch comes with a touchscreen instead of an ordinary screen. Now you can use your finger to indicate the word where Retina should start to read.<br>- Text on round objects such as cans can also be read.<br>- The text is placed in front of the unit and under the camera to then be read. You can listen to the sound via the built-in stereo speakers or a headphone.<br>- The unit comes standard wtih one language of choice. Each language contains multiple voices. You can choose form 17 languages, of which up to four can be intstalled on the device. The reading unit automatically switches to the appropriate language.<br>- Includes accessoires: headphone with volume control an a high-contrast mat to position the text under the camera.<br>- Power supply: 110-240 V<br>- Dimensions base unit: 22 x 12 x 26 cm<br>- Weight base unti: 2,45 kg<br>Producer<br>VISIONAID INTERNATIONAL<br>Great Britain<br>E-mail: sales@visionaid-international.com<br>Suppliers and prices<br>Belgium: Ergra Angels: EUR 1 860 for a Basic language (May 2011, including VAT)<br>Belgium: Integra: EUR 1995-3395 (April 2011, including VAT)<br>Netherlands: Slechtziend.nl: EUR 1,055 for the basic version (April 2011, including VAT)<br>",
-            //     expected:   []
-            // }
+            massive: {
+                message:    "We should be able to handle a fairly large comparison.",
+                leftValue:  "-Machine translation- Main Features: - Capture system: digital camera - OCR-module: Abby FinReader - Battery: no - Automatic language detection: yes Additional information: - In Belgium EasyReaderPlus is also sold under the name Retina. There are four versions of the Retina: Basic, Pro, Zoom and Touch. - The base unit is a narrow and high enclosure with a sloping top. At the top there are seven control buttons en the camera slides via a folding arm into the base unit. This is Retina Basic. - Retina Pro consists of the base unit with an extra keyboard. The keyboard is used fot advanced features such as save, import (PDF, BMP, JPEG, PNG and TIFF), placing bookmarks, multi-page processing (up to 20 pages per minute) and exporting tect as MP3 sound files. - Retina Zoom consists of four elements: the base unit, the keyboard, a trackball and a widescreen display. - On the display the text can be showed enlarged an in different color combinations (max. 64). The text can either be moved horizantally or vertically with the trackball. In the mean time the text is read. - Retina Touch comes with a touchscreen instead of an ordinary screen. Now you can use your finger to indicate the word where Retina should start to read. - Text on round objects such as cans can also be read. - The text is placed in front of the unit and under the camera to then be read. You can listen to the sound via the built-in stereo speakers or a headphone. - The unit comes standard wtih one language of choice. Each language contains multiple voices. You can choose form 17 languages, of which up to four can be intstalled on the device. The reading unit automatically switches to the appropriate language. - Includes accessoires: headphone with volume control an a high-contrast mat to position the text under the camera. - Power supply: 110-240 V - Dimensions base unit: 22 x 12 x 26 cm - Weight base unti: 2,45 kg Producer VISIONAID INTERNATIONAL Great Britain E-mail: sales@visionaid-international.com Suppliers and prices Belgium: Ergra Angels: EUR 1 860 for a Basic language (May 2011, including VAT) Belgium: Integra: EUR 1995-3395 (April 2011, including VAT) Netherlands: Slechtziend.nl: EUR 1,055 for the basic version (April 2011, including VAT)",
+                rightValue: "Main Features:<br>- Capture system: digital camera<br>- OCR-module: Abby FinReader<br>- Battery: no<br>- Automatic language detection: yes<br>Additional information:<br>- In Belgium EasyReaderPlus is also sold under the name Retina. There are four versions of the Retina: Basic, Pro, Zoom and Touch.<br>- The base unit is a narrow and high enclosure with a sloping top. At the top there are seven control buttons en the camera slides via a folding arm into the base unit. This is Retina Basic.<br>- Retina Pro consists of the base unit with an extra keyboard. The keyboard is used fot advanced features such as save, import (PDF, BMP, JPEG, PNG and TIFF), placing bookmarks, multi-page processing (up to 20 pages per minute) and exporting tect as MP3 sound files.<br>- Retina Zoom consists of four elements: the base unit, the keyboard, a trackball and a widescreen display.<br>- On the display the text can be showed enlarged an in different color combinations (max. 64). The text can either be moved horizantally or vertically with the trackball. In the mean time the text is read.<br>- Retina Touch comes with a touchscreen instead of an ordinary screen. Now you can use your finger to indicate the word where Retina should start to read.<br>- Text on round objects such as cans can also be read.<br>- The text is placed in front of the unit and under the camera to then be read. You can listen to the sound via the built-in stereo speakers or a headphone.<br>- The unit comes standard wtih one language of choice. Each language contains multiple voices. You can choose form 17 languages, of which up to four can be intstalled on the device. The reading unit automatically switches to the appropriate language.<br>- Includes accessoires: headphone with volume control an a high-contrast mat to position the text under the camera.<br>- Power supply: 110-240 V<br>- Dimensions base unit: 22 x 12 x 26 cm<br>- Weight base unti: 2,45 kg<br>Producer<br>VISIONAID INTERNATIONAL<br>Great Britain<br>E-mail: sales@visionaid-international.com<br>Suppliers and prices<br>Belgium: Ergra Angels: EUR 1 860 for a Basic language (May 2011, including VAT)<br>Belgium: Integra: EUR 1995-3395 (April 2011, including VAT)<br>Netherlands: Slechtziend.nl: EUR 1,055 for the basic version (April 2011, including VAT)<br>",
+                expected:   [
+                    {
+                        "value": "-Machine translation- ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "Main Features",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ": - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ":\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Capture system: digital camera",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": " - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "OCR-module: Abby FinReader",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": " - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Battery: no",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": " - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Automatic language detection: yes",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": " ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "\n",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Additional information",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ": - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ":\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "In Belgium EasyReaderPlus is also sold under the name Retina. There are four versions of the Retina: Basic, Pro, Zoom and Touch",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ". - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ".\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "The base unit is a narrow and high enclosure with a sloping top. At the top there are seven control buttons en the camera slides via a folding arm into the base unit. This is Retina Basic",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ". - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ".\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Retina Pro consists of the base unit with an extra keyboard. The keyboard is used fot advanced features such as save, import (PDF, BMP, JPEG, PNG and TIFF), placing bookmarks, multi-page processing (up to 20 pages per minute) and exporting tect as MP3 sound files",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ". - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ".\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Retina Zoom consists of four elements: the base unit, the keyboard, a trackball and a widescreen display",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ". - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ".\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "On the display the text can be showed enlarged an in different color combinations (max. 64). The text can either be moved horizantally or vertically with the trackball. In the mean time the text is read",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ". - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ".\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Retina Touch comes with a touchscreen instead of an ordinary screen. Now you can use your finger to indicate the word where Retina should start to read",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ". - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ".\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Text on round objects such as cans can also be read",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ". - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ".\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "The text is placed in front of the unit and under the camera to then be read. You can listen to the sound via the built-in stereo speakers or a headphone",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ". - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ".\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "The unit comes standard wtih one language of choice. Each language contains multiple voices. You can choose form 17 languages, of which up to four can be intstalled on the device. The reading unit automatically switches to the appropriate language",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ". - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ".\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Includes accessoires: headphone with volume control an a high-contrast mat to position the text under the camera",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ". - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ".\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Power supply: 110-240 V",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": " - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Dimensions base unit: 22 x 12 x 26 cm",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": " - ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "\n- ",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Weight base unti: 2,45 kg",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": " ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "\n",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Producer",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": " ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "\n",
+                        "type": "added"
+                    },
+                    {
+                        "value": "VISIONAID INTERNATIONAL",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": " ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "\n",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Great Britain",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": " ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "\n",
+                        "type": "added"
+                    },
+                    {
+                        "value": "E-mail: sales@visionaid-international.com",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": " ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "\n",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Suppliers and prices",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": " ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": "\n",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Belgium: Ergra Angels: EUR 1 860 for a Basic language (May 2011, including VAT",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ") ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ")\n",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Belgium: Integra: EUR 1995-3395 (April 2011, including VAT",
+                        "type": "unchanged"
+                    },
+                    {
+                        "value": ") ",
+                        "type": "removed"
+                    },
+                    {
+                        "value": ")\n",
+                        "type": "added"
+                    },
+                    {
+                        "value": "Netherlands: Slechtziend.nl: EUR 1,055 for the basic version (April 2011, including VAT)",
+                        "type": "unchanged"
+                    }
+                ]
+            }
         }
     }
 });

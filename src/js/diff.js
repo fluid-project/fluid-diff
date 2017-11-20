@@ -360,7 +360,8 @@ gpii.diff.tracebackLongestSequences = function (tracebackTable) {
                     }
                 }
             }
-            currentWave = nextWave;
+            var dedupedNextWave = gpii.diff.dedupeTracebackResults(nextWave);
+            currentWave = dedupedNextWave;
         }
 
         // Dedupe any sequences that can be reached by multiple paths.
@@ -376,6 +377,7 @@ gpii.diff.tracebackLongestSequences = function (tracebackTable) {
 
 /**
  *
+ * Sort two sequences by length, then by left indices, then by right indices.
  * Sort two sequences by length, then by left indices, then by right indices.
  *
  * @param a {Object} - A single sequence, an array of values like `{ leftIndex: 0, rightIndex: 1}`.
