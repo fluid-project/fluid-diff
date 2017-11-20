@@ -374,6 +374,15 @@ gpii.diff.tracebackLongestSequences = function (tracebackTable) {
     }
 };
 
+/**
+ *
+ * Sort two sequences by length, then by left indices, then by right indices.
+ *
+ * @param a {Object} - A single sequence, an array of values like `{ leftIndex: 0, rightIndex: 1}`.
+ * @param b {Object} - A second sequence to compare to `a`.
+ * @returns {number} - Returns `-1` if `a` should appear before `b`, `1` if b should appear before `a`, `0` if their position is interchangeable.
+ *
+ */
 gpii.diff.sortByMatchIndexes = function (a, b) {
     if (a.length > b.length) {
         return -1;

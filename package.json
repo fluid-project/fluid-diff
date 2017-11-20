@@ -7,7 +7,7 @@
         "pretest": "node node_modules/rimraf/bin.js reports/* coverage/*",
         "test": "npm run test:node && npm run test:browser",
         "test:node": "node node_modules/istanbul/lib/cli.js cover tests/node-tests.js --report none --print none",
-        "test:browser": "node node_modules/testem/testem.js --file tests/testem.js ci --skip Safari --launch Chrome",
+        "test:browser": "node node_modules/testem/testem.js --file tests/testem.js ci --skip Safari",
         "posttest": "node node_modules/istanbul/lib/cli.js report --root coverage --dir reports text-summary html"
     },
     "bugs": {

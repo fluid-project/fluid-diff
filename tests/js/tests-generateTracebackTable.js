@@ -25,6 +25,7 @@ gpii.test.diff.generateTracebackTable.runAllTests = function (that) {
 gpii.test.diff.generateTracebackTable.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
         var tracebackTable = gpii.diff.generateTracebackTable(testDef.leftValue, testDef.rightValue);
+        // console.log(gpii.test.diff.diagramTracebackTable(testDef.leftValue, testDef.rightValue, tracebackTable));
         jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, tracebackTable);
     });
 
@@ -51,7 +52,7 @@ fluid.defaults("gpii.test.diff.generateTracebackTable", {
                         "matchLength": 0
                     },
                     {
-                        "fromUpperLeft": false,
+                        "fromUpperLeft": true,
                         "fromLeft": false,
                         "fromAbove": false,
                         "matchLength": 1
@@ -77,7 +78,7 @@ fluid.defaults("gpii.test.diff.generateTracebackTable", {
                 ],
                 [
                     {
-                        "fromUpperLeft": false,
+                        "fromUpperLeft": true,
                         "fromLeft": false,
                         "fromAbove": false,
                         "matchLength": 1
@@ -239,7 +240,7 @@ fluid.defaults("gpii.test.diff.generateTracebackTable", {
                         "matchLength": 0
                     },
                     {
-                        "fromUpperLeft": false,
+                        "fromUpperLeft": true,
                         "fromLeft": false,
                         "fromAbove": false,
                         "matchLength": 1
@@ -265,7 +266,7 @@ fluid.defaults("gpii.test.diff.generateTracebackTable", {
                         "matchLength": 0
                     },
                     {
-                        "fromUpperLeft": false,
+                        "fromUpperLeft": true,
                         "fromLeft": false,
                         "fromAbove": false,
                         "matchLength": 1
@@ -291,7 +292,7 @@ fluid.defaults("gpii.test.diff.generateTracebackTable", {
                         "matchLength": 0
                     },
                     {
-                        "fromUpperLeft": false,
+                        "fromUpperLeft": true,
                         "fromLeft": false,
                         "fromAbove": false,
                         "matchLength": 1
@@ -317,7 +318,7 @@ fluid.defaults("gpii.test.diff.generateTracebackTable", {
                         "matchLength": 0
                     },
                     {
-                        "fromUpperLeft": false,
+                        "fromUpperLeft": true,
                         "fromLeft": false,
                         "fromAbove": false,
                         "matchLength": 1
@@ -343,7 +344,7 @@ fluid.defaults("gpii.test.diff.generateTracebackTable", {
                 ],
                 [
                     {
-                        "fromUpperLeft": false,
+                        "fromUpperLeft": true,
                         "fromLeft": false,
                         "fromAbove": false,
                         "matchLength": 1
