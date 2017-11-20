@@ -5,7 +5,13 @@ var gpii = fluid.registerNamespace("gpii");
 
 var jqUnit = jqUnit || require("node-jqunit");
 
-typeof require !== "undefined" && fluid.require("%gpii-diff");
+if (typeof require !== "undefined") {
+    fluid.require("%gpii-diff");
+
+    // Included so that we can diagram individual tracebacks in a debugger, as in:
+    // console.log(gpii.test.diff.diagramTracebackTable(testDef.leftValue, testDef.rightValue, tracebackTable));
+    require("./lib/diagramTracebackTable");
+};
 
 jqUnit.module("Unit tests for 'longest common sequence' function...");
 
@@ -16,7 +22,7 @@ gpii.test.diff.longestCommonSequence.runAllTests = function (that) {
 
 gpii.test.diff.longestCommonSequence.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
-        var result = gpii.diff.longestCommonSequence(testDef.leftValue, testDef.rightValue);
+        var result = gpii.diff.longestCommonSequences(testDef.leftValue, testDef.rightValue);
         jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
     });
 };
@@ -37,49 +43,53 @@ fluid.defaults("gpii.test.diff.longestCommonSequence", {
             message:    "Our results should match the wikipedia entry...",
             leftValue:  ["G", "A", "C"],
             rightValue: ["A", "G", "C", "A", "T"],
-            expected:   [{ leftIndex: 0, rightIndex: 1}, { leftIndex: 1, rightIndex: 3}]
+            expected:   [
+                [{ leftIndex: 0, rightIndex: 1}, { leftIndex: 1, rightIndex: 3}], // "GA"
+                [{ leftIndex: 0, rightIndex: 1}, { leftIndex: 2, rightIndex: 2}], // "GC"
+                [{ leftIndex: 1, rightIndex: 0}, { leftIndex: 2, rightIndex: 2}]  // "AC"
+            ]
+        },
+        noMatch: {
+            message:    "Arrays with no matches should be handled correctly...",
+            leftValue:  [0, 1, 2],
+            rightValue: [3, 4, 5],
+            expected:   []
         },
         leadingMatch: {
             message:    "A leading match should be detected correctly...",
             leftValue:  [1],
             rightValue: [1, 2, 3],
-            expected:   [{ leftIndex: 0, rightIndex: 0}]
+            expected:   [[{ leftIndex: 0, rightIndex: 0}]]
         },
         trailingRightMatch: {
             message:    "A trailing sequence should be detected correctly...",
             leftValue:  [2],
             rightValue: [1, 2],
-            expected:   [{ leftIndex: 0, rightIndex: 1 }]
+            expected:   [[{ leftIndex: 0, rightIndex: 1 }]]
         },
         intermediateMatch: {
             message:    "An intermediate contiguous match should be detected correctly...",
             leftValue:  [0, 1, 2, 3, 4],
             rightValue: [1, 2, 3],
-            expected:   [{ leftIndex: 1, rightIndex: 0 }, { leftIndex: 2, rightIndex: 1 }, { leftIndex: 3, rightIndex: 2 }]
+            expected:   [[{ leftIndex: 1, rightIndex: 0 }, { leftIndex: 2, rightIndex: 1 }, { leftIndex: 3, rightIndex: 2 }]]
         },
         interleavedMatch: {
             message:    "An interleaved match should be detected correctly...",
             leftValue:  [1, 3, 5],
             rightValue: [1, 2, 3, 4, 5],
-            expected:   [{ leftIndex: 0, rightIndex: 0 }, { leftIndex: 1, rightIndex: 2 }, { leftIndex: 2, rightIndex: 4 }]
-        },
-        firstLongestMatch: {
-            message:    "The first longest match should be returned...",
-            leftValue:  [1, 1, 0, 0],
-            rightValue: [0, 0, 1, 1],
-            expected:   [{ leftIndex: 0, rightIndex: 2 }, { leftIndex: 1, rightIndex: 3 }]
+            expected:   [[{ leftIndex: 0, rightIndex: 0 }, { leftIndex: 1, rightIndex: 2 }, { leftIndex: 2, rightIndex: 4 }]]
         },
         fullMatch: {
             message:    "Two arrays that are equal should return all segments...",
             leftValue:  ["peas", "porridge", "hot"],
             rightValue: ["peas", "porridge", "hot"],
-            expected:   [{ leftIndex: 0, rightIndex: 0 }, { leftIndex: 1, rightIndex: 1 }, { leftIndex: 2, rightIndex: 2 }]
+            expected:   [[{ leftIndex: 0, rightIndex: 0 }, { leftIndex: 1, rightIndex: 1 }, { leftIndex: 2, rightIndex: 2 }]]
         },
         objects: {
             message:    "We should be able to handle arrays of objects...",
             leftValue:  [{ foo: "bar"}, { baz: "qux"}],
             rightValue: [{ baz: "qux"}, { quux: "quuux"}],
-            expected:   [{leftIndex:1, rightIndex: 0}]
+            expected:   [[{leftIndex:1, rightIndex: 0}]]
         },
         undefinedRight: {
             message:    "We should be able to handle `undefined` as the right side of the comparison...",
@@ -97,19 +107,19 @@ fluid.defaults("gpii.test.diff.longestCommonSequence", {
             message:    "We should be able to work with `undefined` array values...",
             leftValue:  [1, undefined, 0],
             rightValue: [2, undefined, 0],
-            expected:   [{ leftIndex: 1, rightIndex: 1 }, { leftIndex: 2, rightIndex: 2}]
+            expected:   [[{ leftIndex: 1, rightIndex: 1 }, { leftIndex: 2, rightIndex: 2}]]
         },
         // This is an unusually gruelling comparison because there are very many sub-matches of the same length.
-        tenByTenMatches: {
-            message:    "We should be able to complete a 10 x 10 comparison with matches...",
-            leftValue:  fluid.generate(10, "a"),
-            rightValue: fluid.generate(10, "a"),
-            expected:   fluid.generate(10, gpii.test.diff.generateMassiveMatch, true)
+        sevenFiftySquaredMatch: {
+            message:    "We should be able to complete a 750 x 750 comparison with matches...",
+            leftValue:  fluid.generate(750, "a"),
+            rightValue: fluid.generate(750, "a"),
+            expected:   [fluid.generate(750, gpii.test.diff.generateMassiveMatch, true)]
         },
-        fiveHundredByfiveHundredNoMatch: {
-            message:    "We should be able to complete a 500 x 500 comparison with no matches...",
-            leftValue:  fluid.generate(500, "a"),
-            rightValue: fluid.generate(500, "b"),
+        sevenFiftySquaredNoMatch: {
+            message:    "We should be able to complete a 750 x 750 comparison with no matches...",
+            leftValue:  fluid.generate(750, "a"),
+            rightValue: fluid.generate(750, "b"),
             expected:   []
         }
     },

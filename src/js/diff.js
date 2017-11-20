@@ -128,7 +128,8 @@ gpii.diff.calculateTightness = function (lcsSegments) {
 /**
  *
  * Break down a string into an array of "segments" of alternating "word" and "non-word" content.  Treats `null` and
- * `undefined` values the same as empty strings.
+ * `undefined` values the same as empty strings.  Handles contractions and possessives only in the case where a single
+ * apostrophe occurs between two blocks of "word" content.
  *
  * @param originalString {String} - A string to break down into segments.
  * @returns {Array} - An array of substrings.
@@ -137,7 +138,7 @@ gpii.diff.extractSegments = function (originalString) {
     var segments = [];
 
     if (typeof originalString === "string") {
-        var matches = originalString.match(/([\w]+|[\W]+)/mg);
+        var matches = originalString.match(/([\w]+('[\w]+)?|[\W]+)/mg);
         if (matches) {
             segments = segments.concat(matches);
         }
@@ -181,122 +182,217 @@ gpii.diff.compareStrings = function (leftString, rightString) {
     // }
 };
 
-gpii.diff.longestCommonSequence2 = function (leftArray, rightArray) {
+gpii.diff.longestCommonSequences = function (leftArray, rightArray) {
     var tracebackTable = gpii.diff.generateTracebackTable(leftArray, rightArray);
-    var longestSequences = gpii.diff.tracebackLongestSequences(leftArray.length - 1, rightArray.length - 1, tracebackTable);
+    var longestSequences = gpii.diff.tracebackLongestSequences(tracebackTable);
     return longestSequences;
 };
 
-/*
-
- Instead of dehydrating, rehydrating the sequences, create a small structure that consists of a means of locating the previous subsequence, and the new material.
-
- {
- previousSequence: <REFERENCE>, // An object, inherited from a parent (above) or sibling (left), or a new sequence (null)
- newSegment:       <CONTENT>,   // "A value"
- length:           <NUMBER>     // length of the sequence to date, basically the inherited sequence length + 1
- }
-
- ["A", "B"] vs. ["A", "A"]
- // first digit is relative to left side, second index is relative to right.
-
- // Pass 0 0, "A" vs. "A"
- // nothing to inherit in either direction
- // match
- [{ previousSequence: null, newSegment: "A", length: 1}]
-
- // Pass 0 1, "A" vs. "B"
- // nothing to inherit from above
- // inherit from the left
- [{ previousSequence: null, newSegment: "A", length: 1}]
- // no match to add
-
- // Pass 1 0, "B" vs. "A"
- // nothing to inherit from the left
- // inherit from above
- [{ previousSequence: null, newSegment: "A", length: 1}]
- // no match
-
-
- // Pass 1 1, "B" vs. "A"
- // inherit from the left
- [{ previousSequence: null, newSegment: "A", length: 1}]
- // inherit from above
- [{ previousSequence: null, newSegment: "A", length: 1}]
-
- This involves creating a full table rather than two rows. At the end of the process, you track backwards
- from the last to the first, but only for the longest sequences.
-
- results = array.unshift(newSegment);
-
- Do the same for the previous segment until there is no previous segment (null).
-
- Talking about using the traceback approach instead where we just store length and "direction" of previous match.
-
- // Pass 0 0, "A" vs. "A"
- // nothing to inherit in either direction
- // match
- [{ fromLeft: false, fromAbove: false, length: 1}]
-
- // Pass 0 1, "A" vs. "B"
- // nothing to inherit from above
- // inherit from the left
- [{ fromAbove: false, fromLeft: true, length: 1}]
- // no match to add
-
- // Pass 1 0, "B" vs. "A"
- // nothing to inherit from the left
- // inherit from above
- [{ fromAbove: true, fromLeft: false, length: 1}]
- // no match
-
-
- // Pass 1 1, "B" vs. "A"
- // inherit from the left
- // inherit from above
- [{ fromAbove: true, fromLeft:true, length: 1}]
-
- Each segment will need to inherit the previousSequence value.  First row inherits null values from its lack of upper parent.  First column inherits null values from its lack of left sibling.
-
+/**
+ *
+ * Generate a "traceback table" that can be used to determine the longest common sequence in two arrays.  Adapted from:
+ *
+ * https://en.wikipedia.org/wiki/Longest_common_subsequence_problem#Traceback_approach
+ *
+ * The results are an array of sequences. Each sequence segment is an object which indicates the left and right index
+ * of the "match", as in this example, where only the first elements in both arrays match:
+ *
+ * [[{ leftIndex: 0, rightIndex: 0}]]
+ *
+ * Note: `undefined` values are treated as empty arrays.
+ *
+ * @param leftArray {Array} - An array of values.
+ * @param rightArray {Array} - An array of values to compare to `leftArray`.
+ * @returns {Array} - An array of the longest common sequences (see above).
+ *
  */
-
 gpii.diff.generateTracebackTable = function (leftArray, rightArray) {
+    // We treat "undefined" values as empty arrays.
+    leftArray = leftArray !== undefined ? leftArray : [];
+    rightArray = rightArray !== undefined ? rightArray : [];
     if (!Array.isArray(leftArray) || !Array.isArray(rightArray)) {
         fluid.fail("I can only generate traceback tables for arrays.");
     }
-    // var tracebackTable = fluid.generate(leftArray.length, fluid.generate(rightArray.length, {}));
     var tracebackTable = [];
-    for (var rowIndex = 0; rowIndex < leftArray.length; rowIndex++) {
-        var rowArray = []
-        for (var colIndex = 0; colIndex < rightArray.length; colIndex++) {
-            var longestPreviousByRow    = rowIndex > 0 && tracebackTable[rowIndex - 1][colIndex].matchLength ?  tracebackTable[rowIndex - 1][colIndex].matchLength : 0;
-            var longestPreviousByColumn = colIndex > 0 && rowArray[colIndex - 1].matchLength ?  rowArray[colIndex - 1].matchLength : 0;
-            var longestPrevious = Math.max(longestPreviousByRow, longestPreviousByColumn);
+    if (leftArray.length && rightArray.length) {
+        for (var rowIndex = 0; rowIndex < leftArray.length; rowIndex++) {
+            tracebackTable[rowIndex] = [];
+            for (var colIndex = 0; colIndex < rightArray.length; colIndex++) {
+                var isMatch        = gpii.diff.equals(leftArray[rowIndex], rightArray[colIndex]);
 
-            rowArray.push({
-                fromLeft:    longestPrevious > 0 && (longestPreviousByColumn === longestPrevious),
-                fromAbove:   longestPrevious > 0 && (longestPreviousByRow === longestPrevious),
-                matchLength: gpii.diff.equals(leftArray[rowIndex], rightArray[colIndex]) ? longestPrevious + 1 : longestPrevious
-            });
+                var longestPreviousByRow     = rowIndex > 0 && tracebackTable[rowIndex - 1][colIndex].matchLength ?  tracebackTable[rowIndex - 1][colIndex].matchLength : 0;
+                var longestPreviousByColumn  = colIndex > 0 && tracebackTable[rowIndex][colIndex - 1].matchLength ?  tracebackTable[rowIndex][colIndex - 1].matchLength : 0;
+                var longestPreviousUpperLeft = colIndex > 0 && rowIndex > 0 ? tracebackTable[rowIndex - 1][colIndex - 1].matchLength : 0;
+                var longestPrevious = Math.max(longestPreviousByRow, longestPreviousByColumn, longestPreviousUpperLeft);
+
+                var fromUpperLeft = isMatch && rowIndex > 0 && colIndex > 0;
+                var fromLeft      = !fromUpperLeft && longestPrevious > 0 && longestPreviousByColumn === longestPrevious;
+                var fromAbove     = !fromUpperLeft && longestPrevious > 0 && longestPreviousByRow === longestPrevious;
+
+                // Handle the special case in which both our upper and left neighbor inherited a match from the
+                // upperLeft diagonal cell.
+                if (fromUpperLeft && gpii.diff.equals(leftArray[rowIndex - 1], rightArray[colIndex - 1])) {
+                    longestPrevious = longestPreviousUpperLeft;
+                }
+
+                tracebackTable[rowIndex][colIndex] = {
+                    fromUpperLeft: fromUpperLeft,
+                    fromLeft:      fromLeft,
+                    fromAbove:     fromAbove,
+                    matchLength:   isMatch ? longestPrevious + 1 : longestPrevious
+                };
+            }
         }
-        tracebackTable[rowIndex] = rowArray;
     }
     return tracebackTable;
 };
 
-gpii.diff.tracebackLongestSequences = function (leftIndex, rightIndex, tracebackTable) {
-    var sequence = [];
-    var currentCell = tracebackTable[leftIndex][rightIndex];
-    if (currentCell.fromLeft && currentCell.fromAbove) {
+/**
+ *
+ * "Trace back" through the results of an array comparison created by `gpii.diff.generateTracebackTable`.  Starts with
+ * the last cell (last row, last column), and follows inherited matches one "wave" at a time until all paths have
+ * reached a cell with no inherited matches. Each "wave" accumulates:
+ *
+ * - the left and right position of the next cell in the "path"
+ * - any segments collected thus far along a given "path"
+ *
+ * As a cell may inherit from both the top and left adjacent cell, the "wave" of cells being evaluated may grow to be
+ * as large as the "hypotenuse" of the original arrays, i.e.
+ *
+ * `Math.sqrt((Math.pow(leftArray.length, 2) + Math.pow(rightArray.length, 2));`
+ *
+ * @param tracebackTable {Array} - A traceback table created using `gpii.diff.generateTracebackTable`.
+ * @returns {Array} - An array of the longest distinct sequences found in the traceback.
+ *
+ */
+gpii.diff.tracebackLongestSequences = function (tracebackTable) {
+    var leftLength = tracebackTable.length;
+    if (leftLength) {
+        var rightLength = tracebackTable[0].length;
+        var terminalSequences = [];
+        var currentWave = [{leftIndex: leftLength - 1, rightIndex: rightLength - 1, matchingSquares: []}];
 
-    }
-    else if (currentCell.fromLeft) {
-        var leftSequences = gpii.diff.tracebackLongestSequence(leftIndex - 1, rightIndex, tracebackTable);
-        fluid.each(leftSequences, sequence);
-    }
-    else if (currentCell.fromAbove) {
+        while (currentWave.length) {
+            var nextWave = [];
+            for (var waveIndex = 0; waveIndex < currentWave.length; waveIndex++) {
+                var cellReference = currentWave[waveIndex];
+                var currentCell = tracebackTable[cellReference.leftIndex][cellReference.rightIndex];
+                // We've hit an edge or corner and can stop.
+                if ((!currentCell.fromUpperLeft && !currentCell.fromLeft && !currentCell.fromAbove && currentCell.matchLength > 0) || (currentCell.fromUpperLeft && currentCell.matchLength === 1)) {
+                    cellReference.matchingSquares.unshift({leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex});
+                    terminalSequences.push(cellReference.matchingSquares);
+                }
+                else {
+                    if (currentCell.fromUpperLeft) {
+                        var upperLeftCell = tracebackTable[cellReference.leftIndex - 1][cellReference.rightIndex - 1];
+                        var nextCellReference = { leftIndex: cellReference.leftIndex - 1, rightIndex: cellReference.rightIndex - 1, matchingSquares: fluid.copy(cellReference.matchingSquares)};
+                        if (upperLeftCell.matchLength < currentCell.matchLength) {
+                            nextCellReference.matchingSquares.unshift({ leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex});
+                        }
+                        nextWave.push(nextCellReference);
+                    }
+                    else {
+                        // `leftIndex` in this case is the "row", and `rightIndex` is the "column.  `fromLeft` here means
+                        // we are moving one column to the left, i.e. `rightIndex` - 1.
+                        if (currentCell.fromLeft) {
+                            var leftCell = tracebackTable[cellReference.leftIndex][cellReference.rightIndex - 1];
+                            var nextLeftCellReference = { leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex - 1, matchingSquares: fluid.copy(cellReference.matchingSquares)};
+                            if (leftCell.matchLength < currentCell.matchLength) {
+                                nextLeftCellReference.matchingSquares.unshift({ leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex});
+                            }
+                            nextWave.push(nextLeftCellReference);
+                        }
+                        // `leftIndex` in this case is the "row", and `rightIndex` is the "column.  `fromAbove` here means
+                        // we are moving one column upwards , i.e. `leftIndex` - 1.
+                        if (currentCell.fromAbove) {
+                            var upperCell = tracebackTable[cellReference.leftIndex - 1][cellReference.rightIndex];
+                            var nextUpperCellReference = { leftIndex: cellReference.leftIndex - 1, rightIndex: cellReference.rightIndex, matchingSquares: fluid.copy(cellReference.matchingSquares)};
+                            if (upperCell.matchLength < currentCell.matchLength) {
+                                nextUpperCellReference.matchingSquares.unshift({ leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex});
+                            }
+                            nextWave.push(nextUpperCellReference);
+                        }
+                    }
+                }
+            }
+            currentWave = nextWave;
+        }
 
+        // Dedupe any sequences that can be reached by multiple paths.
+        var uniqueTracebacks = gpii.diff.dedupeTracebackResults(terminalSequences);
+
+        // Return the results as sequences of matching segments with the leftIndex and rightIndex values.
+        return uniqueTracebacks;
     }
+    else {
+        return [];
+    }
+};
+
+gpii.diff.sortByMatchIndexes = function (a, b) {
+    if (a.length > b.length) {
+        return -1;
+    }
+    else if (a.length === b.length) {
+        if (a.length > 0) {
+            for (var cellIndex = 0; cellIndex < a.length; cellIndex++) {
+                var aCell = a[cellIndex];
+                var bCell = b[cellIndex];
+                if (!gpii.diff.equals(aCell, bCell)) {
+                    if (a.leftIndex < b.leftIndex) {
+                        return -1;
+                    }
+                    else if (a.leftIndex === b.leftIndex) {
+                        if (a.rightIndex < b.rightIndex) {
+                            return -1;
+                        }
+                        // It's not possible for these to be equal, as they would have been caught by gpii.diff.equals,
+                        // so we can safely assume that b.rightIndex is less than a.rightIndex here.
+                        else {
+                            return 1;
+                        }
+                    }
+                    else {
+                        return 1;
+                    }
+                }
+            }
+        }
+
+        // If we've made it this far, the entire array is equal.
+        return 0;
+    }
+    else {
+        return 1;
+    }
+};
+
+/**
+ *
+ * Return only the unique matchSequences from traceback results.  Will only work on data that is sorted by matchSequence,
+ * by calling this function the original results will be sorted using  `gpii.diff.sortByMatchIndexes`.
+ *
+ * @param rawTracebackResults {Array} - Any array of traceback sequences, as generated by `gpii.diff.tracebackLongestSequence`.
+ * @returns {Array} - A new array containing only the unique values.
+ *
+ */
+gpii.diff.dedupeTracebackResults = function (rawTracebackResults) {
+    var dedupedResults = [];
+
+    if (rawTracebackResults.length) {
+        // Order the sequences before deduping.
+        rawTracebackResults.sort(gpii.diff.sortByMatchIndexes);
+
+        var lastEntry = {};
+        fluid.each(rawTracebackResults, function (sequence) {
+            if (!gpii.diff.equals(sequence, lastEntry)) {
+                dedupedResults.push(sequence);
+            }
+            lastEntry = sequence;
+        });
+    }
+
+    return dedupedResults;
 };
 
 /**

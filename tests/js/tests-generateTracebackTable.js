@@ -7,7 +7,13 @@ var gpii = fluid.registerNamespace("gpii");
 
 var jqUnit = jqUnit || require("node-jqunit");
 
-typeof require !== "undefined" && fluid.require("%gpii-diff");
+if (typeof require !== "undefined") {
+    fluid.require("%gpii-diff");
+
+    // Included so that we can diagram individual tracebacks in a debugger, as in:
+    // console.log(gpii.test.diff.diagramTracebackTable(testDef.leftValue, testDef.rightValue, tracebackTable));
+    require("./lib/diagramTracebackTable");
+}
 
 jqUnit.module("Unit tests for 'single value' diff function...");
 
@@ -18,8 +24,8 @@ gpii.test.diff.generateTracebackTable.runAllTests = function (that) {
 
 gpii.test.diff.generateTracebackTable.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
-        var result = gpii.diff.generateTracebackTable(testDef.leftValue, testDef.rightValue);
-        jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
+        var tracebackTable = gpii.diff.generateTracebackTable(testDef.leftValue, testDef.rightValue);
+        jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, tracebackTable);
     });
 
 };
@@ -31,17 +37,342 @@ fluid.defaults("gpii.test.diff.generateTracebackTable", {
         testDefs: "noexpand, nomerge"
     },
     testDefs: {
+        // https://en.wikipedia.org/wiki/Longest_common_subsequence_problem
         wikipedia: {
             message:    "We should be able to complete the example problem from Wikipedia.",
             leftValue:  ["G", "A", "C"],
             rightValue: ["A", "G", "C", "A", "T"],
             expected:   [
-                // "G" Row
-                [[{ fromLeft: false, fromAbove: false, matchLength: 0}], [{ fromLeft: false, fromAbove: false, matchLength: 1}], [{ fromLeft: true, fromAbove: false, matchLength: 1}], [{ fromLeft: true, fromAbove: false, matchLength: 1}],  [{ fromLeft: true, fromAbove: false, matchLength: 1}],  [{ fromLeft: true, fromAbove: false, matchLength: 1}]],
-                // "A" Row
-                [[{ fromLeft: false, fromAbove: false, matchLength: 1}], [{ fromLeft: true, fromAbove: true, matchLength: 1}],   [{ fromLeft: true, fromAbove: true, matchLength: 1}],  [{ fromLeft: true, fromAbove: true, matchLength: 1}],   [{ fromLeft: true, fromAbove: true, matchLength: 1}],   [{ fromLeft: true, fromAbove: true, matchLength: 1}]],
-                // "C" Row
-                [[{ fromLeft: false, fromAbove: true, matchLength: 1}],  [{ fromLeft: true, fromAbove: true, matchLength: 1}],   [{ fromLeft: true, fromAbove: true, matchLength: 2}],  [{ fromLeft: true, fromAbove: false, matchLength: 2}],  [{ fromLeft: true, fromAbove: false, matchLength: 2}],  [{ fromLeft: true, fromAbove: false, matchLength: 2}]]
+                [
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": false,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": false,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": false,
+                        "matchLength": 1
+                    }
+                ],
+                [
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": true,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 2
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": false,
+                        "matchLength": 2
+                    }
+                ],
+                [
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": true,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 2
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 2
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 2
+                    }
+                ]
+            ]
+        },
+        noMatch: {
+            message:    "We should be able to complete the table for when there are no matches..",
+            leftValue:  [0,1,2],
+            rightValue: [3,4,5],
+            expected: [
+                [
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    }
+                ],
+                [
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    }
+                ],
+                [
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    }
+                ]
+            ]
+        },
+        manyEqualMatches: {
+            message:    "We should be able to complete the table for a comparison with many equal matches.",
+            leftValue:  [0,1,2,3,4],
+            rightValue: [4,3,2,1,0],
+            expected:   [
+                [
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 1
+                    }
+                ],
+                [
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    }
+                ],
+                [
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    }
+                ],
+                [
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 0
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    }
+                ],
+                [
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": false,
+                        "fromAbove": false,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    },
+                    {
+                        "fromUpperLeft": false,
+                        "fromLeft": true,
+                        "fromAbove": true,
+                        "matchLength": 1
+                    }
+                ]
             ]
         }
     },
