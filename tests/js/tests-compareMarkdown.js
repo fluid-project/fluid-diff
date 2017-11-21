@@ -23,7 +23,12 @@ gpii.test.diff.compareMarkdown.runAllTests = function (that) {
 gpii.test.diff.compareMarkdown.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
         var result = gpii.diff.compareMarkdown(testDef.leftValue, testDef.rightValue, { html: true, breaks: true });
-        jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
+        if (testDef.expected) {
+            jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
+        }
+        else {
+            jqUnit.assert("The comparison should complete as expected...");
+        }
     });
 };
 
