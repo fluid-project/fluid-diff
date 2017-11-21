@@ -322,44 +322,44 @@ gpii.diff.tracebackLongestSequences = function (tracebackTable) {
                 var cellReference = currentWave[waveIndex];
                 var currentCell = tracebackTable[cellReference.leftIndex][cellReference.rightIndex];
                 // We've hit an edge or corner and can stop.
-                if ((!currentCell.fromUpperLeft && !currentCell.fromLeft && !currentCell.fromAbove && currentCell.matchLength > 0) || (currentCell.fromUpperLeft && currentCell.matchLength === 1)) {
-                    cellReference.matchingSquares.unshift({leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex});
-                    terminalSequences.push(cellReference.matchingSquares);
-                    // Special case of late partial matches in the left column.
-                    if (currentCell.fromUpperLeft && cellReference.rightIndex === 0 && cellReference.leftIndex > 0) {
-                        nextWave.push({ leftIndex: cellReference.leftIndex - 1, rightIndex: 0, matchingSquares: []});
+                if (!currentCell.fromUpperLeft && !currentCell.fromLeft && !currentCell.fromAbove) {
+                    if (cellReference.matchingSquares.length) {
+                        terminalSequences.push(cellReference.matchingSquares);
                     }
                 }
-                else {
-                    if (currentCell.fromUpperLeft) {
-                        var upperLeftCell = tracebackTable[cellReference.leftIndex - 1][cellReference.rightIndex - 1];
+                else if (currentCell.fromUpperLeft) {
+                    if (cellReference.leftIndex > 0 && cellReference.rightIndex > 0) {
                         var nextCellReference = { leftIndex: cellReference.leftIndex - 1, rightIndex: cellReference.rightIndex - 1, matchingSquares: fluid.copy(cellReference.matchingSquares)};
-                        if (upperLeftCell.matchLength < currentCell.matchLength) {
-                            nextCellReference.matchingSquares.unshift({ leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex});
-                        }
+                        nextCellReference.matchingSquares.unshift({ leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex});
                         nextWave.push(nextCellReference);
                     }
                     else {
-                        // `leftIndex` in this case is the "row", and `rightIndex` is the "column.  `fromLeft` here means
-                        // we are moving one column to the left, i.e. `rightIndex` - 1.
-                        if (currentCell.fromLeft) {
-                            var leftCell = tracebackTable[cellReference.leftIndex][cellReference.rightIndex - 1];
-                            var nextLeftCellReference = { leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex - 1, matchingSquares: fluid.copy(cellReference.matchingSquares)};
-                            if (leftCell.matchLength < currentCell.matchLength) {
-                                nextLeftCellReference.matchingSquares.unshift({ leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex});
-                            }
-                            nextWave.push(nextLeftCellReference);
+                        cellReference.matchingSquares.unshift({ leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex});
+                        terminalSequences.push(cellReference.matchingSquares);
+
+                        // Special case of partial matches in the left column.
+                        if (cellReference.leftIndex > 0 && cellReference.rightIndex === 0 ) {
+                            nextWave.push({ leftIndex: cellReference.leftIndex - 1, rightIndex: 0, matchingSquares: []});
                         }
-                        // `leftIndex` in this case is the "row", and `rightIndex` is the "column.  `fromAbove` here means
-                        // we are moving one column upwards , i.e. `leftIndex` - 1.
-                        if (currentCell.fromAbove) {
-                            var upperCell = tracebackTable[cellReference.leftIndex - 1][cellReference.rightIndex];
-                            var nextUpperCellReference = { leftIndex: cellReference.leftIndex - 1, rightIndex: cellReference.rightIndex, matchingSquares: fluid.copy(cellReference.matchingSquares)};
-                            if (upperCell.matchLength < currentCell.matchLength) {
-                                nextUpperCellReference.matchingSquares.unshift({ leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex});
-                            }
-                            nextWave.push(nextUpperCellReference);
+                        // Special case of partial matches in the top row.
+                        else if (cellReference.leftIndex === 0 && cellReference.leftIndex > 0 ) {
+                            nextWave.push({ leftIndex: 0, rightIndex: cellReference.rightIndex - 1, matchingSquares: []});
                         }
+                    }
+                }
+                else {
+                    // `leftIndex` in this case is the "row", and `rightIndex` is the "column.  `fromLeft` here means
+                    // we are moving one column to the left, i.e. `rightIndex` - 1.
+                    if (currentCell.fromLeft) {
+                        var nextLeftCellReference = { leftIndex: cellReference.leftIndex, rightIndex: cellReference.rightIndex - 1, matchingSquares: fluid.copy(cellReference.matchingSquares)};
+                        nextWave.push(nextLeftCellReference);
+                    }
+                    // `leftIndex` in this case is the "row", and `rightIndex` is the "column.  `fromAbove` here means
+                    // we are moving one column upwards , i.e. `leftIndex` - 1
+                    // TODO: If we convert this to an "else if", this becomes a single path algorithm that is orders of magnitude faster.  Discuss with Antranig.
+                    if (currentCell.fromAbove) {
+                        var nextUpperCellReference = { leftIndex: cellReference.leftIndex - 1, rightIndex: cellReference.rightIndex, matchingSquares: fluid.copy(cellReference.matchingSquares)};
+                        nextWave.push(nextUpperCellReference);
                     }
                 }
             }
