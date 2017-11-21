@@ -58,7 +58,7 @@ gpii.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, markdownItOpt
 gpii.diff.markdownToText = function (markdown, markdownItOptions) {
     var mdRenderer = new MarkDownIt(markdownItOptions);
     var html = mdRenderer.render(markdown);
-    var htmlWithHarderBreaks = html.replace(/<br\/?>(?![\r\n])/mig,"<br/>\n");
+    var htmlWithHarderBreaks = html.replace(/<br ?\/?>(?![\r\n])/mig,"<br/>\n");
     var $ = cheerio.load(htmlWithHarderBreaks);
     // Replace all break tags with a break and a carriage return to assist in splitting up the output into lines.
     // The rendering cycle also introduces a trailing carriage return that we explicitly remove.

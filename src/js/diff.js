@@ -168,6 +168,9 @@ gpii.diff.compareStrings = function (leftString, rightString) {
     else if (leftString === rightString) {
         return [{ value: leftString, type: "unchanged"}];
     }
+    else if (leftString.indexOf("\n") !== -1 && rightString.indexOf("\n") !== -1) {
+        return gpii.diff.compareStringsByLine(leftString, rightString);
+    }
     else {
         return gpii.diff.compareStringsBySegment(leftString, rightString);
     }
@@ -477,6 +480,193 @@ gpii.diff.compareStringsBySegment = function (leftString, rightString) {
     else {
         return gpii.diff.compare(leftString, rightString);
     }
+};
+
+/**
+ *
+ * Compare strings as sequences of "non-carriage returns" and "carriage returns", looking for entire lines that match.
+ *
+ * @param `leftString` {String} - The first string, from whose perspective the "diff" results will be represented.
+ * @param `rightString` {String} - The second string, to compare to the first string.
+ * @return {Array} - An array of "segments" representing `rightString` as compared to `leftString`.
+ *
+ */
+gpii.diff.compareStringsByLine = function (leftString, rightString) {
+    if (typeof leftString !== "string" || typeof rightString !== "string") {
+        return gpii.diff.singleValueDiff(leftString, rightString);
+    }
+    else if (leftString === rightString) {
+        return [{ value: leftString, type: "unchanged"}];
+    }
+    else if (!leftString.match(/[\r\n]/) && !rightString.match(/[\r\n]/)) {
+        return gpii.diff.compareStringsBySegment(leftString, rightString);
+    }
+    else {
+        var leftLines = gpii.diff.stringToLineSegments(leftString);
+        var rightLines = gpii.diff.stringToLineSegments(rightString);
+        var longestLineSequence = gpii.diff.longestCommonSequence(leftLines, rightLines);
+
+        var segments = [];
+        if (longestLineSequence.length) {
+            // calculate the real indexes in terms of the string lengths.
+            var leftIndices = gpii.diff.calculateStringSegmentIndices(leftLines);
+            var rightIndices = gpii.diff.calculateStringSegmentIndices(rightLines);
+
+            var firstSegment = longestLineSequence[0];
+
+            var leadingSegments = [];
+            // compare and add the leading material
+            if (firstSegment.leftIndex > 0 || firstSegment.rightIndex > 0) {
+                var leftLeader = leftString.substring(0, leftIndices[firstSegment.leftIndex]);
+                var rightLeader = rightString.substring(0, rightIndices[firstSegment.rightIndex]);
+                leadingSegments = gpii.diff.compareStringsByLine(leftLeader, rightLeader);
+            }
+
+            // Add all parts of the longest common sequence, and any material between adjoining segments.
+            var firstSegmentValue = leftLines[firstSegment.leftIndex];
+
+            if (leadingSegments.length) {
+                var lastLeadingSegmentValue = leadingSegments.pop();
+                segments = segments.concat(leadingSegments);
+
+                // "knit" together the last piece of leading material with the first segment if their types are the same.
+                if (lastLeadingSegmentValue.type === firstSegmentValue.type) {
+                    firstSegmentValue = { value: lastLeadingSegmentValue.value + firstSegmentValue.value, type: lastLeadingSegmentValue.type };
+                }
+                else {
+                    segments.push(lastLeadingSegmentValue);
+                }
+            }
+
+            var adjoiningSegments    = [firstSegmentValue];
+            var previousLeftIndex    = firstSegment.leftIndex;
+            var previousRightIndex   = firstSegment.rightIndex;
+            fluid.each(longestLineSequence.slice(1), function (sequenceSegment) {
+                var segmentValue = rightLines[sequenceSegment.rightIndex];
+                // adjoining segment
+                if ((sequenceSegment.leftIndex === previousLeftIndex + 1) && (sequenceSegment.rightIndex === previousRightIndex + 1)) {
+                    adjoiningSegments.push(segmentValue);
+                }
+                // non-adjoining segment
+                else {
+                    // Join the previously collected adjoining matching segments together and add them as a single "unchanged" block.
+                    segments.push({value: adjoiningSegments.join(""), type: "unchanged"});
+
+                    // Compare material in "the gap" using the "string segment comparison" function.
+                    var leftGapString = leftString.substring(leftIndices[previousLeftIndex] + segmentValue.length, leftIndices[sequenceSegment.leftIndex]);
+                    var rightGapString = rightString.substring(rightIndices[previousRightIndex] + segmentValue.length, rightIndices[sequenceSegment.rightIndex]);
+                    var gapSegments = gpii.diff.compareStringsBySegment(leftGapString, rightGapString);
+
+                    // Knit the first part of the gap into the last existing adjoining segment
+                    var lastPregapSegment = segments.pop();
+                    var firstGapSegment   = gapSegments.shift();
+                    if (lastPregapSegment.type === firstGapSegment.type) {
+                        segments.push({ value: lastPregapSegment.value + firstGapSegment.value, type: lastPregapSegment.type });
+                    }
+                    else {
+                        segments.push(lastPregapSegment);
+                        segments.push(firstGapSegment);
+                    }
+
+                    segments = segments.concat(gapSegments);
+
+                    // Reset the "adjoining segments" accumulator for the next batch.
+                    adjoiningSegments = [segmentValue];
+                }
+                previousLeftIndex    = sequenceSegment.leftIndex;
+                previousRightIndex   = sequenceSegment.rightIndex;
+            });
+
+            // Add any remaining adjoiningSegments we've accumulated, but do so as a considered "knit", so that we can merge with the trailing edge of a "gap sequence" if needed.
+            if (adjoiningSegments.length) {
+                var remainingAdjoiningSegmentValue = adjoiningSegments.join("");
+                if (segments.length) {
+                    var precedingSegment = segments.pop();
+                    if (precedingSegment.type === "unchanged") {
+                        segments.push({value: precedingSegment.value + remainingAdjoiningSegmentValue, type: "unchanged"});
+                    }
+                    else {
+                        segments.push(precedingSegment);
+                        segments.push({value: remainingAdjoiningSegmentValue, type: "unchanged"});
+                    }
+                }
+                else {
+                    segments.push({value: remainingAdjoiningSegmentValue, type: "unchanged"});
+                }
+            }
+
+            // trailing material
+            var trailingSegments = [];
+            var lastSegment = longestLineSequence[longestLineSequence.length - 1];
+            var lastLeftIndex = leftIndices[lastSegment.leftIndex] + leftLines[lastSegment.leftIndex].length;
+            var lastRightIndex = rightIndices[lastSegment.rightIndex] + rightLines[lastSegment.rightIndex].length;
+            if (lastLeftIndex < leftString.length || lastRightIndex < rightString.length) {
+                var leftTrailingString  = leftString.substring(lastLeftIndex);
+                var rightTrailingString = rightString.substring(lastRightIndex);
+                trailingSegments = gpii.diff.compareStringsBySegment(leftTrailingString, rightTrailingString);
+            }
+
+            // "knit" together the last piece of leading material with the first segment if their types are the same.
+            if (trailingSegments.length) {
+                var lastMiddleSegment = segments.pop();
+                var firstTrailingSegmentValue = trailingSegments.shift();
+                if (firstTrailingSegmentValue.type === lastMiddleSegment.type) {
+                    segments.push({ value: lastMiddleSegment.value + firstTrailingSegmentValue.value, type: lastMiddleSegment.type});
+                }
+                else {
+                    segments.push(lastMiddleSegment);
+                    segments.push(firstTrailingSegmentValue);
+                }
+                segments = segments.concat(trailingSegments);
+            }
+            return segments;
+        }
+        else {
+            return gpii.diff.compareStringsBySegment(leftString, rightString);
+        }
+    }
+};
+
+/**
+ *
+ * Split a string into "line segments" so that we can compare longer strings "by line".
+ *
+ * @param originalString {String} - A string to break down into line segments.
+ * @returns {Array} - An array of substrings.
+ */
+gpii.diff.stringToLineSegments = function (originalString) {
+    var segments = [];
+
+    if (typeof originalString === "string") {
+        var matches = originalString.match(/(([^\r\n]+[\r\n]+)|([\r\n]+)|([^\r\n]+))/mg);
+        if (matches) {
+            segments = segments.concat(matches);
+        }
+    }
+    else if (originalString !== undefined && originalString !== null) {
+        fluid.fail("gpii.diff.stringToLine can only be used with string, undefined, or null values.");
+    }
+
+    return segments;
+};
+
+/**
+ *
+ * Go through the output of `gpii.diff.stringToLineSegments` and figure out what index in the original string each
+ * segment corresponds to.
+ *
+ * @param arrayOfStrings {Array} - An array of string segments, as produced by `gpii.diff.stringToLineSegments`.
+ * @returns {Array} - An array of integers representing the position of each segment in the original string.
+ *
+ */
+gpii.diff.calculateStringSegmentIndices = function (arrayOfStrings) {
+    var indexValues = [];
+    var currentIndex = 0;
+    fluid.each(arrayOfStrings, function (string) {
+        indexValues.push(currentIndex);
+        currentIndex += string.length;
+    });
+    return indexValues;
 };
 
 /**
