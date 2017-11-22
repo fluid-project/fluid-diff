@@ -17,7 +17,8 @@ gpii.tests.diff.performance.generateEvenArray = function (index) {
     return index + (index % 2 ? 1 : 0);
 };
 
-for (var a = 1; a < 50; a++) {
+// With the "single path" approach, this scales to the point where it's safe to increment by hundreds.
+for (var a = 1; a < 50; a ++) {
     var leftArray = fluid.generate(a, gpii.tests.diff.performance.generateIndexArray, true);
     var rightArray = fluid.generate(a, gpii.tests.diff.performance.generateEvenArray, true);
     var start = Date.now();
