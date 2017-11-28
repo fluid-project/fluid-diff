@@ -158,10 +158,11 @@ gpii.diff.extractSegments = function (originalString) {
  *
  * @param `leftString` {String} - The first string, from whose perspective the "diff" results will be represented.
  * @param `rightString` {String} - The second string, to compare to the first string.
+ * @param `options` {Object} - Configuration options for the underlying difference engine.
  * @return {Array} - An array of "segments" representing `rightString` as compared to `leftString`.
  *
  */
-gpii.diff.compareStrings = function (leftString, rightString) {
+gpii.diff.compareStrings = function (leftString, rightString, options) {
     if (typeof leftString !== "string" || typeof rightString !== "string") {
         return gpii.diff.singleValueDiff(leftString, rightString);
     }
@@ -169,10 +170,10 @@ gpii.diff.compareStrings = function (leftString, rightString) {
         return [{ value: leftString, type: "unchanged"}];
     }
     else if (leftString.indexOf("\n") !== -1 && rightString.indexOf("\n") !== -1) {
-        return gpii.diff.compareStringsByLine(leftString, rightString);
+        return gpii.diff.compareStringsByLine(leftString, rightString, options);
     }
     else {
-        return gpii.diff.compareStringsBySegment(leftString, rightString);
+        return gpii.diff.compareStringsBySegment(leftString, rightString, options);
     }
 };
 
@@ -202,15 +203,93 @@ gpii.diff.isStringNullOrUndefined = function (value) {
  *
  * [{ leftIndex: 1, rightIndex: 0 }, { leftIndex: 2, rightIndex: 3} ] // "bar" and "quux"
  *
+ * The optional `options` parameter supports the following parameters:
+ * - `lcsOptions.tracebackStrategy`: Can be `full` (find all longest sequences) or `single` (find just one, the default).
+ * - `lcsOptions.timeout`: The maximum execution time, in milliseconds (defaults to 30 seconds).
+ *
+ * Regardless of the traceback strategy, first a traceback table is generated.  If this fails to complete, an empty
+ * array is returned (indicating no matching material), and the comparison will be treated as though all
+ * "left" material was removed and all "right" material was added.
+ *
+ * If the traceback table generation succeeeds, the time elapsed is subtracted from the allowed time.
+ *
+ * By default, the "single" traceback strategy is used, and allowed to run for the remaining time allowed.  If the
+ * "single" traceback succeeds, one of the longest sequences is returned.
+ *
+ * If the "full" traceback strategy is selected, it is allowed to run for at most 60% of the remaining time
+ * allowed.  If it completes in that time, the first, longest, "tightest" match is returned.  In other words, the "full"
+ * strategy prefers matches in which there are more adjacent cells, and matches which occur earlier in `leftArray` and
+ * `rightArray`.
+ *
+ * If the "full" traceback fails to complete in time, the "single" strategy is then attempted as a failover, and is
+ * allowed to run for no longer than whatever time remains after the failed "full" traceback.
+ *
+ * Whether the "single" strategy is explicitly chosen or it's used as a failover, its timeout handling is the same.  If
+ * the `single` strategy times out, an empty array will be returned, and the comparison will be treated as though all
+ * "left" material was removed and all "right" material was added.
+ *
  * @param leftArray {Array} - An array.
  * @param rightArray {Array} - An array to compare to `leftArray`.
+ * @param options {Object} - Options to control our operation, see above.
  * @returns {Array} - An array of sequence arrays.  Each entry in a sequence array describes the position of a matching segment in the original arrays.
  *
  */
-gpii.diff.longestCommonSequences = function (leftArray, rightArray) {
-    var tracebackTable = gpii.diff.generateTracebackTable(leftArray, rightArray);
-    var longestSequences = gpii.diff.tracebackLongestSequences(tracebackTable);
-    return longestSequences;
+gpii.diff.longestCommonSequences = function (leftArray, rightArray, options) {
+    var lcsOptions = fluid.merge({}, { timeout: 1000 }, fluid.get(options, "lcsOptions"));
+    var startTime = Date.now();
+    // fluid.log("Started LCS Pass.");
+    var tracebackTableOptions = fluid.copy(lcsOptions);
+    tracebackTableOptions.timeout = lcsOptions.timeout / 5;
+    var tracebackTable = gpii.diff.generateTracebackTable(leftArray, rightArray, tracebackTableOptions);
+    var tracebackTableElapsedTime = Date.now() - startTime;
+    // fluid.log("Traceback table calculated in ", tracebackTableElapsedTime, " ms.");
+    if (tracebackTableElapsedTime >= lcsOptions.timeout) {
+        fluid.log("LCS timeout after traceback table generation.");
+        return [];
+    }
+    else if (fluid.get(options, "tracebackStrategy") === "full") {
+        try {
+            var tracebackOptions = fluid.copy(lcsOptions);
+            tracebackOptions.timeout = (lcsOptions.timeout - tracebackTableElapsedTime) * 0.6;
+            // fluid.log("Full traceback completed in ", Date.now() - startTime, " ms.");
+            return gpii.diff.tracebackLongestSequences(tracebackTable, tracebackOptions);
+        }
+        catch (error) {
+            var elapsedTime = Date.now() - startTime;
+            if (elapsedTime > lcsOptions.timeout) {
+                fluid.log("LCS timeout after full traceback, no time left for failover.");
+                return [];
+            }
+            else {
+                fluid.log("LCS timeout after full traceback, failing over to single-path traceback.");
+                var fallbackTracebackOptions = fluid.copy(lcsOptions);
+                fallbackTracebackOptions.timeout = lcsOptions - elapsedTime;
+                fallbackTracebackOptions.tracebackStrategy = "single";
+                try {
+                    var singlePathStartTime = Date.now();
+                    var singlePathSequences = gpii.diff.tracebackLongestSequences(tracebackTable, fallbackTracebackOptions);
+                    fluid.log("Failover single-path traceback completed in ", Date.now() - singlePathStartTime, " ms.");
+
+                    return singlePathSequences;
+                }
+                catch (error) {
+                    fluid.log("LCS timeout while failing over to single-path traceback.");
+                    return [];
+                }
+            }
+        }
+    }
+    else {
+        try {
+            var singlePassOptions = fluid.copy(lcsOptions);
+            singlePassOptions.timeout = lcsOptions.timeout - tracebackTableElapsedTime;
+            return gpii.diff.tracebackLongestSequences(tracebackTable, singlePassOptions);
+        }
+        catch (error) {
+            fluid.log("LCS timeout running single-path traceback.");
+            return [];
+        }
+    }
 };
 
 /**
@@ -223,8 +302,8 @@ gpii.diff.longestCommonSequences = function (leftArray, rightArray) {
  * @returns {Array} - A single array representing the matching segments in the longest, "tightest", earliest matching sequence.
  *
  */
-gpii.diff.longestCommonSequence = function (leftArray, rightArray) {
-    var longestSequences = gpii.diff.longestCommonSequences(leftArray, rightArray);
+gpii.diff.longestCommonSequence = function (leftArray, rightArray, options) {
+    var longestSequences = gpii.diff.longestCommonSequences(leftArray, rightArray, options);
     if (longestSequences.length === 0) {
         return [];
     }
@@ -251,12 +330,18 @@ gpii.diff.longestCommonSequence = function (leftArray, rightArray) {
  *
  * Note: `undefined` values are treated as empty arrays.
  *
+ * The optional `options` parameter supports the following parameter:
+ * - `timeout`: The maximum execution time, in milliseconds (defaults to 10 seconds).
+ *
  * @param leftArray {Array} - An array of values.
  * @param rightArray {Array} - An array of values to compare to `leftArray`.
+ * @param options {Object} - Options to control our operation, see above.
  * @returns {Array} - An array of the longest common sequences (see above).
  *
  */
-gpii.diff.generateTracebackTable = function (leftArray, rightArray) {
+gpii.diff.generateTracebackTable = function (leftArray, rightArray, options) {
+    var startTime = Date.now();
+    var tracebackTableOptions = fluid.merge({}, { timeout: 500}, options);
     // We treat "undefined" values as empty arrays.
     leftArray = leftArray !== undefined ? leftArray : [];
     rightArray = rightArray !== undefined ? rightArray : [];
@@ -266,6 +351,9 @@ gpii.diff.generateTracebackTable = function (leftArray, rightArray) {
     var tracebackTable = [];
     if (leftArray.length && rightArray.length) {
         for (var rowIndex = 0; rowIndex < leftArray.length; rowIndex++) {
+            if (Date.now() - startTime > tracebackTableOptions.timeout) {
+                throw "LCS traceback table generation timed out.";
+            }
             tracebackTable[rowIndex] = [];
             for (var colIndex = 0; colIndex < rightArray.length; colIndex++) {
                 var isMatch        = gpii.diff.equals(leftArray[rowIndex], rightArray[colIndex]);
@@ -305,11 +393,18 @@ gpii.diff.generateTracebackTable = function (leftArray, rightArray) {
  *
  * `Math.sqrt((Math.pow(leftArray.length, 2) + Math.pow(rightArray.length, 2));`
  *
+ * The optional `options` parameter can be used to change the traceback strategy used, as follows:
+ * - `tracebackStrategy`: Can be `full` (find all longest sequences) or `single` (find just one, the default).
+ * - `timeout`: The maximum execution time, in milliseconds (defaults to 10 seconds).
+ *
  * @param tracebackTable {Array} - A traceback table created using `gpii.diff.generateTracebackTable`.
+ * @param options {Object} - Options to control our operation, see above.
  * @returns {Array} - An array of the longest distinct sequences found in the traceback.
  *
  */
-gpii.diff.tracebackLongestSequences = function (tracebackTable) {
+gpii.diff.tracebackLongestSequences = function (tracebackTable, options) {
+    var startTime = Date.now();
+    var tracebackOptions = fluid.merge({}, { tracebackStrategy: "single", timeout: 500 }, options);
     var leftLength = tracebackTable.length;
     if (leftLength) {
         var rightLength = tracebackTable[0].length;
@@ -319,6 +414,9 @@ gpii.diff.tracebackLongestSequences = function (tracebackTable) {
         while (currentWave.length) {
             var nextWave = [];
             for (var waveIndex = 0; waveIndex < currentWave.length; waveIndex++) {
+                if (Date.now() - startTime > tracebackOptions.timeout) {
+                    throw "LCS traceback timed out.";
+                }
                 var cellReference = currentWave[waveIndex];
                 var currentCell = tracebackTable[cellReference.leftIndex][cellReference.rightIndex];
                 // We've hit an edge or corner and can stop.
@@ -356,22 +454,36 @@ gpii.diff.tracebackLongestSequences = function (tracebackTable) {
                     }
                     // `leftIndex` in this case is the "row", and `rightIndex` is the "column.  `fromAbove` here means
                     // we are moving one column upwards , i.e. `leftIndex` - 1
-                    // TODO: If we convert this to an "else if", this becomes a single path algorithm that is orders of magnitude faster.  Discuss with Antranig.
-                    if (currentCell.fromAbove) {
+                    if ((tracebackOptions.tracebackStrategy === "full" || !currentCell.fromLeft) && currentCell.fromAbove) {
                         var nextUpperCellReference = { leftIndex: cellReference.leftIndex - 1, rightIndex: cellReference.rightIndex, matchingSquares: fluid.copy(cellReference.matchingSquares)};
                         nextWave.push(nextUpperCellReference);
                     }
                 }
             }
-            var dedupedNextWave = gpii.diff.dedupeTracebackResults(nextWave);
-            currentWave = dedupedNextWave;
+
+            try {
+                var dedupedNextWave = gpii.diff.dedupeTracebackResults(nextWave, { timeout: tracebackOptions.timeout - (startTime - Date.now())});
+                currentWave = dedupedNextWave;
+            }
+            catch (error) {
+                throw error;
+            }
         }
 
-        // Dedupe any sequences that can be reached by multiple paths.
-        var uniqueTracebacks = gpii.diff.dedupeTracebackResults(terminalSequences);
+        var timeElapsedBeforeDedupe = Date.now() - startTime;
+        // fluid.log(tracebackOptions.tracebackStrategy, " traceback ready for dedupe after ", timeElapsedBeforeDedupe, " ms.");
 
-        // Return the results as sequences of matching segments with the leftIndex and rightIndex values.
-        return uniqueTracebacks;
+        try {
+            // Dedupe any sequences that can be reached by multiple paths.
+            var uniqueTracebacks = gpii.diff.dedupeTracebackResults(terminalSequences, { timeout: tracebackOptions.timeout - timeElapsedBeforeDedupe });
+
+            // fluid.log(tracebackOptions.tracebackStrategy, " traceback completed after ", Date.now() - startTime, " ms.");
+            // Return the results as sequences of matching segments with the leftIndex and rightIndex values.
+            return uniqueTracebacks;
+        }
+        catch (error) {
+            throw error;
+        }
     }
     else {
         return [];
@@ -435,15 +547,22 @@ gpii.diff.sortByMatchIndexes = function (a, b) {
  * @returns {Array} - A new array containing only the unique values.
  *
  */
-gpii.diff.dedupeTracebackResults = function (rawTracebackResults) {
+gpii.diff.dedupeTracebackResults = function (rawTracebackResults, options) {
+    var dedupeOptions = fluid.merge({}, { timeout: 250 }, options);
     var dedupedResults = [];
 
+    var startTime = Date.now();
     if (rawTracebackResults.length) {
         // Order the sequences before deduping.
         rawTracebackResults.sort(gpii.diff.sortByMatchIndexes);
+        // fluid.log("Sort required by dedupe took ", Date.now() - startTime, " ms.");
 
         var lastEntry = {};
         fluid.each(rawTracebackResults, function (sequence) {
+            if ((startTime - Date.now()) > dedupeOptions.timeout) {
+                throw "Timed out deduping results.";
+            }
+
             if (!gpii.diff.equals(sequence, lastEntry)) {
                 dedupedResults.push(sequence);
             }
@@ -460,17 +579,18 @@ gpii.diff.dedupeTracebackResults = function (rawTracebackResults) {
  *
  * @param `leftString` {String} - The first string, from whose perspective the "diff" results will be represented.
  * @param `rightString` {String} - The second string, to compare to the first string.
+ * @param `options` {Object} - Configuration options to pass to the underlying difference engine.
  * @return {Array} - An array of "segments" representing `rightString` as compared to `leftString`.
  *
  */
-gpii.diff.compareStringsBySegment = function (leftString, rightString) {
+gpii.diff.compareStringsBySegment = function (leftString, rightString, options) {
     if (leftString === undefined && rightString === undefined) {
         return gpii.diff.singleValueDiff(leftString, rightString);
     }
     else if (gpii.diff.isStringNullOrUndefined(leftString) && gpii.diff.isStringNullOrUndefined(rightString)) {
         var leftSegments = gpii.diff.extractSegments(leftString);
         var rightSegments = gpii.diff.extractSegments(rightString);
-        var arrayDiff = gpii.diff.compareArrays(leftSegments, rightSegments);
+        var arrayDiff = gpii.diff.compareArrays(leftSegments, rightSegments, options);
         var stringDiff = [];
         fluid.each(arrayDiff, function (arrayDiffSegment) {
             stringDiff.push({value: arrayDiffSegment.arrayValue.join(""), type: arrayDiffSegment.type});
@@ -478,7 +598,7 @@ gpii.diff.compareStringsBySegment = function (leftString, rightString) {
         return stringDiff;
     }
     else {
-        return gpii.diff.compare(leftString, rightString);
+        return gpii.diff.compare(leftString, rightString, options);
     }
 };
 
@@ -488,10 +608,11 @@ gpii.diff.compareStringsBySegment = function (leftString, rightString) {
  *
  * @param `leftString` {String} - The first string, from whose perspective the "diff" results will be represented.
  * @param `rightString` {String} - The second string, to compare to the first string.
+ * @param `options` {Object} - Configuration options for the underlying difference engine.
  * @return {Array} - An array of "segments" representing `rightString` as compared to `leftString`.
  *
  */
-gpii.diff.compareStringsByLine = function (leftString, rightString) {
+gpii.diff.compareStringsByLine = function (leftString, rightString, options) {
     if (typeof leftString !== "string" || typeof rightString !== "string") {
         return gpii.diff.singleValueDiff(leftString, rightString);
     }
@@ -499,12 +620,12 @@ gpii.diff.compareStringsByLine = function (leftString, rightString) {
         return [{ value: leftString, type: "unchanged"}];
     }
     else if (!leftString.match(/[\r\n]/) && !rightString.match(/[\r\n]/)) {
-        return gpii.diff.compareStringsBySegment(leftString, rightString);
+        return gpii.diff.compareStringsBySegment(leftString, rightString, options);
     }
     else {
         var leftLines = gpii.diff.stringToLineSegments(leftString);
         var rightLines = gpii.diff.stringToLineSegments(rightString);
-        var longestLineSequence = gpii.diff.longestCommonSequence(leftLines, rightLines);
+        var longestLineSequence = gpii.diff.longestCommonSequence(leftLines, rightLines, options);
 
         var segments = [];
         if (longestLineSequence.length) {
@@ -519,7 +640,7 @@ gpii.diff.compareStringsByLine = function (leftString, rightString) {
             if (firstSegment.leftIndex > 0 || firstSegment.rightIndex > 0) {
                 var leftLeader = leftString.substring(0, leftIndices[firstSegment.leftIndex]);
                 var rightLeader = rightString.substring(0, rightIndices[firstSegment.rightIndex]);
-                leadingSegments = gpii.diff.compareStringsByLine(leftLeader, rightLeader);
+                leadingSegments = gpii.diff.compareStringsByLine(leftLeader, rightLeader, options);
             }
 
             // Add all parts of the longest common sequence, and any material between adjoining segments.
@@ -555,7 +676,7 @@ gpii.diff.compareStringsByLine = function (leftString, rightString) {
                     // Compare material in "the gap" using the "string segment comparison" function.
                     var leftGapString = leftString.substring(leftIndices[previousLeftIndex] + segmentValue.length, leftIndices[sequenceSegment.leftIndex]);
                     var rightGapString = rightString.substring(rightIndices[previousRightIndex] + segmentValue.length, rightIndices[sequenceSegment.rightIndex]);
-                    var gapSegments = gpii.diff.compareStringsBySegment(leftGapString, rightGapString);
+                    var gapSegments = gpii.diff.compareStringsBySegment(leftGapString, rightGapString, options);
 
                     // Knit the first part of the gap into the last existing adjoining segment
                     var lastPregapSegment = segments.pop();
@@ -603,7 +724,7 @@ gpii.diff.compareStringsByLine = function (leftString, rightString) {
             if (lastLeftIndex < leftString.length || lastRightIndex < rightString.length) {
                 var leftTrailingString  = leftString.substring(lastLeftIndex);
                 var rightTrailingString = rightString.substring(lastRightIndex);
-                trailingSegments = gpii.diff.compareStringsBySegment(leftTrailingString, rightTrailingString);
+                trailingSegments = gpii.diff.compareStringsBySegment(leftTrailingString, rightTrailingString, options);
             }
 
             // "knit" together the last piece of leading material with the first segment if their types are the same.
@@ -622,7 +743,7 @@ gpii.diff.compareStringsByLine = function (leftString, rightString) {
             return segments;
         }
         else {
-            return gpii.diff.compareStringsBySegment(leftString, rightString);
+            return gpii.diff.compareStringsBySegment(leftString, rightString, options);
         }
     }
 };
@@ -702,12 +823,17 @@ gpii.diff.equals = function (leftElement, rightElement) {
  *
  * A function to compare two arrays and report their differences.
  *
+ * The optional `options` parameter supports the following parameters:
+ * - `tracebackStrategy`: Can be `full` (find all longest sequences) or `single` (find just one, the default).
+ * - `timeout`: The maximum execution time, in milliseconds (defaults to 30 seconds).
+ *
  * @param leftArray - An array of values.
  * @param rightArray - An array of values to compare.
+ * @param options {Object} - Options to control our operation, see above.
  * @return {Array} - An array of segments representing the changes in order.  May be larger than the original array.
  *
  */
-gpii.diff.compareArrays = function (leftArray, rightArray) {
+gpii.diff.compareArrays = function (leftArray, rightArray, options) {
     if (!Array.isArray(leftArray) || !Array.isArray(rightArray)) {
         return gpii.diff.singleValueDiff(leftArray, rightArray);
     }
@@ -719,7 +845,7 @@ gpii.diff.compareArrays = function (leftArray, rightArray) {
         }
         else {
             // Find the longest match, process it, then process any trailing and leading material.
-            var longestCommonSequence = gpii.diff.longestCommonSequence(leftArray, rightArray);
+            var longestCommonSequence = gpii.diff.longestCommonSequence(leftArray, rightArray, options);
             if (longestCommonSequence.length) {
                 var firstSegment = longestCommonSequence[0];
                 // Compare the "leaders"
@@ -873,14 +999,19 @@ gpii.diff.objectsEqual = function (leftObject, rightObject) {
  *
  * Compare two objects and product a report about their differences.
  *
+ * The optional `options` object supports the following configuration options.
+ *
+ * `compareStringsAsMarkdown`: Set to `true` to compare strings as markdown rather than plain text.
+ * `lcsOptions`: Options to pass to the underlying diff engine.  See the documentation for `gpii.diff.longestCommonSequences` for details.
+ * `markdownItOptions`: Configuration options to pass to markdownit when dealing with markdown.  See their documentation for details.
+ *
  * @param leftObject {Object} - An object.
  * @param rightObject {Object} - An object to compare with `leftObject`.
- * @param compareStringsAsMarkdown {Boolean} - Whether to compare strings as markdown.
- * @param markdownitOptions {Object} - Configuration options to pass to markdownit when dealing with markdown.  See their documentation for details.
+ * @param options {Object} - An object containing options that control the handling of strings and the comparison strategy.  See above.
  * @return results - An object that describes the differences (and similarities) between the two objects.
  *
  */
-gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMarkdown, markdownitOptions) {
+gpii.diff.compareObjects = function (leftObject, rightObject, options) {
     var results = {};
     var leftKeys = leftObject !== undefined ? Object.keys(leftObject) : [];
     var rightKeys = rightObject !== undefined ? Object.keys(rightObject) : [];
@@ -892,7 +1023,7 @@ gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMa
             var key = combinedKeys[a];
             var leftValue = leftObject !== undefined ? leftObject[key] : undefined;
             var rightValue = rightObject !== undefined ? rightObject[key] : undefined;
-            results[key] = gpii.diff.compare(leftValue, rightValue, compareStringsAsMarkdown, markdownitOptions);
+            results[key] = gpii.diff.compare(leftValue, rightValue, options);
         }
     }
     // Both leftObject and rightObject are `undefined`.
@@ -913,34 +1044,116 @@ gpii.diff.compareObjects = function (leftObject, rightObject, compareStringsAsMa
  *
  * Compare a single element, using the correct comparison depending on the variable type.
  *
+ * The optional `options` object supports the following parameters:
+ *
+ * `compareStringsAsMarkdown`: Set to `true` to compare strings as markdown rather than as plain text.
+ * `lcsOptions`: Options to pass to the underlying diff engine.  See `gpii.diff.longestCommonSequences` for details.
+ * `markdownItOptions`: Options to pass to Markdown-It when rendering strings as markdown.
+ *
  * @param leftElement {Any} - An element (array, object, number, etc.).
  * @param rightElement {Any} - An element to compare to `leftElement`.
- * @param compareStringsAsMarkdown {Boolean} - Whether to compare strings as markdown.
- * @param markdownitOptions {Object} - Configuration options to pass to markdownit when dealing with markdown.  See their documentation for details.
+ * @param options {Object} - Configuration options to pass to markdownit when dealing with markdown.  See above.
  * @return {Object} - An object that describes the differences between the two elements.
  *
  */
-gpii.diff.compare = function (leftElement, rightElement, compareStringsAsMarkdown, markdownitOptions) {
+gpii.diff.compare = function (leftElement, rightElement, options) {
     var firstDefinedElement = leftElement !== undefined ? leftElement : rightElement;
     // Both are undefined
     if (firstDefinedElement === undefined) {
         return gpii.diff.singleValueDiff(leftElement, rightElement);
     }
     else if (Array.isArray(firstDefinedElement)) {
-        return gpii.diff.compareArrays(leftElement, rightElement);
-    }
-    else if (typeof firstDefinedElement === "string") {
-        return compareStringsAsMarkdown ? gpii.diff.compareMarkdown(leftElement, rightElement, markdownitOptions) : gpii.diff.compareStrings(leftElement, rightElement);
-    }
-    else if (typeof firstDefinedElement === "object") {
-        return gpii.diff.compareObjects(leftElement, rightElement, compareStringsAsMarkdown, markdownitOptions);
+        return gpii.diff.compareArrays(leftElement, rightElement, options);
     }
     else {
-        return gpii.diff.singleValueDiff(leftElement, rightElement);
+        var compareStringsAsMarkdown = fluid.get(options, "compareStringsAsMarkdown");
+        if (typeof firstDefinedElement === "string") {
+            return compareStringsAsMarkdown ? gpii.diff.compareMarkdown(leftElement, rightElement, options) : gpii.diff.compareStrings(leftElement, rightElement, options);
+        }
+        else if (typeof firstDefinedElement === "object") {
+            return gpii.diff.compareObjects(leftElement, rightElement, options);
+        }
+        else {
+            return gpii.diff.singleValueDiff(leftElement, rightElement);
+        }
     }
 };
 
 // A "stub" function to fail with a meaningful error if markdown support is called when it has not be properly loaded.
 gpii.diff.compareMarkdown = function () {
     fluid.fail("You must install the optional required dependencies and call `gpii.diff.loadMarkdownSupport()` to use this function");
+};
+
+
+/**
+ *
+ * Calculate the left side of a single diff segment by combining "removed" and "unchanged" segments.
+ *
+ * @param diff {Array} - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`
+ * @returns {Any} - An array, string, or other value representing the left side of the diff.
+ *
+ */
+gpii.diff.leftValue = function (diff) {
+    return gpii.diff.combineDiff(diff, ["unchanged", "removed"]);
+};
+
+/**
+ *
+ * Calculate the right side of a single diff segment by combining "unchanged" and "added" segments.
+ *
+ * @param diff {Array} - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`
+ * @returns {Any} - An array, string, or other value representing the right side of the diff.
+ *
+ */
+gpii.diff.rightValue = function (diff) {
+    return gpii.diff.combineDiff(diff, ["unchanged", "added"]);
+};
+
+/**
+ *
+ * @param diff {Array} - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`
+ * @param keys - An array of keys to include in the results, which correspond to "type" values in individual diff segments.
+ * @returns {Any} - An array, string, or other value representing the combined values of all relevant diff segments.
+ *
+ */
+gpii.diff.combineDiff = function (diff, keys) {
+    if (diff[0].arrayValue) {
+        var combinedArray = [];
+        fluid.each(diff, function (diffSegment) {
+            if (keys.indexOf(diffSegment.type) !== -1) {
+                combinedArray = combinedArray.concat(diffSegment.arrayValue);
+            }
+        });
+        return combinedArray;
+    }
+    else {
+        var combinedValue;
+        fluid.each(diff, function (diffSegment) {
+            if (keys.indexOf(diffSegment.type) !== -1) {
+                if (combinedValue === undefined) {
+                    combinedValue = diffSegment.value;
+                }
+                else {
+                    combinedValue += diffSegment.value;
+                }
+            }
+        });
+        return combinedValue;
+    }
+};
+
+/**
+ *
+ * Examine a single segment of "diff" output and report whether it contains changes.
+ *
+ * @param diff {Array} - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`.
+ * @returns {Boolean} - Returns `true` if the value has changes, `false` otherwise.
+ */
+gpii.diff.hasChanged = function (diff) {
+    var firstChange = fluid.find(diff, function (segment) {
+        if (segment.type !== "unchanged") {
+            return segment;
+        }
+    });
+    return firstChange === undefined ? false : true;
 };

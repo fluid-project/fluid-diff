@@ -8,7 +8,9 @@
 var fluid = require("infusion");
 var gpii  = fluid.registerNamespace("gpii");
 
+fluid.require("%gpii-diff");
 require("./js/lib/harness");
+
 fluid.require("%gpii-launcher");
 
 fluid.defaults("gpii.tests.diff.harness.launcher", {

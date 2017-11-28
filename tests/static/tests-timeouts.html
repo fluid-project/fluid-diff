@@ -1,6 +1,6 @@
 <html>
 <head>
-    <title>"Browser" Templates Tests</title>
+    <title>Traceback Timeout Tests</title>
 
     <!-- Bring in jQuery and other dependencies -->
     <script type="text/javascript" src="/node_modules/infusion/src/lib/jquery/core/js/jquery.js"></script>
@@ -54,7 +54,7 @@
     <script type="text/javascript" src="/src/js/rightValue-helper.js"></script>
 </head>
 <body>
-<h1 id="qunit-header">"Browser" Templates Tests</h1>
+<h1 id="qunit-header">Traceback Timeout Tests</h1>
 <h2 id="qunit-banner"></h2>
 <div id="qunit-testrunner-toolbar"></div>
 <h2 id="qunit-userAgent"></h2>
@@ -62,9 +62,10 @@
 
 <div id="qunit-fixture"></div>
 
-<script type="text/javascript" src="/tests/js/tests-templates-common.js"></script>
+<script type="text/javascript" src="/tests/js/lib/performance-helpers.js"></script>
+<script type="text/javascript" src="/tests/js/tests-timeouts.js"></script>
 <script type="text/javascript">
-    gpii.tests.diff.templates.browser();
+    gpii.tests.diff.timeouts();
 </script>
 </body>
 </html>

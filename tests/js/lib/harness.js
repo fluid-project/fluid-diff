@@ -48,6 +48,15 @@ fluid.defaults("gpii.tests.diff.harness", {
                             components: {
                                 isDiffArray: {
                                     type: "gpii.diff.helper.isDiffArray"
+                                },
+                                hasChanged: {
+                                    type: "gpii.diff.helper.hasChanged"
+                                },
+                                leftValue: {
+                                    type: "gpii.diff.helper.leftValue"
+                                },
+                                rightValue: {
+                                    type: "gpii.diff.helper.rightValue"
                                 }
                             }
                         }

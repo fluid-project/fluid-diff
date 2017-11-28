@@ -80,6 +80,9 @@ fluid.defaults("gpii.test.diff.testDefs.compareStrings", {
                 message:   "Our algorithm should only match whole words...",
                 leftValue: "catapults can throw things high in the air.",
                 rightValue: "cats can jump high in the air.",
+                options: {
+                    lcsOptions: { tracebackStrategy: "full" }
+                },
                 expected:  [
                     { value: "catapults", type: "removed"},
                     { value: "cats", type: "added"},

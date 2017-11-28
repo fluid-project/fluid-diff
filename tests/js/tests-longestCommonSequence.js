@@ -22,7 +22,7 @@ gpii.test.diff.longestCommonSequence.runAllTests = function (that) {
 
 gpii.test.diff.longestCommonSequence.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
-        var result = gpii.diff.longestCommonSequence(testDef.leftValue, testDef.rightValue);
+        var result = gpii.diff.longestCommonSequence(testDef.leftValue, testDef.rightValue, testDef.options);
         jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
     });
 };
@@ -43,6 +43,9 @@ fluid.defaults("gpii.test.diff.longestCommonSequence", {
             message:    "Our results should match the wikipedia entry...",
             leftValue:  ["G", "A", "C"],
             rightValue: ["A", "G", "C", "A", "T"],
+            options: {
+                lcsOptions: { timeout: 30000, tracebackStrategy: "full" }
+            },
             expected:   [{ leftIndex: 0, rightIndex: 1}, { leftIndex: 1, rightIndex: 3}] // "GA"
         },
         leadingDuplicate: {

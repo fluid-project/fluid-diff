@@ -9,11 +9,19 @@ fluid.registerNamespace("gpii.diff");
 fluid.module.register("gpii-diff", __dirname, require);
 
 require("./src/js/diff");
+require("./src/js/hasChanged-helper");
 require("./src/js/isDiffArray-helper");
+require("./src/js/leftValue-helper");
+require("./src/js/rightValue-helper");
 
 // Provide a function to optionally load test support.
 gpii.diff.loadMarkdownSupport = function () {
     require("./src/js/markdown-diff");
+};
+
+gpii.diff.loadTestingSupport = function () {
+    require("./tests/js/lib/performance-helpers");
+    require("./tests/js/lib/diagramTracebackTable");
 };
 
 module.exports = gpii.diff;

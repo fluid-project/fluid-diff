@@ -29,20 +29,25 @@ var cheerio    = typeof require !== "undefined" ? require("cheerio") : gpii.diff
  *
  * Compare two Markdown strings and report their textual differences.
  *
+ * The optional configuration options passed to this function can include  the following parameters.
+ * `markdownItOptions` - Configuration options to pass to MarkdownIt.  See their docs for supported options.
+ * `lcsOptions` - Options to control the "diff" operation, see the docs for gpii.diff.longestCommonSequences.
+ *
  * @param leftMarkdown {String} - A string containing markdown.
  * @param rightMarkdown {String} - A string to compare to `leftMarkdown`.
- * @param markdownItOptions {Object} - Configuration options to pass to MarkdownIt.  See their docs for supported options.
+ * @param options {Object} - Configurations options to control how the underlying difference engine and markdown rendering are handled.  See above.
  * @returns {*}
  *
  */
-gpii.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, markdownItOptions) {
+gpii.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, options) {
+    var markdownItOptions = fluid.get(options, "markdownItOptions");
     if (leftMarkdown === undefined || rightMarkdown === undefined || typeof leftMarkdown !== "string" || typeof rightMarkdown !== "string") {
         return gpii.diff.singleValueDiff(leftMarkdown, rightMarkdown);
     }
     else {
         var leftString = gpii.diff.markdownToText(leftMarkdown, markdownItOptions);
         var rightString = gpii.diff.markdownToText(rightMarkdown, markdownItOptions);
-        return gpii.diff.compareStrings(leftString, rightString);
+        return gpii.diff.compareStrings(leftString, rightString, options);
     }
 };
 

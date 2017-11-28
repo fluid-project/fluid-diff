@@ -147,7 +147,9 @@ fluid.defaults("gpii.test.diff.testDefs.compareObjects", {
                 leftValue:  { md: "**bold**" },
                 rightValue: { md: "*italic*" },
                 expected:   { md: [{value: "bold", type: "removed"}, { value: "italic", type: "added"}]},
-                compareStringsAsMarkdown: true
+                options: {
+                    compareStringsAsMarkdown: true
+                }
             },
             deepMarkdownAsString: {
                 message:    "Deep markdown should be handled as a string by default...",
@@ -160,14 +162,18 @@ fluid.defaults("gpii.test.diff.testDefs.compareObjects", {
                 leftValue:  { deep: { md: "**bold**" } },
                 rightValue: { deep: { md: "*italic*" } },
                 expected:   { deep: { md: [{value: "bold", type: "removed"}, { value: "italic", type: "added"}]} },
-                compareStringsAsMarkdown: true
+                options: {
+                    compareStringsAsMarkdown: true
+                }
             },
             deepComplexHtml: {
                 message:    "We should be able to handle HTML tables...",
                 leftValue:  { deep: { html: "<table border='0'><tr><td colspan='3'>The following specifications may only comply to some variants.</td></tr><tr><td colspan='3'><strong>Intended/suitable for one-hand operation</strong></td></tr><tr><td colspan='3'><strong>Left-hand keyboard</strong></td></tr><tr><td colspan='3'><strong>Wireless</strong></td></tr></table>" } },
                 rightValue: { deep: { html: "<table border='0'><tr><td colspan='3'>The following specifications may only apply to some variants.</td></tr><tr><td colspan='3'><strong>Intended/suitable for one-hand operation</strong></td></tr><tr><td colspan='3'><strong>Left-hand keyboard</strong></td></tr><tr><td colspan='3'><strong>Wireless</strong></td></tr></table>" } },
-                compareStringsAsMarkdown: true,
-                markdownitOptions: { html: true},
+                options: {
+                    compareStringsAsMarkdown: true,
+                    markdownItOptions: { html: true}
+                },
                 expected:   {
                     deep: {
                         html: [

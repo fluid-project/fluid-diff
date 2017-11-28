@@ -22,7 +22,7 @@ gpii.test.diff.longestCommonSequences.runAllTests = function (that) {
 
 gpii.test.diff.longestCommonSequences.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
-        var result = gpii.diff.longestCommonSequences(testDef.leftValue, testDef.rightValue);
+        var result = gpii.diff.longestCommonSequences(testDef.leftValue, testDef.rightValue, testDef.options);
         jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
     });
 };
@@ -43,6 +43,10 @@ fluid.defaults("gpii.test.diff.longestCommonSequences", {
             message:    "Our results should match the wikipedia entry...",
             leftValue:  ["G", "A", "C"],
             rightValue: ["A", "G", "C", "A", "T"],
+            // We want to check our full results against wikipedia.
+            options: {
+                lcsOptions: { tracebackStrategy: "full" }
+            },
             expected:   [
                 [{ leftIndex: 0, rightIndex: 1}, { leftIndex: 1, rightIndex: 3}], // "GA"
                 [{ leftIndex: 0, rightIndex: 1}, { leftIndex: 2, rightIndex: 2}], // "GC"
@@ -114,12 +118,20 @@ fluid.defaults("gpii.test.diff.longestCommonSequences", {
             message:    "We should be able to complete a 750 x 750 comparison with matches...",
             leftValue:  fluid.generate(750, "a"),
             rightValue: fluid.generate(750, "a"),
+            // TODO: Remove or tune this down once we are further along with the performance review.
+            options: {
+                lcsOptions: { timeout: 30000 }
+            },
             expected:   [fluid.generate(750, gpii.test.diff.generateMassiveMatch, true)]
         },
         sevenFiftySquaredNoMatch: {
             message:    "We should be able to complete a 750 x 750 comparison with no matches...",
             leftValue:  fluid.generate(750, "a"),
             rightValue: fluid.generate(750, "b"),
+            // TODO: Remove or tune this down once we are further along with the performance review.
+            options: {
+                lcsOptions: { timeout: 30000 }
+            },
             expected:   []
         }
     },

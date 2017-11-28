@@ -22,11 +22,13 @@ gpii.tests.diff.templates.runAllTests = function (testDefs, renderer) {
 
 gpii.tests.diff.templates.runSingleTest = function (testDef, renderer) {
     jqUnit.test(testDef.message, function () {
-        var html = renderer.render("diff", testDef.input);
-        jqUnit.assertEquals("The HTML output should have been as expected...", testDef.expectedHtml, html);
+        var html = renderer.render(testDef.htmlTemplateKey || "diff", testDef.input);
+        jqUnit.assertEquals("The HTML output should have been as expected.", testDef.expectedHtml, html);
 
-        var text = renderer.render("diff-text", testDef.input);
-        jqUnit.assertEquals("The text output should have been as expected...", testDef.expectedText, text);
+        if (testDef.textTemplateKey) {
+            var text = renderer.render(testDef.textTemplateKey || "diff-text", testDef.input);
+            jqUnit.assertEquals("The text output should have been as expected.", testDef.expectedText, text);
+        }
     });
 };
 
@@ -64,16 +66,44 @@ fluid.defaults("gpii.tests.diff.templates.common", {
             expectedText: "* -old-\n* +new+\n"
         },
         normalArray: {
-            message:      "A normal (non-diff) array should not result in rendered output...",
+            message:      "A normal (non-diff) array should not result in rendered output.",
             input:        [ 0, 1, 2],
             expectedHtml: "\n",
             expectedText: "\n"
         },
         emptyArray: {
-            message:      "An empty array should not result in rendered output...",
+            message:      "An empty array should not result in rendered output.",
             input:        [],
             expectedHtml: "\n",
             expectedText: "\n"
+        },
+        hasChanged: {
+            message:         "The hasChanged helper should be able to detect a change.",
+            input:           [{value: "foo", "type":  "removed"}, { value: "bar", type: "added"}],
+            htmlTemplateKey: "hasChanged",
+            expectedHtml:    "true",
+            textTemplateKey: false
+        },
+        hasNotChanged: {
+            message:         "The hasChanged helper should be able to detect when there has not been a change.",
+            input:           [{value: "foo", "type":  "unchanged"}],
+            htmlTemplateKey: "hasChanged",
+            expectedHtml:    "false",
+            textTemplateKey: false
+        },
+        leftValue: {
+            message:         "The leftValue helper should be able to output the left side of a change.",
+            input:           [{value: "foo", "type":  "removed"}, { value: "bar", type: "added"}],
+            htmlTemplateKey: "leftValue",
+            expectedHtml:    "foo",
+            textTemplateKey: false
+        },
+        rightValue: {
+            message:         "The rightValue helper should be able to output the right side of a change.",
+            input:           [{value: "foo", "type":  "removed"}, { value: "bar", type: "added"}],
+            htmlTemplateKey: "rightValue",
+            expectedHtml:    "bar",
+            textTemplateKey: false
         }
     }
 });
@@ -94,6 +124,15 @@ fluid.defaults("gpii.tests.diff.templates.node", {
                 components: {
                     isDiffArray: {
                         type: "gpii.diff.helper.isDiffArray"
+                    },
+                    hasChanged: {
+                        type: "gpii.diff.helper.hasChanged"
+                    },
+                    leftValue: {
+                        type: "gpii.diff.helper.leftValue"
+                    },
+                    rightValue: {
+                        type: "gpii.diff.helper.rightValue"
                     }
                 }
             }
@@ -117,9 +156,17 @@ fluid.defaults("gpii.tests.diff.templates.browser", {
                 components: {
                     isDiffArray: {
                         type: "gpii.diff.helper.isDiffArray"
+                    },
+                    hasChanged: {
+                        type: "gpii.diff.helper.hasChanged"
+                    },
+                    leftValue: {
+                        type: "gpii.diff.helper.leftValue"
+                    },
+                    rightValue: {
+                        type: "gpii.diff.helper.rightValue"
                     }
                 }
-
             }
         }
     }
