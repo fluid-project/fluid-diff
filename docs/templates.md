@@ -1,8 +1,8 @@
-# Using the Templates and Handlebars Helper Provided by This Package.
+# Using the Templates and Handlebars Helpers Provided by This Package.
 
 This package provides a handful of [Handlebars "partials"](http://handlebarsjs.com/partials.html), which can be used
 within your templates.  To use these, you will need to add this package's template directory to your renderer
-configuration, as shown in the following example:
+configuration and load the helpers provided by this package, as shown in the following example:
 
 ```javascript
 var fluid = require("infusion");
@@ -16,6 +16,15 @@ fluid.defaults("my.renderer", {
     components: {
         isDiffArray: {
             type: "gpii.diff.helper.isDiffArray"
+        },
+        hasChanged: {
+            type: "gpii.diff.helper.hasChanged"
+        },
+        leftValue: {
+            type: "gpii.diff.helper.leftValue"
+        },
+        rightValue: {
+            type: "gpii.diff.helper.rightValue"
         }
     }
 });
@@ -33,12 +42,32 @@ or text respectively. These will call the appropriate partials to render a singl
 [the tutorial](tutorial.md) for more detailed examples, including examples of how to call the relevant partials
 directly.
 
-## The `isArrayDiff` helper
+## Helpers
 
-The `isArrayDiff` block helper renders a block if a variable is confirmed to be a diff of array values, and another
-if the block is not.  This is intended to distinguish "simple" values (integers, strings, etc.) from Array values.  The
-block helper takes a single argument, which is the variable to be evaluated.  You don't necessarily need to use this
-yourself, as the `diff` partial (see above) uses the helper to distinguish array from non-array values.
+### The `hasChanged` helper
+
+The `hasChanged` block helper allows you to optionally display content if a particular diff segment has or has not
+changed.  Here's a sample snippet from a handlebars template:
+
+```handlebars
+{{#hasChanged diff.segment}}
+    There were changes.
+{{else}}
+    There were no changes.
+{{/hasChanged}}
+```
+
+### The `leftValue` helper
+
+The `leftValue` helper outputs only the left side of a particular diff. If `diff.segment` is equal to `[{ type:
+"removed", value: "old"}, { type: "added", value: "new"}, { type: "unchanged", value: " string"}]`, then the template
+snippet `{{leftValue diff.segment}}` would be rendered as `"old string"`.
+
+### The `rightValue` helper
+
+The `righttValue` helper outputs only the right side of a particular diff. If `diff.segment` is equal to `[{ type:
+"removed", value: "old"}, { type: "added", value: "new"}, { type: "unchanged", value: " string"}]`, then the template
+snippet `{{leftValue diff.segment}}` would be rendered as `"new string"`.
 
 ## This Package's HTML Output
 
