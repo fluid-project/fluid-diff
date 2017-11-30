@@ -404,8 +404,8 @@ in bold):
     <tr>
         <th>G</th>
         <td>╳0</td>
-        <td style="background-color:lightblue">↖<strong>1</strong></td>
-        <td style="background-color:lightblue">←1</td>
+        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>1</strong></td>
+        <td style="background-color:lightblue" bgcolor="lightblue">←1</td>
         <td>←1</td>
         <td>←1</td>
     </tr>
@@ -414,8 +414,8 @@ in bold):
         <td>↖1</td>
         <td>←↑1</td>
         <td>←↑1</td>
-        <td style="background-color:lightblue">↖<strong>2</strong></td>
-        <td style="background-color:lightblue">←2</td>
+        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>2</strong></td>
+        <td style="background-color:lightblue" bgcolor="lightblue">←2</td>
     </tr>
     <tr>
         <th>C</th>
@@ -423,7 +423,7 @@ in bold):
         <td>←↑1</td>
         <td>↖2</td>
         <td>←↑2</td>
-        <td style="background-color:lightblue">←↑2</td>
+        <td style="background-color:lightblue" bgcolor="lightblue">←↑2</td>
     </tr>    
 </table>
 
@@ -434,7 +434,7 @@ Next, let's look at the single path to the subsequence "GC":
     <tr>
         <th>G</th>
         <td>╳0</td>
-        <td style="background-color:lightblue">↖<strong>1</strong></td>
+        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>1</strong></td>
         <td>←1</td>
         <td>←1</td>
         <td>←1</td>
@@ -442,7 +442,7 @@ Next, let's look at the single path to the subsequence "GC":
     <tr>
         <th>A</th>
         <td>↖1</td>
-        <td style="background-color:lightblue">←↑1</td>
+        <td style="background-color:lightblue" bgcolor="lightblue">←↑1</td>
         <td>←↑1</td>
         <td>↖2</td>
         <td>←2</td>
@@ -451,9 +451,9 @@ Next, let's look at the single path to the subsequence "GC":
         <th>C</th>
         <td>↑1</td>
         <td>←↑1</td>
-        <td style="background-color:lightblue">↖<strong>2</strong></td>
-        <td style="background-color:lightblue">←↑2</td>
-        <td style="background-color:lightblue">←↑2</td>
+        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>2</strong></td>
+        <td style="background-color:lightblue" bgcolor="lightblue">←↑2</td>
+        <td style="background-color:lightblue" bgcolor="lightblue">←↑2</td>
     </tr>    
 </table>
 
@@ -471,8 +471,8 @@ Finally, let's look at the single path to the subsequence "AC":
     </tr>
     <tr>
         <th>A</th>
-        <td style="background-color:lightblue">↖<strong>1</strong></td>
-        <td style="background-color:lightblue">←↑1</td>
+        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>1</strong></td>
+        <td style="background-color:lightblue" bgcolor="lightblue">←↑1</td>
         <td>←↑1</td>
         <td>↖2</td>
         <td>←2</td>
@@ -481,9 +481,9 @@ Finally, let's look at the single path to the subsequence "AC":
         <th>C</th>
         <td>↑1</td>
         <td>←↑1</td>
-        <td style="background-color:lightblue">↖<strong>2</strong></td>
-        <td style="background-color:lightblue">←↑2</td>
-        <td style="background-color:lightblue">←↑2</td>
+        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>2</strong></td>
+        <td style="background-color:lightblue" bgcolor="lightblue">←↑2</td>
+        <td style="background-color:lightblue" bgcolor="lightblue">←↑2</td>
     </tr>    
 </table>
 
@@ -497,26 +497,26 @@ same square has been traversed.
     <tr>
         <th>G</th>
         <td>╳0</td>
-        <td style="background-color:#ff0000">↖1</td>
-        <td style="background-color:#ff6666">←1</td>
+        <td style="background-color:#ff0000" bgcolor="#ff0000">↖1</td>
+        <td style="background-color:#ff6666" bgcolor="#ff6666">←1</td>
         <td>←1</td>
         <td>←1</td>
     </tr>
     <tr>
         <th>A</th>
-        <td style="background-color:#ffcccc">↖1</td>
-        <td style="background-color:#ffcccc">←↑1</td>
+        <td style="background-color:#ffcccc" bgcolor="#ffcccc">↖1</td>
+        <td style="background-color:#ffcccc" bgcolor="#ffcccc">←↑1</td>
         <td>←↑1</td>
-        <td style="background-color:#ff6666">↖2</td>
-        <td style="background-color:#ffcccc">←2</td>
+        <td style="background-color:#ff6666" bgcolor="#ff6666">↖2</td>
+        <td style="background-color:#ffcccc" bgcolor="#ffcccc">←2</td>
     </tr>
     <tr>
         <th>C</th>
         <td>↑1</td>
         <td>←↑1</td>
-        <td style="background-color:#ffcccc">↖2</td>
-        <td style="background-color:#ffcccc">←↑2</td>
-        <td style="background-color:#ffcccc">←↑2</td>
+        <td style="background-color:#ffcccc" bgcolor="#ffcccc">↖2</td>
+        <td style="background-color:#ffcccc" bgcolor="#ffcccc">←↑2</td>
+        <td style="background-color:#ffcccc" bgcolor="#ffcccc">←↑2</td>
     </tr>    
 </table>
 
@@ -536,8 +536,8 @@ follows the upward arrow.  Thus, its path through the same comparison looks like
     <tr>
         <th>G</th>
         <td>╳0</td>
-        <td style="background-color:lightblue">↖<strong>1</strong></td>
-        <td style="background-color:lightblue">←1</td>
+        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>1</strong></td>
+        <td style="background-color:lightblue" bgcolor="lightblue">←1</td>
         <td>←1</td>
         <td>←1</td>
     </tr>
@@ -546,8 +546,8 @@ follows the upward arrow.  Thus, its path through the same comparison looks like
         <td>↖1</td>
         <td>←↑1</td>
         <td>←↑1</td>
-        <td style="background-color:lightblue">↖<strong>2</strong></td>
-        <td style="background-color:lightblue">←2</td>
+        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>2</strong></td>
+        <td style="background-color:lightblue" bgcolor="lightblue">←2</td>
     </tr>
     <tr>
         <th>C</th>
@@ -555,7 +555,7 @@ follows the upward arrow.  Thus, its path through the same comparison looks like
         <td>←↑1</td>
         <td>↖2</td>
         <td>←↑2</td>
-        <td style="background-color:lightblue">←↑2</td>
+        <td style="background-color:lightblue" bgcolor="lightblue">←↑2</td>
     </tr>    
 </table>
 
