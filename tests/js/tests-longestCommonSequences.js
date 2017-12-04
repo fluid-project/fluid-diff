@@ -9,7 +9,7 @@ if (typeof require !== "undefined") {
     fluid.require("%gpii-diff");
 
     // Included so that we can diagram individual tracebacks in a debugger, as in:
-    // console.log(gpii.test.diff.diagramTracebackTable(testDef.leftValue, testDef.rightValue, tracebackTable));
+    // console.log(gpii.test.diff.diagramTracebackAsText(testDef.leftValue, testDef.rightValue, tracebackTable));
     require("./lib/diagramTracebackTable");
 };
 

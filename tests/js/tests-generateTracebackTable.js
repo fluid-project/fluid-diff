@@ -11,7 +11,7 @@ if (typeof require !== "undefined") {
     fluid.require("%gpii-diff");
 
     // Included so that we can diagram individual tracebacks in a debugger, as in:
-    // console.log(gpii.test.diff.diagramTracebackTable(testDef.leftValue, testDef.rightValue, tracebackTable));
+    // console.log(gpii.test.diff.diagramTracebackAsText(testDef.leftValue, testDef.rightValue, tracebackTable));
     require("./lib/diagramTracebackTable");
 }
 
@@ -25,7 +25,7 @@ gpii.test.diff.generateTracebackTable.runAllTests = function (that) {
 gpii.test.diff.generateTracebackTable.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
         var tracebackTable = gpii.diff.generateTracebackTable(testDef.leftValue, testDef.rightValue);
-        // console.log(gpii.test.diff.diagramTracebackTable(testDef.leftValue, testDef.rightValue, tracebackTable));
+        // console.log(gpii.test.diff.diagramTracebackAsText(testDef.leftValue, testDef.rightValue, tracebackTable));
         jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, tracebackTable);
     });
 

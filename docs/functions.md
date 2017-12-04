@@ -354,33 +354,9 @@ This function Follows a modified version of the "traceback" LCS approach outline
 in [the Wikipedia entry for LCS](http://en.wikipedia.org/wiki/Longest_common_subsequence_problem).  First, a "traceback"
 table is generated, which looks something like the following:
 
-<table>
-    <tr><td></td><th>A</th><th>G</th><th>C</th><th>A</th><th>T</th></tr>
-    <tr>
-        <th>G</th>
-        <td>╳0</td>
-        <td>↖1</td>
-        <td>←1</td>
-        <td>←1</td>
-        <td>←1</td>
-    </tr>
-    <tr>
-        <th>A</th>
-        <td>↖1</td>
-        <td>←↑1</td>
-        <td>←↑1</td>
-        <td>↖2</td>
-        <td>←2</td>
-    </tr>
-    <tr>
-        <th>C</th>
-        <td>↑1</td>
-        <td>←↑1</td>
-        <td>↖2</td>
-        <td>←↑2</td>
-        <td>←↑2</td>
-    </tr>    
-</table>
+<!-- Generated using src/js/lib/generate-traceback-diagram.js -->
+![Sample traceback table.](diagrams/wikipedia-full-traceback.svg)
+
 
 The "traceback" is performed from the lowest right cell.  The symbols are as follows:
 
@@ -399,126 +375,27 @@ three tables highlighting a path from the bottom right cell to each of the longe
 of the several paths to the subsequence "GA" (cells visited are highlighted in blue, matches encountered are highlighted
 in bold):
 
-<table>
-    <tr><td></td><th>A</th><th>G</th><th>C</th><th>A</th><th>T</th></tr>
-    <tr>
-        <th>G</th>
-        <td>╳0</td>
-        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>1</strong></td>
-        <td style="background-color:lightblue" bgcolor="lightblue">←1</td>
-        <td>←1</td>
-        <td>←1</td>
-    </tr>
-    <tr>
-        <th>A</th>
-        <td>↖1</td>
-        <td>←↑1</td>
-        <td>←↑1</td>
-        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>2</strong></td>
-        <td style="background-color:lightblue" bgcolor="lightblue">←2</td>
-    </tr>
-    <tr>
-        <th>C</th>
-        <td>↑1</td>
-        <td>←↑1</td>
-        <td>↖2</td>
-        <td>←↑2</td>
-        <td style="background-color:lightblue" bgcolor="lightblue">←↑2</td>
-    </tr>    
-</table>
+<!-- Generated using src/js/lib/generate-traceback-diagram.js -->
+![Traceback of segment "GA"](diagrams/wikipedia-full-traceback-ga.svg)
 
 Next, let's look at the single path to the subsequence "GC":
 
-<table>
-    <tr><td></td><th>A</th><th>G</th><th>C</th><th>A</th><th>T</th></tr>
-    <tr>
-        <th>G</th>
-        <td>╳0</td>
-        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>1</strong></td>
-        <td>←1</td>
-        <td>←1</td>
-        <td>←1</td>
-    </tr>
-    <tr>
-        <th>A</th>
-        <td>↖1</td>
-        <td style="background-color:lightblue" bgcolor="lightblue">←↑1</td>
-        <td>←↑1</td>
-        <td>↖2</td>
-        <td>←2</td>
-    </tr>
-    <tr>
-        <th>C</th>
-        <td>↑1</td>
-        <td>←↑1</td>
-        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>2</strong></td>
-        <td style="background-color:lightblue" bgcolor="lightblue">←↑2</td>
-        <td style="background-color:lightblue" bgcolor="lightblue">←↑2</td>
-    </tr>    
-</table>
+<!-- Generated using src/js/lib/generate-traceback-diagram.js -->
+![Traceback of segment "GC"](diagrams/wikipedia-full-traceback-gc.svg)
+
 
 Finally, let's look at the single path to the subsequence "AC":
 
-<table>
-    <tr><td></td><th>A</th><th>G</th><th>C</th><th>A</th><th>T</th></tr>
-    <tr>
-        <th>G</th>
-        <td>╳0</td>
-        <td>↖1</td>
-        <td>←1</td>
-        <td>←1</td>
-        <td>←1</td>
-    </tr>
-    <tr>
-        <th>A</th>
-        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>1</strong></td>
-        <td style="background-color:lightblue" bgcolor="lightblue">←↑1</td>
-        <td>←↑1</td>
-        <td>↖2</td>
-        <td>←2</td>
-    </tr>
-    <tr>
-        <th>C</th>
-        <td>↑1</td>
-        <td>←↑1</td>
-        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>2</strong></td>
-        <td style="background-color:lightblue" bgcolor="lightblue">←↑2</td>
-        <td style="background-color:lightblue" bgcolor="lightblue">←↑2</td>
-    </tr>    
-</table>
+<!-- Generated using src/js/lib/generate-traceback-diagram.js -->
+![Traceback of segment "AC"](diagrams/wikipedia-full-traceback-ac.svg)
 
 Although this strategy gives us more control in selecting the best match from all possible longest matches, it is very
 expensive, in that it not only determines all longest matches, but ends up traversing all paths to the same longest
 matches.  Here is a diagram showing all the squares traversed in red.  The darker the shade of red, the more times the
 same square has been traversed.
 
-<table>
-    <tr><td></td><th>A</th><th>G</th><th>C</th><th>A</th><th>T</th></tr>
-    <tr>
-        <th>G</th>
-        <td>╳0</td>
-        <td style="background-color:#ff0000" bgcolor="#ff0000">↖1</td>
-        <td style="background-color:#ff6666" bgcolor="#ff6666">←1</td>
-        <td>←1</td>
-        <td>←1</td>
-    </tr>
-    <tr>
-        <th>A</th>
-        <td style="background-color:#ffcccc" bgcolor="#ffcccc">↖1</td>
-        <td style="background-color:#ffcccc" bgcolor="#ffcccc">←↑1</td>
-        <td>←↑1</td>
-        <td style="background-color:#ff6666" bgcolor="#ff6666">↖2</td>
-        <td style="background-color:#ffcccc" bgcolor="#ffcccc">←2</td>
-    </tr>
-    <tr>
-        <th>C</th>
-        <td>↑1</td>
-        <td>←↑1</td>
-        <td style="background-color:#ffcccc" bgcolor="#ffcccc">↖2</td>
-        <td style="background-color:#ffcccc" bgcolor="#ffcccc">←↑2</td>
-        <td style="background-color:#ffcccc" bgcolor="#ffcccc">←↑2</td>
-    </tr>    
-</table>
+<!-- Generated using src/js/lib/generate-traceback-diagram.js -->
+![Sample "heat map" of full traceback.](diagrams/wikipedia-full-traceback-heat-map.svg)
 
 The comparison between G and G is evaluated three times, once for the unique path to "GC", but twice for the paths to
 "AG".  Particularly when dealing with cases in which there is a fair amount of matching content separated by
@@ -531,33 +408,8 @@ The "single" traceback strategy only attempts to return one of the longest commo
 original diagram marked with both an upward and leftwards arrow.  If there is a choice, the "single" strategy only
 follows the upward arrow.  Thus, its path through the same comparison looks like the following:
 
-<table>
-    <tr><td></td><th>A</th><th>G</th><th>C</th><th>A</th><th>T</th></tr>
-    <tr>
-        <th>G</th>
-        <td>╳0</td>
-        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>1</strong></td>
-        <td style="background-color:lightblue" bgcolor="lightblue">←1</td>
-        <td>←1</td>
-        <td>←1</td>
-    </tr>
-    <tr>
-        <th>A</th>
-        <td>↖1</td>
-        <td>←↑1</td>
-        <td>←↑1</td>
-        <td style="background-color:lightblue" bgcolor="lightblue">↖<strong>2</strong></td>
-        <td style="background-color:lightblue" bgcolor="lightblue">←2</td>
-    </tr>
-    <tr>
-        <th>C</th>
-        <td>↑1</td>
-        <td>←↑1</td>
-        <td>↖2</td>
-        <td>←↑2</td>
-        <td style="background-color:lightblue" bgcolor="lightblue">←↑2</td>
-    </tr>    
-</table>
+<!-- Generated using src/js/lib/generate-traceback-diagram.js -->
+!["Single" traceback example.](diagrams/wikipedia-single-traceback.svg)
 
 The colored squares above are each visited once.  Even in this simple comparison, the difference is clear.  The "single"
 strategy visits five squares in total, versus the thirteen squares visited by the "full" strategy in its various paths
@@ -618,7 +470,7 @@ The optional `options` parameter can be used to change the traceback strategy us
 
 ## Test Functions
 
-### `gpii.test.diff.diagramTracebackTable(leftValue, rightValue, tracebackTable)`
+### `gpii.test.diff.diagramTracebackAsText(leftValue, rightValue, tracebackTable)`
 
 * `leftValue` `{Array}` - An array of values.
 * `rightValue` `{Array}` - An array that was compared to `leftValue`.
@@ -626,7 +478,7 @@ The optional `options` parameter can be used to change the traceback strategy us
 * Returns: `{String}` - An ASCII representation of the traceback table.
 
 Diagram a traceback table using ASCII characters, useful when analysing tracebacks generated using
-`gpii.diff.generateTracebackTable`.  To use this, you must `fluid.require("%gpii-diff/js/lib/diagramTracebackTable")`.
+`gpii.diff.generateTracebackTable`.  To use this, you must `fluid.require("%gpii-diff/js/lib/diagramTracebackAsText")`.
 The output is as follows:
 
 ```text
