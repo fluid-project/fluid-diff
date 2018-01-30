@@ -13,7 +13,7 @@ fluid.registerNamespace("gpii.test.diff.performance");
  * `fluid.generate(7, gpii.test.diff.performance.generateIndexArray); // [ 0, 1, 2, 3, 4, 5, 6]
  *
  * @param index {Number} - The array index passed by `fluid.generate`.
- * @returns {Number} - The value passed to `index`
+ * @return {Number} - The value passed to `index`
  */
 gpii.test.diff.performance.generateIndexArray = function (index) {
     return index;
@@ -26,7 +26,7 @@ gpii.test.diff.performance.generateIndexArray = function (index) {
  * `fluid.generate(7, gpii.test.diff.performance.generateEvenArray); // [ 0, 2, 2, 4, 4, 6, 6]
  *
  * @param index {Number} - The array index passed by `fluid.generate`.
- * @returns {Number} - The next even number, or the number itself if is already even.
+ * @return {Number} - The next even number, or the number itself if is already even.
  *
  */
 gpii.test.diff.performance.generateEvenArray = function (index) {
