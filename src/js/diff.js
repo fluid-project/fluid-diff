@@ -18,9 +18,9 @@ fluid.registerNamespace("gpii.diff");
  * should be used instead.  For string values, `gpii.diff.compareStrings` should be used instead.  For object values
  * `gpii.diff.compareObjects` should be used instead.
  *
- * @param leftValue {Any} - The left-hand value.
- * @param rightValue {Any} - The right-hand value.
- * @param isArray {Boolean} - Whether we are dealing with arrays or not
+ * @param {Any} leftValue - The left-hand value.
+ * @param {Any} rightValue - The right-hand value.
+ * @param {Boolean} isArray - Whether we are dealing with arrays or not
  * @return {Array} - An array of segments representing everything that has changed (or not changed).
  *
  */
@@ -52,9 +52,9 @@ gpii.diff.singleValueDiff = function (leftValue, rightValue, isArray) {
  * Sort arrays by the highest length, and then by the "tightest" grouping of elements, then by the lowest (average)
  * index of the first segment.
  *
- * @param a {Object} - An array.
- * @param b {Object} - An array to compare with `a`.
- * @return {number} - -1 if `a` is "first", 1 if `b` is "first", 0 if their position is interchangeable.
+ * @param {Object} a - An array.
+ * @param {Object} b - An array to compare with `a`.
+ * @return {Number} - -1 if `a` is "first", 1 if `b` is "first", 0 if their position is interchangeable.
  *
  */
 gpii.diff.sortByLengthThenTightnessThenIndex = function (a, b) {
@@ -106,7 +106,7 @@ gpii.diff.sortByLengthThenTightnessThenIndex = function (a, b) {
  *
  * `[{ leftIndex:0, rightIndex:0 }, { leftIndex:1, rightIndex:2}]`
  *
- * @param lcsSegments {Array} - An array of LCS segments.
+ * @param {Array} lcsSegments - An array of LCS segments.
  * @return {Number} - A number representing the "tightness".
  *
  */
@@ -131,7 +131,7 @@ gpii.diff.calculateTightness = function (lcsSegments) {
  * `undefined` values the same as empty strings.  Handles contractions and possessives only in the case where a single
  * apostrophe occurs between two blocks of "word" content.
  *
- * @param originalString {String} - A string to break down into segments.
+ * @param {String} originalString - A string to break down into segments.
  * @return {Array} - An array of substrings.
  */
 gpii.diff.extractSegments = function (originalString) {
@@ -156,9 +156,9 @@ gpii.diff.extractSegments = function (originalString) {
  * segments, which consist of a segment value and details about whether the segment is unchanged, added, or removed
  * when compared to `leftString`.
  *
- * @param leftString {String} - The first string, from whose perspective the "diff" results will be represented.
- * @param rightString {String} - The second string, to compare to the first string.
- * @param options {Object} - Configuration options for the underlying difference engine.
+ * @param {String} leftString - The first string, from whose perspective the "diff" results will be represented.
+ * @param {String} rightString - The second string, to compare to the first string.
+ * @param {Object} options - Configuration options for the underlying difference engine.
  * @return {Array} - An array of "segments" representing `rightString` as compared to `leftString`.
  *
  */
@@ -182,8 +182,8 @@ gpii.diff.compareStrings = function (leftString, rightString, options) {
  * `gpii.diff.compareStrings` can perform a deeper comparison of {String}, `undefined`, and `null` values.  This
  * function is used to determine whether we can perform that deeper comparison.
  *
- * @param value {Any} - A value to evaluate.
- * @return {boolean} - Returns `true` if the value is a {String}, `undefined`, or `null`.  Returns `false` otherwise.
+ * @param {Any} value - A value to evaluate.
+ * @return {Boolean} - Returns `true` if the value is a {String}, `undefined`, or `null`.  Returns `false` otherwise.
  *
  */
 gpii.diff.isStringNullOrUndefined = function (value) {
@@ -228,9 +228,9 @@ gpii.diff.isStringNullOrUndefined = function (value) {
  * the `single` strategy times out, an empty array will be returned, and the comparison will be treated as though all
  * "left" material was removed and all "right" material was added.
  *
- * @param leftArray {Array} - An array.
- * @param rightArray {Array} - An array to compare to `leftArray`.
- * @param options {Object} - Options to control our operation, see above.
+ * @param {Array} leftArray - An array.
+ * @param {Array} rightArray - An array to compare to `leftArray`.
+ * @param {Object} options - Options to control our operation, see above.
  * @return {Array} - An array of sequence arrays.  Each entry in a sequence array describes the position of a matching segment in the original arrays.
  *
  */
@@ -297,8 +297,9 @@ gpii.diff.longestCommonSequences = function (leftArray, rightArray, options) {
  * Compare two arrays, returning only the first sequence.  If sequences are of equal length, the "tightest", earliest
  * match is returned.
  *
- * @param leftArray {Array} - An array of values.
- * @param rightArray {Array} - An array of values to compare to `leftArray`.
+ * @param {Array} leftArray - An array of values.
+ * @param {Array} rightArray - An array of values to compare to `leftArray`.
+ * @param {Object} [options] - An optional array of configuration options.
  * @return {Array} - A single array representing the matching segments in the longest, "tightest", earliest matching sequence.
  *
  */
@@ -333,9 +334,9 @@ gpii.diff.longestCommonSequence = function (leftArray, rightArray, options) {
  * The optional `options` parameter supports the following parameter:
  * - `timeout`: The maximum execution time, in milliseconds (defaults to 10 seconds).
  *
- * @param leftArray {Array} - An array of values.
- * @param rightArray {Array} - An array of values to compare to `leftArray`.
- * @param options {Object} - Options to control our operation, see above.
+ * @param {Array} leftArray - An array of values.
+ * @param {Array} rightArray - An array of values to compare to `leftArray`.
+ * @param {Object} options - Options to control our operation, see above.
  * @return {Array} - An array of the longest common sequences (see above).
  *
  */
@@ -397,8 +398,8 @@ gpii.diff.generateTracebackTable = function (leftArray, rightArray, options) {
  * - `tracebackStrategy`: Can be `full` (find all longest sequences) or `single` (find just one, the default).
  * - `timeout`: The maximum execution time, in milliseconds (defaults to 10 seconds).
  *
- * @param tracebackTable {Array} - A traceback table created using `gpii.diff.generateTracebackTable`.
- * @param options {Object} - Options to control our operation, see above.
+ * @param {Array} tracebackTable - A traceback table created using `gpii.diff.generateTracebackTable`.
+ * @param {Object} options - Options to control our operation, see above.
  * @return {Array} - An array of the longest distinct sequences found in the traceback.
  *
  */
@@ -495,9 +496,9 @@ gpii.diff.tracebackLongestSequences = function (tracebackTable, options) {
  * Sort two sequences by length, then by left indices, then by right indices.
  * Sort two sequences by length, then by left indices, then by right indices.
  *
- * @param a {Object} - A single sequence, an array of values like `{ leftIndex: 0, rightIndex: 1}`.
- * @param b {Object} - A second sequence to compare to `a`.
- * @return {number} - Returns `-1` if `a` should appear before `b`, `1` if b should appear before `a`, `0` if their position is interchangeable.
+ * @param {Object} a - A single sequence, an array of values like `{ leftIndex: 0, rightIndex: 1}`.
+ * @param {Object} b - A second sequence to compare to `a`.
+ * @return {Number} - Returns `-1` if `a` should appear before `b`, `1` if b should appear before `a`, `0` if their position is interchangeable.
  *
  */
 gpii.diff.sortByMatchIndexes = function (a, b) {
@@ -543,7 +544,8 @@ gpii.diff.sortByMatchIndexes = function (a, b) {
  * Return only the unique matchSequences from traceback results.  Will only work on data that is sorted by matchSequence,
  * by calling this function the original results will be sorted using  `gpii.diff.sortByMatchIndexes`.
  *
- * @param rawTracebackResults {Array} - Any array of traceback sequences, as generated by `gpii.diff.tracebackLongestSequence`.
+ * @param {Array} rawTracebackResults - Any array of traceback sequences, as generated by `gpii.diff.tracebackLongestSequence`.
+ * @param {Object} [options] - An optional array of configuration options.
  * @return {Array} - A new array containing only the unique values.
  *
  */
@@ -577,9 +579,9 @@ gpii.diff.dedupeTracebackResults = function (rawTracebackResults, options) {
  *
  * Compare strings by "segment", where a segment is a block of non-word or word characters.
  *
- * @param leftString {String} - The first string, from whose perspective the "diff" results will be represented.
- * @param rightString {String} - The second string, to compare to the first string.
- * @param options {Object} - Configuration options to pass to the underlying difference engine.
+ * @param {String} leftString - The first string, from whose perspective the "diff" results will be represented.
+ * @param {String} rightString - The second string, to compare to the first string.
+ * @param {Object} options - Configuration options to pass to the underlying difference engine.
  * @return {Array} - An array of "segments" representing `rightString` as compared to `leftString`.
  *
  */
@@ -606,9 +608,9 @@ gpii.diff.compareStringsBySegment = function (leftString, rightString, options) 
  *
  * Compare strings as sequences of "non-carriage returns" and "carriage returns", looking for entire lines that match.
  *
- * @param leftString {String} - The first string, from whose perspective the "diff" results will be represented.
- * @param rightString {String} - The second string, to compare to the first string.
- * @param options {Object} - Configuration options for the underlying difference engine.
+ * @param {String} leftString - The first string, from whose perspective the "diff" results will be represented.
+ * @param {String} rightString - The second string, to compare to the first string.
+ * @param {Object} options - Configuration options for the underlying difference engine.
  * @return {Array} - An array of "segments" representing `rightString` as compared to `leftString`.
  *
  */
@@ -752,7 +754,7 @@ gpii.diff.compareStringsByLine = function (leftString, rightString, options) {
  *
  * Split a string into "line segments" so that we can compare longer strings "by line".
  *
- * @param originalString {String} - A string to break down into line segments.
+ * @param {String} originalString - A string to break down into line segments.
  * @return {Array} - An array of substrings.
  */
 gpii.diff.stringToLineSegments = function (originalString) {
@@ -776,7 +778,7 @@ gpii.diff.stringToLineSegments = function (originalString) {
  * Go through the output of `gpii.diff.stringToLineSegments` and figure out what index in the original string each
  * segment corresponds to.
  *
- * @param arrayOfStrings {Array} - An array of string segments, as produced by `gpii.diff.stringToLineSegments`.
+ * @param {Array} arrayOfStrings - An array of string segments, as produced by `gpii.diff.stringToLineSegments`.
  * @return {Array} - An array of integers representing the position of each segment in the original string.
  *
  */
@@ -794,8 +796,8 @@ gpii.diff.calculateStringSegmentIndices = function (arrayOfStrings) {
  *
  * Compare any two elements for equality, including Arrays and Objects.
  *
- * @param leftElement {Any} - An {Object}, {Array}, {String}, or any other type of element.
- * @param rightElement {Any} - A second element of any type to compare to `leftElement`.
+ * @param {Any} leftElement - An {Object}, {Array}, {String}, or any other type of element.
+ * @param {Any} rightElement - A second element of any type to compare to `leftElement`.
  * @return {Boolean} - `true` if the elements are equal, `false` if they are not.
  *
  */
@@ -827,9 +829,9 @@ gpii.diff.equals = function (leftElement, rightElement) {
  * - `tracebackStrategy`: Can be `full` (find all longest sequences) or `single` (find just one, the default).
  * - `timeout`: The maximum execution time, in milliseconds (defaults to 30 seconds).
  *
- * @param leftArray - An array of values.
- * @param rightArray - An array of values to compare.
- * @param options {Object} - Options to control our operation, see above.
+ * @param {Array} leftArray - An array of values.
+ * @param {Array} rightArray - An array of values to compare.
+ * @param {Object} options - Options to control our operation, see above.
  * @return {Array} - An array of segments representing the changes in order.  May be larger than the original array.
  *
  */
@@ -910,8 +912,8 @@ gpii.diff.compareArrays = function (leftArray, rightArray, options) {
  *
  * Compare two arrays to see if their values are equal.
  *
- * @param leftArray {Array} - An array of values.
- * @param rightArray {Array} - An array of values to compare to `leftArray`.
+ * @param {Array} leftArray - An array of values.
+ * @param {Array} rightArray - An array of values to compare to `leftArray`.
  * @return {Boolean} - Returns `true` if all elements in both arrays are equal, `false` otherwise.
  *
  */
@@ -953,8 +955,8 @@ gpii.diff.arraysEqual = function (leftArray, rightArray) {
  *
  * Deeply compare two objects to see if their values are equal.
  *
- * @param leftObject {Object} - An object.
- * @param rightObject {Object} - An object to compare to `leftObject`.
+ * @param {Object} leftObject - An object.
+ * @param {Object} rightObject - An object to compare to `leftObject`.
  * @return {Boolean} - Returns `true` if the objects are deeply equal, `false` otherwise.
  *
  */
@@ -1005,10 +1007,10 @@ gpii.diff.objectsEqual = function (leftObject, rightObject) {
  * `lcsOptions`: Options to pass to the underlying diff engine.  See the documentation for `gpii.diff.longestCommonSequences` for details.
  * `markdownItOptions`: Configuration options to pass to markdownit when dealing with markdown.  See their documentation for details.
  *
- * @param leftObject {Object} - An object.
- * @param rightObject {Object} - An object to compare with `leftObject`.
- * @param options {Object} - An object containing options that control the handling of strings and the comparison strategy.  See above.
- * @return results - An object that describes the differences (and similarities) between the two objects.
+ * @param {Object} leftObject - An object.
+ * @param {Object} rightObject - An object to compare with `leftObject`.
+ * @param {Object} [options] - An object containing options that control the handling of strings and the comparison strategy.  See above.
+ * @return {Object} - An object that describes the differences (and similarities) between the two objects.
  *
  */
 gpii.diff.compareObjects = function (leftObject, rightObject, options) {
@@ -1050,9 +1052,9 @@ gpii.diff.compareObjects = function (leftObject, rightObject, options) {
  * `lcsOptions`: Options to pass to the underlying diff engine.  See `gpii.diff.longestCommonSequences` for details.
  * `markdownItOptions`: Options to pass to Markdown-It when rendering strings as markdown.
  *
- * @param leftElement {Any} - An element (array, object, number, etc.).
- * @param rightElement {Any} - An element to compare to `leftElement`.
- * @param options {Object} - Configuration options to pass to markdownit when dealing with markdown.  See above.
+ * @param {Any} leftElement - An element (array, object, number, etc.).
+ * @param {Any} rightElement - An element to compare to `leftElement`.
+ * @param {Object} options - Configuration options to pass to markdownit when dealing with markdown.  See above.
  * @return {Object} - An object that describes the differences between the two elements.
  *
  */
@@ -1089,7 +1091,7 @@ gpii.diff.compareMarkdown = function () {
  *
  * Calculate the left side of a single diff segment by combining "removed" and "unchanged" segments.
  *
- * @param diff {Array} - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`
+ * @param {Array} diff - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`
  * @return {Any} - An array, string, or other value representing the left side of the diff.
  *
  */
@@ -1101,7 +1103,7 @@ gpii.diff.leftValue = function (diff) {
  *
  * Calculate the right side of a single diff segment by combining "unchanged" and "added" segments.
  *
- * @param diff {Array} - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`
+ * @param {Array} diff - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`
  * @return {Any} - An array, string, or other value representing the right side of the diff.
  *
  */
@@ -1111,8 +1113,8 @@ gpii.diff.rightValue = function (diff) {
 
 /**
  *
- * @param diff {Array} - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`
- * @param keys - An array of keys to include in the results, which correspond to "type" values in individual diff segments.
+ * @param {Array} diff - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`
+ * @param {Any} keys - An array of keys to include in the results, which correspond to "type" values in individual diff segments.
  * @return {Any} - An array, string, or other value representing the combined values of all relevant diff segments.
  *
  */
@@ -1146,7 +1148,7 @@ gpii.diff.combineDiff = function (diff, keys) {
  *
  * Examine a single segment of "diff" output and report whether it contains changes.
  *
- * @param diff {Array} - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`.
+ * @param {Array} diff - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`.
  * @return {Boolean} - Returns `true` if the value has changes, `false` otherwise.
  */
 gpii.diff.hasChanged = function (diff) {

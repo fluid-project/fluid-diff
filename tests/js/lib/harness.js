@@ -84,27 +84,6 @@ fluid.defaults("gpii.tests.diff.harness", {
                 path: "/hbs",
                 templateDirs: "{harness}.options.templateDirs"
             }
-        },
-        js: {
-            type: "gpii.express.router.static",
-            options: {
-                path:    "/src",
-                content: "%gpii-diff/src"
-            }
-        },
-        modules: {
-            type: "gpii.express.router.static",
-            options: {
-                path:    "/node_modules",
-                content: "%gpii-diff/node_modules"
-            }
-        },
-        content: {
-            type: "gpii.express.router.static",
-            options: {
-                path:    "/content",
-                content: "%gpii-diff/tests/static"
-            }
         }
     }
 });

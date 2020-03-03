@@ -5,12 +5,19 @@ var fluid = require("infusion");
 var gpii  = fluid.registerNamespace("gpii");
 
 fluid.require("%gpii-testem");
-
+require("../index");
 require("./js/lib/harness");
 
-var testemComponent = gpii.testem({
-    sourceDirs:  ["src"],
-    serveDirs:   ["src"],
+var testemComponent = gpii.testem.instrumentation({
+    coveragePort: 7015,
+    coverageDir: "%gpii-diff/coverage",
+    sourceDirs: {
+        src: "%gpii-diff/src"
+    },
+    contentDirs: {
+        "tests": "%gpii-diff/tests",
+        "node_modules": "%gpii-diff/node_modules"
+    },
     testPages:   [
         "tests/static/tests-arraysEqual.html",
         "tests/static/tests-calculateTightness.html",
@@ -28,15 +35,10 @@ var testemComponent = gpii.testem({
         "tests/static/tests-objectsEqual.html",
         "tests/static/tests-singleValueDiff.html",
         "tests/static/tests-sort.html",
-        "tests/static/tests-templates-browser.html",
         "tests/static/tests-timeouts.html"
     ],
-    instrumentSource: true,
-    generateCoverageReport: false, // We will need to generate this ourselves once the entire run is finished...
-    coveragePort: 7015,
-    coverageDir: "%gpii-diff/coverage",
     components: {
-        coverageExpressInstance: {
+        express: {
             type: "gpii.tests.diff.harness"
         }
     }

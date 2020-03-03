@@ -14,5 +14,5 @@ for (var a = 1; a < 60; a += 1) {
     var start = Date.now();
     var diff = gpii.diff.compareArrays(leftArray, rightArray, { tracebackStrategy: "full", timeout: 1000});
     var end = Date.now();
-    console.log(a + "," + (end - start) + "," + diff.length);
+    fluid.log(a + "," + (end - start) + "," + diff.length);
 }

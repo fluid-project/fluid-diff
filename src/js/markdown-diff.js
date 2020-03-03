@@ -33,10 +33,10 @@ var cheerio    = typeof require !== "undefined" ? require("cheerio") : gpii.diff
  * `markdownItOptions` - Configuration options to pass to MarkdownIt.  See their docs for supported options.
  * `lcsOptions` - Options to control the "diff" operation, see the docs for gpii.diff.longestCommonSequences.
  *
- * @param leftMarkdown {String} - A string containing markdown.
- * @param rightMarkdown {String} - A string to compare to `leftMarkdown`.
- * @param options {Object} - Configurations options to control how the underlying difference engine and markdown rendering are handled.  See above.
- * @return {*}
+ * @param {String} leftMarkdown - A string containing markdown.
+ * @param {String} rightMarkdown - A string to compare to `leftMarkdown`.
+ * @param {Object} options - Configurations options to control how the underlying difference engine and markdown rendering are handled.  See above.
+ * @return {Array} - An array of segments representing everything that has changed (or not changed).
  *
  */
 gpii.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, options) {
@@ -55,8 +55,8 @@ gpii.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, options) {
  *
  * Render a string containing markdown as HTML, then return the textual content.
  *
- * @param markdown {String} - A string containing markdown.
- * @param markdownItOptions {Object} - Configuration options to pass to MarkdownIt.  See their docs for supported options.
+ * @param {String} markdown - A string containing markdown.
+ * @param {Object} markdownItOptions - Configuration options to pass to MarkdownIt.  See their docs for supported options.
  * @return {String} - The textual content.
  *
  */

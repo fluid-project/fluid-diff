@@ -37,4 +37,4 @@ fluid.defaults("my.renderer", {
 
 var renderer = my.renderer();
 var text = renderer.render("tutorial-text", diff);
-console.log(text);
+fluid.log(text);

@@ -13,49 +13,17 @@
 "use strict";
 module.exports = function (grunt) {
     grunt.initConfig({
-        eslint: {
-            js: {
-                src: ["./src/**/*.js", "./tests/**/*.js", "./*.js"]
-            },
-            md: {
-                options: {
-                    configFile: ".eslintrc-md.json"
-                },
-                src: ["./*.md", "./**/*.md", "!./node_modules/**"]
+        lintAll: {
+            sources: {
+                md:    [ "./*.md", "./src/**/*.md", "./tests/**/*.md", "./docs/**/*.md"],
+                js:    ["./src/**/*.js", "./tests/**/*.js", "./*.js"],
+                json:  ["./src/**/*.json", "tests/**/*.json", "./*.json"],
+                json5: ["./src/**/*.json5", "tests/**/*.json5", "./*.json5"],
+                other: ["./.*"]
             }
-        },
-        jsonlint: {
-            src: ["./src/**/*.json", "tests/**/*.json", "./*.json"]
-        },
-        json5lint: {
-            src: ["./src/**/*.json5", "tests/**/*.json5", "./*.json5"]
-        },
-        mdjsonlint: {
-            src: ["./*.md", "./**/*.md", "!./node_modules/**"]
-        },
-        markdownlint: {
-            full: {
-                options: {
-                    config: {
-                        // See https://github.com/DavidAnson/markdownlint#rules--aliases for rule names and meanings.
-                        "no-duplicate-header": false, // We use duplicate nested headers, as in section 1 and 2 both have the same sub-section name.
-                        "no-trailing-punctuation": false,  // This catches headings that are questions, which seems wrong.
-                        "header-style": {style: "atx"}, // Although we use a mix, in discussion with various team members, we agreed to try this for now.
-                        "line-length": false,
-                        "ol-prefix": {style: "ordered"} // 1. 2. 3. etc
-                    }
-                },
-                src: ["./*.md", "./**/*.md", "!./node_modules/**"]
-            }
-        },
-        mdlint: ["./*.md", "./**/*.md", "!./node_modules/**"]
+        }
     });
 
-    grunt.loadNpmTasks("grunt-jsonlint");
-    grunt.loadNpmTasks("fluid-grunt-json5lint");
-    grunt.loadNpmTasks("fluid-grunt-eslint");
-    grunt.loadNpmTasks("grunt-markdownlint");
-    grunt.loadNpmTasks("gpii-grunt-mdjson-lint");
-
-    grunt.registerTask("lint", "Apply eslint, jsonlint, json5lint, and markdownlint", ["eslint:js", "jsonlint", "markdownlint", "eslint:md", "mdjsonlint"]);
+    grunt.loadNpmTasks("gpii-grunt-lint-all");
+    grunt.registerTask("lint", "Perform all standard lint checks.", ["lint-all"]);
 };

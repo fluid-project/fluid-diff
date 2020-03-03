@@ -20,7 +20,8 @@ below for the same inputs.
 * `leftArray`: An array of values.
 * `rightArray`: An array of values to compare to `leftArray`.
 * `options` `{Object`} - Optional configuration options.  See below for supported options.
-* Returns: `{Array}` - An array of segments representing the changes in order.  May be larger than the original array (see below).
+* Returns: `{Array}` - An array of segments representing the changes in order.  May be larger than the original array
+  (see below).
 
 This function compares arrays in a way which is intended to assist in presenting changes to a list of values, in order.
 For example:
@@ -92,7 +93,6 @@ The optional `options` object supports the following options:
 * `compareStringsAsMarkdown`: Set this to `true` if you want to render any string values contained in this object as
   markdown and then compare their text.  Set to `false` by default.
 * `markdownItOptions`: Options to pass to the markdown rendering engine when rendering strings as markdown.
-
 
 ### `gpii.diff.compareStrings(leftString, rightObject, [options])`
 
@@ -297,6 +297,7 @@ the "match", as in this example, where only the first elements in both arrays ma
 Note: `undefined` values are treated as empty arrays.
 
 The optional `options` parameter supports the following parameter:
+
 * `timeout`: The maximum execution time, in milliseconds (defaults to 1 second).
 
 ### `gpii.diff.isStringNullOrUndefined(value)`
@@ -312,7 +313,8 @@ is used to determine whether we can perform that deeper comparison.
 * `leftArray` `{Array}` - An array.
 * `rightArray` `{Array}` - An array to compare to `leftArray`.
 * `options` `{Object`} - Optional configuration options.  See below for supported options.
-* Returns: `{Array}` - An array of objects describing the position of each segment in the longest common subsequence in the original arrays.
+* Returns: `{Array}` - An array of objects describing the position of each segment in the longest common subsequence in
+  the original arrays.
 
 Compare two arrays, returning a single longest common sequence (not necessarily contiguous). See
 `gpii.diff.longestCommonSequences` for further details.  If that function returns multiple sequences of the same length,
@@ -322,15 +324,15 @@ The optional `options` object supports the following options:
 
 * `lcsOptions`: Options for the comparison engine.  See `gpii.diff.longestCommonSequences` for details.
 
-
 ### `gpii.diff.longestCommonSequences(leftArray, rightArray, [options])`
 
 * `leftArray` `{Array}` - An array.
 * `rightArray` `{Array}` - An array to compare to `leftArray`.
 * `options` `{Object`} - Optional configuration options.  See below for supported options.
-* Returns: `{Array}` - An array containing all "longest" sequences, i. e. different sequences (see above) that are equally long.
+* Returns: `{Array}` - An array containing all "longest" sequences, i. e. different sequences (see above) that are
+  equally long.
 
-Compare two arrays and return all longest common sequences.  When comparing `[1,3,5,7]` to `[0,1,2,3,4,5,6]`, 
+Compare two arrays and return all longest common sequences.  When comparing `[1,3,5,7]` to `[0,1,2,3,4,5,6]`,
 `[1,3,5,7]` is the longest sequence, and would be returned as the single entry in an array of results.  When comparing
 `["A", "G", "C", "A", "T"]` to `["G", "A", "C"]`, `["G","C"]`, `["A","C"]`, and `["G","A"]` are all the same length,
 and are all returned.
@@ -343,10 +345,9 @@ So, for example, when comparing `["foo","bar", "quux"]` to `["bar","baz", "qux",
 The optional `options` object supports the following options:
 
 * `lcsOptions`: Options for the comparison engine, which include:
-    * `timeout`: The number of milliseconds to wait before aborting the comparison.
-    * `tracebackStrategy`: The traceback strategy to use.  The supported values are "full", and "single" (the default).
-      See below for an explanation of the difference between the two.
-
+  * `timeout`: The number of milliseconds to wait before aborting the comparison.
+  * `tracebackStrategy`: The traceback strategy to use.  The supported values are "full", and "single" (the default).
+    See below for an explanation of the difference between the two.
 
 #### Comparison Strategy
 
@@ -357,7 +358,6 @@ table is generated, which looks something like the following:
 <!-- Generated using src/js/lib/generate-traceback-diagram.js -->
 ![Sample traceback table.](diagrams/wikipedia-full-traceback.svg)
 
-
 The "traceback" is performed from the lowest right cell.  The symbols are as follows:
 
 * ↑ indicates that the adjacent upward cell contains the same number of matches.
@@ -367,7 +367,7 @@ The "traceback" is performed from the lowest right cell.  The symbols are as fol
 * ╳ represents a terminal point, i.e. there is no match or inherited material beyond this point in the table.
 
 There are two strategies available, a "full" traceback, and a "single" traceback strategy.
- 
+
 #### "Full" traceback
 
 First, let look at the the more expensive "full" traceback, which uncovers all of the longest sequences.  Here are
@@ -382,7 +382,6 @@ Next, let's look at the single path to the subsequence "GC":
 
 <!-- Generated using src/js/lib/generate-traceback-diagram.js -->
 ![Traceback of segment "GC"](diagrams/wikipedia-full-traceback-gc.svg)
-
 
 Finally, let's look at the single path to the subsequence "AC":
 
@@ -424,7 +423,7 @@ faster than the "full" strategy.
 * Returns: `{String}` - The textual content.
 
 Use [Markdown-It](https://github.com/markdown-it/markdown-it) to render a string containing markdown as HTML, then
-return the textual content.  You must install `Markdown-It` and `Cheerio.js` as dependencies and call 
+return the textual content.  You must install `Markdown-It` and `Cheerio.js` as dependencies and call
 `gpii.diff.loadMarkdownSupport()` before you can use this function.
 
 ### `gpii.diff.sortByLengthThenTightnessThenIndex(a, b)`
@@ -440,7 +439,8 @@ above), then by the lowest (average) index of the first segment.
 
 * `a` `{Object}` - A single sequence, an array of values like `{ leftIndex: 0, rightIndex: 1}`.
 * `b` `{Object}` - A second sequence to compare to `a`.
-* Returns: `{number}` - Returns `-1` if `a` should appear before `b`, `1` if b should appear before `a`, `0` if their position is interchangeable.
+* Returns: `{number}` - Returns `-1` if `a` should appear before `b`, `1` if b should appear before `a`, `0` if their
+  position is interchangeable.
 
 Sort two sequences by length, then by left indices, then by right indices.  Used by `gpii.diff.dedupeTracebackResults`
 to ensure that duplicates appear immediately adjacent to one another.
@@ -456,10 +456,10 @@ Split a string into "line segments" so that we can compare longer strings "by li
 
 * `tracebackTable` `{Array}` - A traceback table created using `gpii.diff.generateTracebackTable`.
 * `options` `{Object`} - Optional configuration options.  See below for supported options.
-* Returns: `{Array} - An array of the longest distinct sequences found in the traceback.
+* Returns: `{Array}` - An array of the longest distinct sequences found in the traceback.
 
 "Trace back" through the results of an array comparison created by `gpii.diff.generateTracebackTable`.  For a detailed
-breakdown of the available "traceback" strategies and their advantages/disadvantages, see 
+breakdown of the available "traceback" strategies and their advantages/disadvantages, see
 `gpii.diff.longestCommonSequence` for more details.
 
 The optional `options` parameter can be used to change the traceback strategy used, as follows:
@@ -474,7 +474,8 @@ The optional `options` parameter can be used to change the traceback strategy us
 
 * `leftValue` `{Array}` - An array of values.
 * `rightValue` `{Array}` - An array that was compared to `leftValue`.
-* `tracebackTable` `{Array}` - A grid of "traceback" results generated by comparing `leftValue` (y-axis) to `rightValue` (x-axis).
+* `tracebackTable` `{Array}` - A grid of "traceback" results generated by comparing `leftValue` (y-axis) to `rightValue`
+  (x-axis).
 * Returns: `{String}` - An ASCII representation of the traceback table.
 
 Diagram a traceback table using ASCII characters, useful when analysing tracebacks generated using
@@ -504,6 +505,3 @@ represents a terminal point, i.e. there is no match or inherited material to con
 
 The "traceback" is performed starting in the lowest right cell.  See `gpii.diff.longestCommonSequences` for an
 explanation of the two traceback strategies available.
-
-
-
