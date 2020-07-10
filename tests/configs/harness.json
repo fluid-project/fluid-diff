@@ -1,0 +1,6 @@
+{
+    "options": {
+        "gradeNames": ["gpii.tests.diff.harness"],
+        "port":        9753
+    }
+}

@@ -1,0 +1,7 @@
+{{~#each .}}
+    {{#each arrayValue}}
+        {{~#equals ../type "added"}}* {{>single-item-added-text}}{{/equals}}
+        {{~#equals ../type "removed"}}* {{>single-item-removed-text}}{{/equals}}
+        {{~#equals ../type "unchanged"}}* {{.}}{{/equals}}
+    {{/each}}
+{{/each}}

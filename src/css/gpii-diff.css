@@ -1,0 +1,19 @@
+ins {
+    background-color: #ccffcc;
+}
+
+del {
+    background-color: #ffcccc;
+    text-decoration: line-through;
+}
+
+.gpii-diff-hidden {
+    display:none;
+}
+
+.gpii-diff-zeropx {
+    width:   0px;
+    height:  0px;
+    padding: 0px;
+    margin:  0px;
+}
