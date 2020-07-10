@@ -1,28 +1,27 @@
 /* eslint-env node */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii = fluid.registerNamespace("gpii");
 
 var jqUnit = jqUnit || require("node-jqunit");
 
-typeof require !== "undefined" && fluid.require("%gpii-diff");
+typeof require !== "undefined" && fluid.require("%fluid-diff");
 
 jqUnit.module("Unit tests for 'single value' diff function...");
 
-fluid.registerNamespace("gpii.test.diff.singleValueDiff");
-gpii.test.diff.singleValueDiff.runAllTests = function (that) {
-    fluid.each(that.options.testDefs, gpii.test.diff.singleValueDiff.runSingleTest);
+fluid.registerNamespace("fluid.test.diff.singleValueDiff");
+fluid.test.diff.singleValueDiff.runAllTests = function (that) {
+    fluid.each(that.options.testDefs, fluid.test.diff.singleValueDiff.runSingleTest);
 };
 
-gpii.test.diff.singleValueDiff.runSingleTest = function (testDef) {
+fluid.test.diff.singleValueDiff.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
-        var result = gpii.diff.singleValueDiff(testDef.leftValue, testDef.rightValue);
+        var result = fluid.diff.singleValueDiff(testDef.leftValue, testDef.rightValue);
         jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
     });
 
 };
 
-fluid.defaults("gpii.test.diff.singleValueDiff", {
+fluid.defaults("fluid.test.diff.singleValueDiff", {
     gradeNames: ["fluid.component"],
     // We have to do this so that we can specify "undefined" in our expected output, otherwise it is removed by the framework.
     mergePolicy: {
@@ -121,10 +120,10 @@ fluid.defaults("gpii.test.diff.singleValueDiff", {
     },
     listeners: {
         "onCreate.runTests": {
-            funcName: "gpii.test.diff.singleValueDiff.runAllTests",
+            funcName: "fluid.test.diff.singleValueDiff.runAllTests",
             args:     ["{that}"]
         }
     }
 });
 
-gpii.test.diff.singleValueDiff();
+fluid.test.diff.singleValueDiff();

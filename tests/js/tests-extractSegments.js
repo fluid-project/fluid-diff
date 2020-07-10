@@ -1,37 +1,36 @@
 /* eslint-env node */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii = fluid.registerNamespace("gpii");
 
 var jqUnit = jqUnit || require("node-jqunit");
 
 if (typeof require !== "undefined") {
-    fluid.require("%gpii-diff");
+    fluid.require("%fluid-diff");
     require("./testDefs-arraysEqual");
     require("./testDefs-objectsEqual");
 }
 
-fluid.registerNamespace("gpii.test.diff.extractSegments");
-gpii.test.diff.extractSegments.runAllTests = function (that) {
-    jqUnit.module("Unit tests for gpii.diff.extractSegments function...");
-    fluid.each(that.options.testDefs, gpii.test.diff.extractSegments.runSingleTest);
+fluid.registerNamespace("fluid.test.diff.extractSegments");
+fluid.test.diff.extractSegments.runAllTests = function (that) {
+    jqUnit.module("Unit tests for fluid.diff.extractSegments function...");
+    fluid.each(that.options.testDefs, fluid.test.diff.extractSegments.runSingleTest);
 };
 
-gpii.test.diff.extractSegments.runSingleTest = function (testDef) {
+fluid.test.diff.extractSegments.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
         if (testDef.expectedError) {
             jqUnit.expectFrameworkDiagnostic(testDef.message, function () {
-                gpii.diff.extractSegments(testDef.leftValue, testDef.rightValue);
+                fluid.diff.extractSegments(testDef.leftValue, testDef.rightValue);
             }, fluid.makeArray(testDef.expectedError));
         }
         else {
-            var result = gpii.diff.extractSegments(testDef.input);
+            var result = fluid.diff.extractSegments(testDef.input);
             jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
         }
     });
 };
 
-fluid.defaults("gpii.test.diff.extractSegments", {
+fluid.defaults("fluid.test.diff.extractSegments", {
     gradeNames: ["fluid.component"],
     testDefs: {
         whitespace: {
@@ -57,10 +56,10 @@ fluid.defaults("gpii.test.diff.extractSegments", {
     },
     listeners: {
         "onCreate.runTests": {
-            funcName: "gpii.test.diff.extractSegments.runAllTests",
+            funcName: "fluid.test.diff.extractSegments.runAllTests",
             args:     ["{that}"]
         }
     }
 });
 
-gpii.test.diff.extractSegments();
+fluid.test.diff.extractSegments();

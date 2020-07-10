@@ -1,37 +1,36 @@
 /* eslint-env node */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii = fluid.registerNamespace("gpii");
 
 var jqUnit = jqUnit || require("node-jqunit");
 
 if (typeof require !== "undefined") {
-    fluid.require("%gpii-diff");
+    fluid.require("%fluid-diff");
 
     // Included so that we can diagram individual tracebacks in a debugger, as in:
-    // console.log(gpii.test.diff.diagramTracebackAsText(testDef.leftValue, testDef.rightValue, tracebackTable));
+    // console.log(fluid.test.diff.diagramTracebackAsText(testDef.leftValue, testDef.rightValue, tracebackTable));
     require("./lib/diagramTracebackTable");
 };
 
 jqUnit.module("Unit tests for 'longest common sequences' function...");
 
-fluid.registerNamespace("gpii.test.diff.longestCommonSequences");
-gpii.test.diff.longestCommonSequences.runAllTests = function (that) {
-    fluid.each(that.options.testDefs, gpii.test.diff.longestCommonSequences.runSingleTest);
+fluid.registerNamespace("fluid.test.diff.longestCommonSequences");
+fluid.test.diff.longestCommonSequences.runAllTests = function (that) {
+    fluid.each(that.options.testDefs, fluid.test.diff.longestCommonSequences.runSingleTest);
 };
 
-gpii.test.diff.longestCommonSequences.runSingleTest = function (testDef) {
+fluid.test.diff.longestCommonSequences.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
-        var result = gpii.diff.longestCommonSequences(testDef.leftValue, testDef.rightValue, testDef.options);
+        var result = fluid.diff.longestCommonSequences(testDef.leftValue, testDef.rightValue, testDef.options);
         jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
     });
 };
 
-gpii.test.diff.generateMassiveMatch = function (index) {
+fluid.test.diff.generateMassiveMatch = function (index) {
     return { leftIndex: index, rightIndex: index };
 };
 
-fluid.defaults("gpii.test.diff.longestCommonSequences", {
+fluid.defaults("fluid.test.diff.longestCommonSequences", {
     gradeNames: ["fluid.component"],
     // We want to compare to undefined values, so we need to avoid trying to expand or merge them.
     mergePolicy: {
@@ -123,7 +122,7 @@ fluid.defaults("gpii.test.diff.longestCommonSequences", {
             options: {
                 lcsOptions: { timeout: 30000 }
             },
-            expected:   [fluid.generate(750, gpii.test.diff.generateMassiveMatch, true)]
+            expected:   [fluid.generate(750, fluid.test.diff.generateMassiveMatch, true)]
         },
         sevenFiftySquaredNoMatch: {
             message:    "We should be able to complete a 750 x 750 comparison with no matches...",
@@ -138,10 +137,10 @@ fluid.defaults("gpii.test.diff.longestCommonSequences", {
     },
     listeners: {
         "onCreate.runTests": {
-            funcName: "gpii.test.diff.longestCommonSequences.runAllTests",
+            funcName: "fluid.test.diff.longestCommonSequences.runAllTests",
             args:     ["{that}"]
         }
     }
 });
 
-gpii.test.diff.longestCommonSequences();
+fluid.test.diff.longestCommonSequences();

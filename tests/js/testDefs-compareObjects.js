@@ -2,7 +2,7 @@
 "use strict";
 var fluid = fluid || require("infusion");
 
-fluid.defaults("gpii.test.diff.testDefs.compareObjects", {
+fluid.defaults("fluid.test.diff.testDefs.compareObjects", {
     gradeNames: ["fluid.component"],
     // We need to be able to compare actual undefined values, so we have to avoid the default merging and expansion.
     mergePolicy: {

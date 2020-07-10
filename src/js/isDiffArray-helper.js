@@ -6,10 +6,9 @@
 */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
-fluid.registerNamespace("gpii.diff.helper.isDiffArray");
+fluid.registerNamespace("fluid.diff.helper.isDiffArray");
 
-gpii.diff.helper.isDiffArray.getHelperFunction = function () {
+fluid.diff.helper.isDiffArray.getHelperFunction = function () {
     return function (diffDef, options) {
         if (Array.isArray(fluid.get(diffDef, "0.arrayValue"))) {
             return options.fn(this);
@@ -20,12 +19,12 @@ gpii.diff.helper.isDiffArray.getHelperFunction = function () {
     };
 };
 
-fluid.defaults("gpii.diff.helper.isDiffArray", {
-    gradeNames: ["gpii.handlebars.helper"],
+fluid.defaults("fluid.diff.helper.isDiffArray", {
+    gradeNames: ["fluid.handlebars.helper"],
     helperName: "isDiffArray",
     invokers: {
         "getHelper": {
-            "funcName": "gpii.diff.helper.isDiffArray.getHelperFunction",
+            "funcName": "fluid.diff.helper.isDiffArray.getHelperFunction",
             "args":     ["{that}"]
         }
     }

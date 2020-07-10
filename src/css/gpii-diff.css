@@ -7,11 +7,11 @@ del {
     text-decoration: line-through;
 }
 
-.gpii-diff-hidden {
+.fluid-diff-hidden {
     display:none;
 }
 
-.gpii-diff-zeropx {
+.fluid-diff-zeropx {
     width:   0px;
     height:  0px;
     padding: 0px;

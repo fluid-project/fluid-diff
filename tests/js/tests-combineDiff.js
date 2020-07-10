@@ -3,39 +3,37 @@
 var fluid = fluid || require("infusion");
 fluid.logObjectRenderChars = 4096;
 
-var gpii = fluid.registerNamespace("gpii");
-
 var jqUnit = jqUnit || require("node-jqunit");
 
 if (typeof require !== "undefined") {
-    fluid.require("%gpii-diff");
+    fluid.require("%fluid-diff");
 
     // Included so that we can diagram individual tracebacks in a debugger, as in:
-    // console.log(gpii.test.diff.diagramTracebackTable(testDef.leftValue, testDef.rightValue, tracebackTable));
+    // console.log(fluid.test.diff.diagramTracebackTable(testDef.leftValue, testDef.rightValue, tracebackTable));
     require("./lib/diagramTracebackTable");
 }
 
 jqUnit.module("Unit tests for 'combineDiff' functions...");
 
-fluid.registerNamespace("gpii.test.diff.hasChanged");
-gpii.test.diff.hasChanged.runAllTests = function (that) {
-    fluid.each(that.options.testDefs, gpii.test.diff.hasChanged.runSingleTest);
+fluid.registerNamespace("fluid.test.diff.hasChanged");
+fluid.test.diff.hasChanged.runAllTests = function (that) {
+    fluid.each(that.options.testDefs, fluid.test.diff.hasChanged.runSingleTest);
 };
 
-gpii.test.diff.hasChanged.runSingleTest = function (testDef) {
+fluid.test.diff.hasChanged.runSingleTest = function (testDef) {
     var compareFn = testDef.isArray ? "assertDeepEq" : "assertEquals";
     jqUnit.test(testDef.message, function () {
-        var diff = gpii.diff.compare(testDef.leftValue, testDef.rightValue);
+        var diff = fluid.diff.compare(testDef.leftValue, testDef.rightValue);
 
-        var leftValue = gpii.diff.leftValue(diff);
+        var leftValue = fluid.diff.leftValue(diff);
         jqUnit[compareFn]("The left value should be as expected.", testDef.leftValue, leftValue);
 
-        var rightValue = gpii.diff.rightValue(diff);
+        var rightValue = fluid.diff.rightValue(diff);
         jqUnit[compareFn]("The right value should be as expected.", testDef.rightValue, rightValue);
     });
 };
 
-fluid.defaults("gpii.test.diff.hasChanged", {
+fluid.defaults("fluid.test.diff.hasChanged", {
     gradeNames: ["fluid.component"],
     // We have to do this so that we can specify "undefined" in our expected output, otherwise it is removed by the framework.
     mergePolicy: {
@@ -102,10 +100,10 @@ fluid.defaults("gpii.test.diff.hasChanged", {
     },
     listeners: {
         "onCreate.runTests": {
-            funcName: "gpii.test.diff.hasChanged.runAllTests",
+            funcName: "fluid.test.diff.hasChanged.runAllTests",
             args:     ["{that}"]
         }
     }
 });
 
-gpii.test.diff.hasChanged();
+fluid.test.diff.hasChanged();

@@ -1,4 +1,4 @@
-# `gpii-diff`
+# `fluid-diff`
 
 This package is designed to "diff" two pieces of data and produce output that can be used to explore the differences.
 
@@ -16,8 +16,8 @@ Our goal is to produce a more expansive structure that includes:
 The focus here is not on changes to the deep structure, only changes in values (strings, numbers, etc.) are represented.
 This is intended to provide just enough information to present an annotated representation of a given set of changes.
 For this purpose, there are [Handlebars](http://handlebarsjs.com) templates provided in this package, which can be used
-with  [`gpii-handlebars`](https://github.com/GPII/gpii-handlebars) to convert the "diff" JSON structure produced by
-this package into:
+with  [`fluid-handlebars`](https://github.com/fluid-project/fluid-handlebars) to convert the "diff" JSON structure
+produced by this package into:
 
 * text
 * HTML
@@ -25,7 +25,7 @@ this package into:
 
 ## Installation
 
-To add this package to your project, use a command like `npm install --save gpii-diff`.
+To add this package to your project, use a command like `npm install --save fluid-diff`.
 
 ## Further Reading
 

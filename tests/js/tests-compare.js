@@ -1,13 +1,12 @@
 /* eslint-env node */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii = fluid.registerNamespace("gpii");
 
 var jqUnit = jqUnit || require("node-jqunit");
 
 if (typeof require !== "undefined") {
-    fluid.require("%gpii-diff");
-    gpii.diff.loadMarkdownSupport();
+    fluid.require("%fluid-diff");
+    fluid.diff.loadMarkdownSupport();
 
     require("./testDefs-compareArrays");
     require("./testDefs-compareMarkdown");
@@ -15,23 +14,23 @@ if (typeof require !== "undefined") {
     require("./testDefs-compareStrings");
 }
 
-fluid.registerNamespace("gpii.test.diff.compare");
-gpii.test.diff.compare.runAllTests = function (that) {
+fluid.registerNamespace("fluid.test.diff.compare");
+fluid.test.diff.compare.runAllTests = function (that) {
     fluid.each(that.options.testDefs, function (testDefs, key) {
-        jqUnit.module("Unit tests for gpii.diff.compare function (" + key + ")...");
-        fluid.each(testDefs, gpii.test.diff.compare.runSingleTest);
+        jqUnit.module("Unit tests for fluid.diff.compare function (" + key + ")...");
+        fluid.each(testDefs, fluid.test.diff.compare.runSingleTest);
     });
 };
 
-gpii.test.diff.compare.runSingleTest = function (testDef) {
+fluid.test.diff.compare.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
         if (testDef.expectedError) {
             jqUnit.expectFrameworkDiagnostic(testDef.message, function () {
-                gpii.diff.compare(testDef.leftValue, testDef.rightValue, testDef.options);
+                fluid.diff.compare(testDef.leftValue, testDef.rightValue, testDef.options);
             }, fluid.makeArray(testDef.expectedError));
         }
         else {
-            var result = gpii.diff.compare(testDef.leftValue, testDef.rightValue, testDef.options);
+            var result = fluid.diff.compare(testDef.leftValue, testDef.rightValue, testDef.options);
             if (testDef.expected) {
                 jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
             }
@@ -42,8 +41,8 @@ gpii.test.diff.compare.runSingleTest = function (testDef) {
     });
 };
 
-fluid.defaults("gpii.test.diff.compare", {
-    gradeNames: ["gpii.test.diff.testDefs.compareArrays", "gpii.test.diff.testDefs.compareMarkdown", "gpii.test.diff.testDefs.compareObjects", "gpii.test.diff.testDefs.compareStrings", "gpii.test.diff.testDefs.compareStringsByLine"],
+fluid.defaults("fluid.test.diff.compare", {
+    gradeNames: ["fluid.test.diff.testDefs.compareArrays", "fluid.test.diff.testDefs.compareMarkdown", "fluid.test.diff.testDefs.compareObjects", "fluid.test.diff.testDefs.compareStrings", "fluid.test.diff.testDefs.compareStringsByLine"],
     testDefs: {
         markdown: {
             markdownAsString: {
@@ -65,10 +64,10 @@ fluid.defaults("gpii.test.diff.compare", {
     },
     listeners: {
         "onCreate.runTests": {
-            funcName: "gpii.test.diff.compare.runAllTests",
+            funcName: "fluid.test.diff.compare.runAllTests",
             args:     ["{that}"]
         }
     }
 });
 
-gpii.test.diff.compare();
+fluid.test.diff.compare();

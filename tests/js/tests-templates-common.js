@@ -6,21 +6,20 @@
 /* eslint-env node */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
 
 var jqUnit = jqUnit || require("node-jqunit");
 
-typeof require !== "undefined" && fluid.require("%gpii-diff");
+typeof require !== "undefined" && fluid.require("%fluid-diff");
 
-fluid.registerNamespace("gpii.tests.diff.templates");
+fluid.registerNamespace("fluid.tests.diff.templates");
 
-gpii.tests.diff.templates.runAllTests = function (testDefs, renderer) {
+fluid.tests.diff.templates.runAllTests = function (testDefs, renderer) {
     fluid.each(testDefs, function (testDef) {
-        gpii.tests.diff.templates.runSingleTest(testDef, renderer);
+        fluid.tests.diff.templates.runSingleTest(testDef, renderer);
     });
 };
 
-gpii.tests.diff.templates.runSingleTest = function (testDef, renderer) {
+fluid.tests.diff.templates.runSingleTest = function (testDef, renderer) {
     jqUnit.test(testDef.message, function () {
         var html = renderer.render(testDef.htmlTemplateKey || "diff-wrapped", testDef.input);
         jqUnit.assertEquals("The HTML output should have been as expected.", testDef.expectedHtml, html);
@@ -32,7 +31,7 @@ gpii.tests.diff.templates.runSingleTest = function (testDef, renderer) {
     });
 };
 
-fluid.defaults("gpii.tests.diff.templates.common", {
+fluid.defaults("fluid.tests.diff.templates.common", {
     gradeNames: ["fluid.component"],
     testDefs: {
         noChange: {
@@ -44,25 +43,25 @@ fluid.defaults("gpii.tests.diff.templates.common", {
         justAdded: {
             message:      "We should be able to handle content that has been entirely added.",
             input:        { toCheck: [{ value: "Added.", type: "added"}] },
-            expectedHtml: "<ins><img class=\"gpii-diff-zeropx\" aria-label=\"Begin inserted content.\"/>Added.<img class=\"gpii-diff-zeropx\" aria-label=\"End inserted content.\"/></ins>\n",
+            expectedHtml: "<ins><img class=\"fluid-diff-zeropx\" aria-label=\"Begin inserted content.\"/>Added.<img class=\"fluid-diff-zeropx\" aria-label=\"End inserted content.\"/></ins>\n\n",
             expectedText: "+Added.+\n"
         },
         justDeleted: {
             message:      "We should be able to handle content that has been completely removed.",
             input:        { toCheck: [{ value: "Deleted.", type: "removed"}] },
-            expectedHtml: "<del><img class=\"gpii-diff-zeropx\" aria-label=\"Begin deleted content.\"/>Deleted.<img class=\"gpii-diff-zeropx\" aria-label=\"End deleted content.\"/></del>\n",
+            expectedHtml: "<del><img class=\"fluid-diff-zeropx\" aria-label=\"Begin deleted content.\"/>Deleted.<img class=\"fluid-diff-zeropx\" aria-label=\"End deleted content.\"/></del>\n\n",
             expectedText: "-Deleted.-\n"
         },
         replaced: {
             message:      "We should be able to handle content that has been replaced.",
             input:        { toCheck: [{ value: "foo", type: "removed"}, { value: "bar", type: "added"}] },
-            expectedHtml: "<del><img class=\"gpii-diff-zeropx\" aria-label=\"Begin deleted content.\"/>foo<img class=\"gpii-diff-zeropx\" aria-label=\"End deleted content.\"/></del><ins><img class=\"gpii-diff-zeropx\" aria-label=\"Begin inserted content.\"/>bar<img class=\"gpii-diff-zeropx\" aria-label=\"End inserted content.\"/></ins>\n",
+            expectedHtml: "<del><img class=\"fluid-diff-zeropx\" aria-label=\"Begin deleted content.\"/>foo<img class=\"fluid-diff-zeropx\" aria-label=\"End deleted content.\"/></del>\n<ins><img class=\"fluid-diff-zeropx\" aria-label=\"Begin inserted content.\"/>bar<img class=\"fluid-diff-zeropx\" aria-label=\"End inserted content.\"/></ins>\n\n",
             expectedText: "-foo-+bar+\n"
         },
         arrayContent: {
             message:      "We should be able to handle array content.",
             input:        { toCheck: [{ arrayValue: ["old"], type: "removed"}, { arrayValue: ["new"], type: "added"}] },
-            expectedHtml:  "<ul>\n    <li class=\"diff-removed\"><del><img class=\"gpii-diff-zeropx\" aria-label=\"Begin deleted content.\"/>old<img class=\"gpii-diff-zeropx\" aria-label=\"End deleted content.\"/></del></li>\n    <li class=\"diff-added\"><ins><img class=\"gpii-diff-zeropx\" aria-label=\"Begin inserted content.\"/>new<img class=\"gpii-diff-zeropx\" aria-label=\"End inserted content.\"/></ins></li>\n</ul>\n",
+            expectedHtml:  "<ul>\n    <li class=\"diff-removed\"><del><img class=\"fluid-diff-zeropx\" aria-label=\"Begin deleted content.\"/>old<img class=\"fluid-diff-zeropx\" aria-label=\"End deleted content.\"/></del>\n</li>\n    <li class=\"diff-added\"><ins><img class=\"fluid-diff-zeropx\" aria-label=\"Begin inserted content.\"/>new<img class=\"fluid-diff-zeropx\" aria-label=\"End inserted content.\"/></ins>\n</li>\n</ul>\n",
             expectedText: "* -old-\n* +new+\n"
         },
         normalArray: {
@@ -108,31 +107,31 @@ fluid.defaults("gpii.tests.diff.templates.common", {
     }
 });
 
-fluid.defaults("gpii.tests.diff.templates.node", {
-    gradeNames: ["gpii.tests.diff.templates.common"],
+fluid.defaults("fluid.tests.diff.templates.node", {
+    gradeNames: ["fluid.tests.diff.templates.common"],
     components: {
         rendererer: {
-            type: "gpii.handlebars.standaloneRenderer",
+            type: "fluid.handlebars.standaloneRenderer",
             options: {
-                templateDirs: ["%gpii-diff/tests/templates", "%gpii-diff/src/templates"],
+                templateDirs: ["%fluid-diff/tests/templates", "%fluid-diff/src/templates"],
                 listeners: {
                     "onCreate.runTests": {
-                        funcName: "gpii.tests.diff.templates.runAllTests",
-                        args:     ["{gpii.tests.diff.templates.node}.options.testDefs", "{that}"]
+                        funcName: "fluid.tests.diff.templates.runAllTests",
+                        args:     ["{fluid.tests.diff.templates.node}.options.testDefs", "{that}"]
                     }
                 },
                 components: {
                     isDiffArray: {
-                        type: "gpii.diff.helper.isDiffArray"
+                        type: "fluid.diff.helper.isDiffArray"
                     },
                     hasChanged: {
-                        type: "gpii.diff.helper.hasChanged"
+                        type: "fluid.diff.helper.hasChanged"
                     },
                     leftValue: {
-                        type: "gpii.diff.helper.leftValue"
+                        type: "fluid.diff.helper.leftValue"
                     },
                     rightValue: {
-                        type: "gpii.diff.helper.rightValue"
+                        type: "fluid.diff.helper.rightValue"
                     }
                 }
             }

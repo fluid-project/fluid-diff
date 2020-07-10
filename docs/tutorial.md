@@ -2,18 +2,18 @@
 
 This tutorial will take you through the process of generating a "diff" report comparing two objects, and then using a
 handlebars template to generate a summary of the changes.  The examples are written with the Node.js environment
-in mind.  For examples of using [gpii-handlebars](https://github.com/GPII/gpii-handlebars) in a browser, see that
+in mind.  For examples of using [fluid-handlebars](https://github.com/fluid-project/fluid-handlebars) in a browser, see that
 package's documentation.
 
 ## The Data
 
 Let's say we have an old and a new version of a record, and we want to explore the differences.  To compare these
-versions, we will use [`gpii.diff.compare`](functions.md#gpiidiffcompareleftelement-rightelement), as shown in this
+versions, we will use [`fluid.diff.compare`](functions.md#fluiddiffcompareleftelement-rightelement), as shown in this
 example:
 
 ```javascript
 var fluid = require("infusion");
-fluid.require("%gpii-diff");
+fluid.require("%fluid-diff");
 
 var oldVersion = {
     "title": "This is the old title.",
@@ -31,7 +31,7 @@ var newVersion = {
     }
 };
 
-var diff = gpii.diff.compare(oldVersion, newVersion);
+var diff = fluid.diff.compare(oldVersion, newVersion);
 /*
 
     Returns:
@@ -56,8 +56,8 @@ To create your own templates, you will need to:
 3. Register your package using `fluid.module.registerPath`.
 4. Add your template directory (something like `%your-package/path/to/templates`)to the renderer's `templateDirs`.
 
-See the [gpii-handlebars](https://github.com/GPII/gpii-handlebars) documentation for more details.  Let's say we want
-to create a template to display the changes as text.  Our template might look like:
+See the [fluid-handlebars](https://github.com/fluid-project/fluid-handlebars) documentation for more details.  Let's say
+we want to create a template to display the changes as text.  Our template might look like:
 
 ```handlebars
 {{#if title~}}
@@ -72,7 +72,7 @@ to create a template to display the changes as text.  Our template might look li
 ```
 
 Note that we use the tildes (`~`) to indicate that each block's output should strip leading whitespace.  This template
-is saved to our test content, so you can simply include `%gpii-diff/tests/templates` in your `templateDirs`, as shown in
+is saved to our test content, so you can simply include `%fluid-diff/tests/templates` in your `templateDirs`, as shown in
 the next section.
 
 ## Rendering Content
@@ -83,11 +83,10 @@ So, now we need to create a renderer and use that to render our "diff" using our
 /* eslint-env node */
 "use strict";
 var fluid = require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
 var my    = fluid.registerNamespace("my");
 
-fluid.require("%gpii-handlebars");
-fluid.require("%gpii-diff");
+fluid.require("%fluid-handlebars");
+fluid.require("%fluid-diff");
 
 var oldVersion = {
     "title": "This is the old title.",
@@ -105,14 +104,14 @@ var newVersion = {
     }
 };
 
-var diff = gpii.diff.compare(oldVersion, newVersion);
+var diff = fluid.diff.compare(oldVersion, newVersion);
 
 fluid.defaults("my.renderer", {
-    gradeNames: ["gpii.handlebars.standaloneRenderer"],
-    templateDirs: ["%gpii-diff/tests/templates", "%gpii-diff/src/templates"],
+    gradeNames: ["fluid.handlebars.standaloneRenderer"],
+    templateDirs: ["%fluid-diff/tests/templates", "%fluid-diff/src/templates"],
     components: {
         isDiffArray: {
-            type: "gpii.diff.helper.isDiffArray"
+            type: "fluid.diff.helper.isDiffArray"
         }
     }
 });

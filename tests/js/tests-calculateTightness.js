@@ -1,28 +1,27 @@
 /* eslint-env node */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii = fluid.registerNamespace("gpii");
 
 var jqUnit = jqUnit || require("node-jqunit");
 
-typeof require !== "undefined" && fluid.require("%gpii-diff");
+typeof require !== "undefined" && fluid.require("%fluid-diff");
 
 jqUnit.module("Unit tests for LCS calculateTightness function...");
 
-fluid.registerNamespace("gpii.test.diff.calculateTightness");
-gpii.test.diff.calculateTightness.runAllTests = function (that) {
-    fluid.each(that.options.testDefs, gpii.test.diff.calculateTightness.runSingleTest);
+fluid.registerNamespace("fluid.test.diff.calculateTightness");
+fluid.test.diff.calculateTightness.runAllTests = function (that) {
+    fluid.each(that.options.testDefs, fluid.test.diff.calculateTightness.runSingleTest);
 };
 
-gpii.test.diff.calculateTightness.runSingleTest = function (testDef) {
+fluid.test.diff.calculateTightness.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
-        var result = gpii.diff.calculateTightness(testDef.input);
+        var result = fluid.diff.calculateTightness(testDef.input);
         jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
     });
 
 };
 
-fluid.defaults("gpii.test.diff.calculateTightness", {
+fluid.defaults("fluid.test.diff.calculateTightness", {
     gradeNames: ["fluid.component"],
     // We have to do this so that we can specify "undefined" in our expected output, otherwise it is removed by the framework.
     mergePolicy: {
@@ -62,10 +61,10 @@ fluid.defaults("gpii.test.diff.calculateTightness", {
     },
     listeners: {
         "onCreate.runTests": {
-            funcName: "gpii.test.diff.calculateTightness.runAllTests",
+            funcName: "fluid.test.diff.calculateTightness.runAllTests",
             args:     ["{that}"]
         }
     }
 });
 
-gpii.test.diff.calculateTightness();
+fluid.test.diff.calculateTightness();

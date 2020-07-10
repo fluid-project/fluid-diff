@@ -1,8 +1,7 @@
 /* eslint-env node */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii = fluid.registerNamespace("gpii");
-fluid.registerNamespace("gpii.test.diff");
+fluid.registerNamespace("fluid.test.diff");
 
 var window   = require("svgdom");
 var svg      = require("svg.js")(window);
@@ -17,7 +16,7 @@ var document = window.document;
  * @return {String} - An ASCII representation of the traceback table.
  *
  */
-gpii.test.diff.diagramTracebackAsText = function (leftValue, rightValue, tracebackTable) {
+fluid.test.diff.diagramTracebackAsText = function (leftValue, rightValue, tracebackTable) {
     var dividerString =  "-".repeat((rightValue.length + 1) * 7) + "\n";
     var tableString = dividerString + "|     |";
     fluid.each(rightValue, function (value) {
@@ -28,7 +27,7 @@ gpii.test.diff.diagramTracebackAsText = function (leftValue, rightValue, traceba
         tableString += dividerString;
         var rowString = "|  " + leftValue[rowIndex] + "  |";
         fluid.each(row, function (cell) {
-            var cellString = gpii.test.diff.diagramCell(cell);
+            var cellString = fluid.test.diff.diagramCell(cell);
             rowString += "| " + cellString + " |";
         });
         rowString += "\n";
@@ -38,7 +37,7 @@ gpii.test.diff.diagramTracebackAsText = function (leftValue, rightValue, traceba
     return tableString;
 };
 
-gpii.test.diff.diagramCell = function (cell, options) {
+fluid.test.diff.diagramCell = function (cell, options) {
     var noArrowMarker   = fluid.get(options, "noArrowMarker")   || " *";
     var leftMarker      = fluid.get(options, "leftMarker")      || "_ ";
     var upMarker        = fluid.get(options, "upMarker")        || " |";
@@ -73,7 +72,7 @@ gpii.test.diff.diagramCell = function (cell, options) {
  * @return {String} - An SVG representation of the traceback table as XML text.
  *
  */
-gpii.test.diff.diagramTracebackAsSvg = function (leftValue, rightValue, tracebackTable, options) {
+fluid.test.diff.diagramTracebackAsSvg = function (leftValue, rightValue, tracebackTable, options) {
     var cellDiagramOptions = {
         noArrowMarker:   "╳ ",
         leftMarker:      "← ",
@@ -130,7 +129,7 @@ gpii.test.diff.diagramTracebackAsSvg = function (leftValue, rightValue, tracebac
             }
             rect.attr("aria-hidden", "true");
             var tracebackCell = tracebackTable[row][col];
-            var cellText      = gpii.test.diff.diagramCell(tracebackCell, cellDiagramOptions);
+            var cellText      = fluid.test.diff.diagramCell(tracebackCell, cellDiagramOptions);
             var drawnText = drawing.text(cellText);
 
             // Highlight matching segments in bold.
