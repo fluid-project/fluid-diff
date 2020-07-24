@@ -26,7 +26,7 @@
         "eslint": "7.5.0",
         "eslint-config-fluid": "1.4.0",
         "fluid-grunt-lint-all": "1.0.8",
-        "fluid-launcher": "1.0.0-dev.20200710T094414Z.81451f0.FLUID-6524",
+        "fluid-launcher": "1.0.0",
         "fluid-testem": "2.1.13",
         "grunt": "1.2.1",
         "markdown-it": "11.0.0",
