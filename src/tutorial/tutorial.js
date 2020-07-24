@@ -1,11 +1,10 @@
 /* eslint-env node */
 "use strict";
 var fluid = require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
 var my    = fluid.registerNamespace("my");
 
-fluid.require("%gpii-handlebars");
-fluid.require("%gpii-diff");
+fluid.require("%fluid-handlebars");
+fluid.require("%fluid-diff");
 
 var oldVersion = {
     "title": "This is the old title.",
@@ -23,14 +22,14 @@ var newVersion = {
     }
 };
 
-var diff = gpii.diff.compare(oldVersion, newVersion);
+var diff = fluid.diff.compare(oldVersion, newVersion);
 
 fluid.defaults("my.renderer", {
-    gradeNames: ["gpii.handlebars.standaloneRenderer"],
-    templateDirs: ["%gpii-diff/tests/templates", "%gpii-diff/src/templates"],
+    gradeNames: ["fluid.handlebars.standaloneRenderer"],
+    templateDirs: ["%fluid-diff/tests/templates", "%fluid-diff/src/templates"],
     components: {
         isDiffArray: {
-            type: "gpii.diff.helper.isDiffArray"
+            type: "fluid.diff.helper.isDiffArray"
         }
     }
 });

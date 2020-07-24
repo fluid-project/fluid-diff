@@ -4,7 +4,7 @@ All of the functions provided by this package are static, and do not require you
 
 ## The "diff" Functions
 
-### `gpii.diff.compare(leftElement, rightElement, [options])`
+### `fluid.diff.compare(leftElement, rightElement, [options])`
 
 * `leftElement`: An element (array, object, number, etc.).
 * `rightElement`: An element to compare to `leftElement`.
@@ -15,7 +15,7 @@ This function compares two elements of any type and returns the most fine-graine
 calls functions below depending on the variable type and value, and its output exactly matches each of the examples
 below for the same inputs.
 
-### `gpii.diff.compareArrays(leftArray, rightObject, [options])`
+### `fluid.diff.compareArrays(leftArray, rightObject, [options])`
 
 * `leftArray`: An array of values.
 * `rightArray`: An array of values to compare to `leftArray`.
@@ -27,7 +27,7 @@ This function compares arrays in a way which is intended to assist in presenting
 For example:
 
 ```javascript
-gpii.diff.compareArrays([0,1,2],[2,1,0]);
+fluid.diff.compareArrays([0,1,2],[2,1,0]);
 
 /* Returns:
 [
@@ -42,9 +42,9 @@ gpii.diff.compareArrays([0,1,2],[2,1,0]);
 
 The optional `options` object supports the following options:
 
-* `lcsOptions`: Options for the comparison engine.  See `gpii.diff.longestCommonSequences` for details.
+* `lcsOptions`: Options for the comparison engine.  See `fluid.diff.longestCommonSequences` for details.
 
-### `gpii.diff.compareMarkdown(leftMarkdown, rightMarkdown, [options])`
+### `fluid.diff.compareMarkdown(leftMarkdown, rightMarkdown, [options])`
 
 * `leftMarkdown` - A string containing markdown.
 * `rightMarkdown` - A string to compare to `leftMarkdown`.
@@ -54,14 +54,14 @@ The optional `options` object supports the following options:
 Compare the text of two Markdown strings and report their textual differences.  This function uses
 [Markdown-It](https://github.com/markdown-it/markdown-it) to render the Markdown as HTML, and then extracts the text
 using jQuery (in the browser) or [Cheerio.js](https://github.com/cheeriojs/cheerio) in Node.js.  You must install
-`Markdown-It` and `Cheerio.js` as dependencies and call `gpii.diff.loadMarkdownSupport()` before you can use this
+`Markdown-It` and `Cheerio.js` as dependencies and call `fluid.diff.loadMarkdownSupport()` before you can use this
 function.
 
 The optional `options` object supports the following options:
 
 * `markdownItOptions`: Options to pass to the markdown rendering engine when rendering strings as markdown.
 
-### `gpii.diff.compareObjects(leftObject, rightObject, [options])`
+### `fluid.diff.compareObjects(leftObject, rightObject, [options])`
 
 * `leftObject`: An object.
 * `rightObject`: An object to compare to `leftObject`.
@@ -74,7 +74,7 @@ intermediate tree segments, and errs on the side of describing changes in a plac
 number, boolean, etc.) might expect to be found.  For example:
 
 ```javascript
-gpii.diff.compareObjects({}, { foo: { bar: { baz: true }}});
+fluid.diff.compareObjects({}, { foo: { bar: { baz: true }}});
 
 /* Returns:
 {
@@ -89,12 +89,12 @@ gpii.diff.compareObjects({}, { foo: { bar: { baz: true }}});
 
 The optional `options` object supports the following options:
 
-* `lcsOptions`: Options for the comparison engine.  See `gpii.diff.longestCommonSequences` for details.
+* `lcsOptions`: Options for the comparison engine.  See `fluid.diff.longestCommonSequences` for details.
 * `compareStringsAsMarkdown`: Set this to `true` if you want to render any string values contained in this object as
   markdown and then compare their text.  Set to `false` by default.
 * `markdownItOptions`: Options to pass to the markdown rendering engine when rendering strings as markdown.
 
-### `gpii.diff.compareStrings(leftString, rightObject, [options])`
+### `fluid.diff.compareStrings(leftString, rightObject, [options])`
 
 * `leftString`: A string.
 * `rightArray`: A string to compare to `leftString`.
@@ -102,7 +102,7 @@ The optional `options` object supports the following options:
 * Returns: `{Array}` - An array of "segments" representing `rightString` as compared to `leftString` (see below).
 
 This function compares two strings and creates a set of segments detailing what has changed (or remained the same)
-between the two.  This function uses `gpii.diff.longestCommonStringPhrase` (see below) to split longer strings up into:
+between the two.  This function uses `fluid.diff.longestCommonStringPhrase` (see below) to split longer strings up into:
 
 * Material before the longest common "phrase".
 * The longest common "phrase".
@@ -112,7 +112,7 @@ The leading and trailing material from `leftString` and `rightString` is compare
 until there are no common phrases.  Here is an example of the output:
 
 ```javascript
-gpii.diff.compareStrings("this definitely works", "this also works");
+fluid.diff.compareStrings("this definitely works", "this also works");
 /* Returns:
 [
     { value: "this ", type: "unchanged"},
@@ -125,12 +125,12 @@ gpii.diff.compareStrings("this definitely works", "this also works");
 
 The optional `options` object supports the following options:
 
-* `lcsOptions`: Options for the comparison engine.  See `gpii.diff.longestCommonSequences` for details.
+* `lcsOptions`: Options for the comparison engine.  See `fluid.diff.longestCommonSequences` for details.
 * `compareStringsAsMarkdown`: Set this to `true` if you want to render the strings as markdown and then compare their
   text.  Set to `false` by default.
 * `markdownItOptions`: Options to pass to the markdown rendering engine when rendering strings as markdown.
 
-### `gpii.diff.singleValueDiff(leftValue, rightValue)`
+### `fluid.diff.singleValueDiff(leftValue, rightValue)`
 
 * `leftValue`: The left-hand value.
 * `rightValue`: The right-hand value.
@@ -140,17 +140,17 @@ This function returns a representation of a "single value" change, with no deepe
 produces a two-segment change in which the left value is removed and the right value is added, for example:
 
 ```javascript
-gpii.diff.singleValueDiff(0, 1); // [{ value: 0, type: "removed"}, {value: 1, type: "added"}]
+fluid.diff.singleValueDiff(0, 1); // [{ value: 0, type: "removed"}, {value: 1, type: "added"}]
 ```
 
-You are almost always better off using `gpii.diff.compare` or another more specific function, which will call this
+You are almost always better off using `fluid.diff.compare` or another more specific function, which will call this
 function as needed.
 
 ## Equality Functions
 
 This package provides a handful of functions used to deeply compare arrays and objects.
 
-### `gpii.diff.arraysEqual(leftObject, rightObject)`
+### `fluid.diff.arraysEqual(leftObject, rightObject)`
 
 * `leftObject`: An array of values.
 * `rightObject`: An array of values to compare to `leftArray`.
@@ -158,7 +158,7 @@ This package provides a handful of functions used to deeply compare arrays and o
 
 Compare two arrays to see if all of their values are equal.
 
-### `gpii.diff.objectsEqual(leftObject, rightObject)`
+### `fluid.diff.objectsEqual(leftObject, rightObject)`
 
 * `leftObject`: An object.
 * `rightObject`: An object to compare to `leftObject`.
@@ -171,21 +171,21 @@ Deeply compare two objects to see if all of their values are equal.
 This package provides key functions to inspect a single segment of a diff produced using one of the comparison functions
 above.
 
-### `gpii.diff.hasChanged(diff)`
+### `fluid.diff.hasChanged(diff)`
 
 * @param diff {Array} - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`.
 * @returns {Boolean} - Returns `true` if the value has changes, `false` otherwise.
 
 Examine a single segment of "diff" output and report whether it contains changes.
 
-### `gpii.diff.leftValue(diff)`
+### `fluid.diff.leftValue(diff)`
 
 * `diff` `{Array}` - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`
 * Returns: `{Any}` - An array, string, or other value representing the "left" side of the diff.
 
 Calculate the right side of a single diff segment by combining "removed" and "unchanged" segments.
 
-### `gpii.diff.rightValue(diff)`
+### `fluid.diff.rightValue(diff)`
 
 * `diff` `{Array}` - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`
 * Returns: `{Any}` - An array, string, or other value representing the "right" side of the diff.
@@ -197,17 +197,17 @@ Calculate the right side of a single diff segment by combining "unchanged" and "
 These functions are used by the comparison functions above, but are not guaranteed to be preserved as long term
 features of this package
 
-### `gpii.diff.calculateStringSegmentIndices(arrayOfStrings)`
+### `fluid.diff.calculateStringSegmentIndices(arrayOfStrings)`
 
-* `arrayOfStrings` `{Array}` - An array of string segments, as produced by `gpii.diff.stringToLineSegments`.
+* `arrayOfStrings` `{Array}` - An array of string segments, as produced by `fluid.diff.stringToLineSegments`.
 * Returns: `{Array}` - An array of integers representing the position of each segment in the original string.
 
-Go through the output of `gpii.diff.stringToLineSegments` and figure out what index in the original string each
+Go through the output of `fluid.diff.stringToLineSegments` and figure out what index in the original string each
 segment corresponds to.
 
-### `gpii.diff.calculateTightness(lcsSegments)`
+### `fluid.diff.calculateTightness(lcsSegments)`
 
-* `lcsSegments` - An array of LCS segments, as returned from `gpii.diff.longestCommonSequence`.
+* `lcsSegments` - An array of LCS segments, as returned from `fluid.diff.longestCommonSequence`.
 * Returns: `{Number}` - A number representing the "tightness" (see below).
 
 This function calculates the "tightness" of an array of LCS segments, where lower values are "tighter".  An array of
@@ -221,16 +221,16 @@ An array that skips a single segment has a "tightness" of 1, as when evaluating 
 
 This is used to sort segments so that the match with the most adjacent segments is preferred.
 
-### `gpii.diff.combineDiff(diff, keys)`
+### `fluid.diff.combineDiff(diff, keys)`
 
 * `diff` `{Array}` - An array of "diff" segments, as in `[{value: "foo", type: "removed"}, { value: "bar", type: "added"}]`
 * `keys` `{Array}` - An array of keys to include in the results, which correspond to "type" values in individual diff segments.
 * Returns: `{Any}` - An array, string, or other value representing the combined values of all relevant diff segments.
 
 Go through a single diff segment and combine the segments whose "type" is found in `keys`.  Used by
-`gpii.diff.leftValue` and `gpii.diff.rightValue`.
+`fluid.diff.leftValue` and `fluid.diff.rightValue`.
 
-### `gpii.diff.compareStringsBySegment(leftString, rightString, [options])`
+### `fluid.diff.compareStringsBySegment(leftString, rightString, [options])`
 
 * `leftString` `{String}` - The first string, from whose perspective the "diff" results will be represented.
 * `rightString` `{String}` - The second string, to compare to the first string.
@@ -239,7 +239,7 @@ Go through a single diff segment and combine the segments whose "type" is found 
 
 Compare strings by "segment", where a segment is a block of non-word or word characters.
 
-### `gpii.diff.compareStringsByLine(leftString, rightString, [options])`
+### `fluid.diff.compareStringsByLine(leftString, rightString, [options])`
 
 * `leftString` `{String}` - The first string, from whose perspective the "diff" results will be represented.
 * `rightString` `{String}` - The second string, to compare to the first string.
@@ -248,24 +248,24 @@ Compare strings by "segment", where a segment is a block of non-word or word cha
 
 Compare strings as sequences of "non-carriage returns" and "carriage returns", looking for entire lines that match.
 
-### `gpii.diff.dedupeTracebackResults(rawTracebackResults)`
+### `fluid.diff.dedupeTracebackResults(rawTracebackResults)`
 
-* `rawTracebackResults` `{Array}` - Any array of traceback sequences, as generated by `gpii.diff.tracebackLongestSequence`.
+* `rawTracebackResults` `{Array}` - Any array of traceback sequences, as generated by `fluid.diff.tracebackLongestSequence`.
 * Returns: `{Array}` - A new array containing only the unique values.
 
 Return only the unique match sequences from traceback results.  Will only work on data that is sorted by match sequence,
-by calling this function the original results will be sorted using  `gpii.diff.sortByMatchIndexes`.
+by calling this function the original results will be sorted using  `fluid.diff.sortByMatchIndexes`.
 
-### `gpii.diff.equals(leftElement, rightElement)`
+### `fluid.diff.equals(leftElement, rightElement)`
 
 * `leftElement` `{Any}` - An `{Object}`, `{Array}`, `{String}`, or any other type of element.
 * `rightElement` `{Any}` - A second element of any type to compare to `leftElement`.
 * Returns: `{Boolean}` - `true` if the elements are equal, `false` if they are not.
 
 This function compares any two elements for equality, including Arrays and Objects.  It calls the type-specific
-comparison functions (`gpii.diff.compareArrays`, et cetera) as needed.
+comparison functions (`fluid.diff.compareArrays`, et cetera) as needed.
 
-### `gpii.diff.extractSegments(originalString)`
+### `fluid.diff.extractSegments(originalString)`
 
 * `originalString` - A string to break down into segments.
 * Returns: `{Array}` - An array of substrings of alternating "word" and "non-word" content.
@@ -277,7 +277,7 @@ phrase "Stop, please." would be broken down into:
 
 Please note, this function treats `null` and `undefined` values the same as empty strings.
 
-### `gpii.diff.generateTracebackTable(leftArray, rightArray, [options])`
+### `fluid.diff.generateTracebackTable(leftArray, rightArray, [options])`
 
 * `leftArray` `{Array}` - An array of values.
 * `rightArray` `{Array}` - An array of values to compare to `leftArray`.
@@ -300,15 +300,15 @@ The optional `options` parameter supports the following parameter:
 
 * `timeout`: The maximum execution time, in milliseconds (defaults to 1 second).
 
-### `gpii.diff.isStringNullOrUndefined(value)`
+### `fluid.diff.isStringNullOrUndefined(value)`
 
 * `value` `{Any}` - A value to evaluate.
 * Returns: `{Boolean}` - Returns `true` if the value is a {String}, `undefined`, or `null`.  Returns `false` otherwise.
 
-`gpii.diff.compareStrings` can perform a deeper comparison of {String}, `undefined`, and `null` values.  This function
+`fluid.diff.compareStrings` can perform a deeper comparison of {String}, `undefined`, and `null` values.  This function
 is used to determine whether we can perform that deeper comparison.
 
-### `gpii.diff.longestCommonSequence(leftArray, rightArray, [options])`
+### `fluid.diff.longestCommonSequence(leftArray, rightArray, [options])`
 
 * `leftArray` `{Array}` - An array.
 * `rightArray` `{Array}` - An array to compare to `leftArray`.
@@ -317,14 +317,14 @@ is used to determine whether we can perform that deeper comparison.
   the original arrays.
 
 Compare two arrays, returning a single longest common sequence (not necessarily contiguous). See
-`gpii.diff.longestCommonSequences` for further details.  If that function returns multiple sequences of the same length,
-they are sorted using `gpii.diff.sortByLengthThenTightnessThenIndex` and only the first match is returned.
+`fluid.diff.longestCommonSequences` for further details.  If that function returns multiple sequences of the same length,
+they are sorted using `fluid.diff.sortByLengthThenTightnessThenIndex` and only the first match is returned.
 
 The optional `options` object supports the following options:
 
-* `lcsOptions`: Options for the comparison engine.  See `gpii.diff.longestCommonSequences` for details.
+* `lcsOptions`: Options for the comparison engine.  See `fluid.diff.longestCommonSequences` for details.
 
-### `gpii.diff.longestCommonSequences(leftArray, rightArray, [options])`
+### `fluid.diff.longestCommonSequences(leftArray, rightArray, [options])`
 
 * `leftArray` `{Array}` - An array.
 * `rightArray` `{Array}` - An array to compare to `leftArray`.
@@ -416,7 +416,7 @@ through the table.  There is also no need to evaluate and remove duplicate mater
 strategy. As a result, as the size and complexity of the comparison scales, the "single" strategy is orders of magnitude
 faster than the "full" strategy.
 
-### `gpii.diff.markdownToText(markdown, [markdownItOptions])`
+### `fluid.diff.markdownToText(markdown, [markdownItOptions])`
 
 * `markdown` `{String}` - A string containing markdown.
 * `markdownItOptions` `{Object}` - Configuration options to pass to MarkdownIt.  See their docs for supported options.
@@ -424,53 +424,53 @@ faster than the "full" strategy.
 
 Use [Markdown-It](https://github.com/markdown-it/markdown-it) to render a string containing markdown as HTML, then
 return the textual content.  You must install `Markdown-It` and `Cheerio.js` as dependencies and call
-`gpii.diff.loadMarkdownSupport()` before you can use this function.
+`fluid.diff.loadMarkdownSupport()` before you can use this function.
 
-### `gpii.diff.sortByLengthThenTightnessThenIndex(a, b)`
+### `fluid.diff.sortByLengthThenTightnessThenIndex(a, b)`
 
 * `a` `{Array}` - An array of LCS segments.
 * `b` `{Array}` - An array to compare with `a`.
 * Returns: `{Number}` - `-1` if `a` is "first", `1` if `b` is "first", `0` if their position is interchangeable.
 
-Sort arrays by the highest length, and then by the "tightest" grouping of elements (see `gpii.diff.calculateTightness`
+Sort arrays by the highest length, and then by the "tightest" grouping of elements (see `fluid.diff.calculateTightness`
 above), then by the lowest (average) index of the first segment.
 
-### `gpii.diff.sortByMatchIndexes(a, b)`
+### `fluid.diff.sortByMatchIndexes(a, b)`
 
 * `a` `{Object}` - A single sequence, an array of values like `{ leftIndex: 0, rightIndex: 1}`.
 * `b` `{Object}` - A second sequence to compare to `a`.
 * Returns: `{number}` - Returns `-1` if `a` should appear before `b`, `1` if b should appear before `a`, `0` if their
   position is interchangeable.
 
-Sort two sequences by length, then by left indices, then by right indices.  Used by `gpii.diff.dedupeTracebackResults`
+Sort two sequences by length, then by left indices, then by right indices.  Used by `fluid.diff.dedupeTracebackResults`
 to ensure that duplicates appear immediately adjacent to one another.
 
-### `gpii.diff.stringToLineSegments(originalString)`
+### `fluid.diff.stringToLineSegments(originalString)`
 
 * `originalString` `{String}` - A string to break down into line segments.
 * Returns: `{Array}` - An array of substrings.
 
 Split a string into "line segments" so that we can compare longer strings "by line".
 
-### `gpii.diff.tracebackLongestSequences(tracebackTable, [options])`
+### `fluid.diff.tracebackLongestSequences(tracebackTable, [options])`
 
-* `tracebackTable` `{Array}` - A traceback table created using `gpii.diff.generateTracebackTable`.
+* `tracebackTable` `{Array}` - A traceback table created using `fluid.diff.generateTracebackTable`.
 * `options` `{Object`} - Optional configuration options.  See below for supported options.
 * Returns: `{Array}` - An array of the longest distinct sequences found in the traceback.
 
-"Trace back" through the results of an array comparison created by `gpii.diff.generateTracebackTable`.  For a detailed
+"Trace back" through the results of an array comparison created by `fluid.diff.generateTracebackTable`.  For a detailed
 breakdown of the available "traceback" strategies and their advantages/disadvantages, see
-`gpii.diff.longestCommonSequence` for more details.
+`fluid.diff.longestCommonSequence` for more details.
 
 The optional `options` parameter can be used to change the traceback strategy used, as follows:
 
 * `tracebackStrategy`: Can be `full` (find all longest sequences) or `single` (find just one, which is the default
-  setting). See `gpii.diff.longestCommonSequence` for more details.
+  setting). See `fluid.diff.longestCommonSequence` for more details.
 * `timeout`: The maximum execution time, in milliseconds (defaults to 10 seconds).
 
 ## Test Functions
 
-### `gpii.test.diff.diagramTracebackAsText(leftValue, rightValue, tracebackTable)`
+### `fluid.test.diff.diagramTracebackAsText(leftValue, rightValue, tracebackTable)`
 
 * `leftValue` `{Array}` - An array of values.
 * `rightValue` `{Array}` - An array that was compared to `leftValue`.
@@ -479,7 +479,7 @@ The optional `options` parameter can be used to change the traceback strategy us
 * Returns: `{String}` - An ASCII representation of the traceback table.
 
 Diagram a traceback table using ASCII characters, useful when analysing tracebacks generated using
-`gpii.diff.generateTracebackTable`.  To use this, you must `fluid.require("%gpii-diff/js/lib/diagramTracebackAsText")`.
+`fluid.diff.generateTracebackTable`.  To use this, you must `fluid.require("%fluid-diff/js/lib/diagramTracebackAsText")`.
 The output is as follows:
 
 ```text
@@ -503,5 +503,5 @@ that the adjacent left cell contains the same number of matches.  A backslash (\
 and indicates that the rest of the pattern starts in the upper left diagonal square from ours.  An asterisk (*)
 represents a terminal point, i.e. there is no match or inherited material to continue.
 
-The "traceback" is performed starting in the lowest right cell.  See `gpii.diff.longestCommonSequences` for an
+The "traceback" is performed starting in the lowest right cell.  See `fluid.diff.longestCommonSequences` for an
 explanation of the two traceback strategies available.

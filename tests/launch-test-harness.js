@@ -1,21 +1,20 @@
 /*
 
-    A `gpii-launcher`-based script to launch this package's test harness for manual testing.
+    A `fluid-launcher`-based script to launch this package's test harness for manual testing.
 
  */
 /* eslint-env node */
 "use strict";
 var fluid = require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
 
-fluid.require("%gpii-diff");
+fluid.require("%fluid-diff");
 require("./js/lib/harness");
 
-fluid.require("%gpii-launcher");
+fluid.require("%fluid-launcher");
 
-fluid.defaults("gpii.tests.diff.harness.launcher", {
-    gradeNames:  ["gpii.launcher"],
-    optionsFile: "%gpii-diff/tests/configs/harness.json",
+fluid.defaults("fluid.tests.diff.harness.launcher", {
+    gradeNames:  ["fluid.launcher"],
+    optionsFile: "%fluid-diff/tests/configs/harness.json",
     yargsOptions: {
         env: true,
         describe: {
@@ -33,4 +32,4 @@ fluid.defaults("gpii.tests.diff.harness.launcher", {
     }
 });
 
-gpii.tests.diff.harness.launcher();
+fluid.tests.diff.harness.launcher();

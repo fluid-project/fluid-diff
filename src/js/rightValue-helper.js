@@ -6,21 +6,20 @@
 */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
-fluid.registerNamespace("gpii.diff.helper.rightValue");
+fluid.registerNamespace("fluid.diff.helper.rightValue");
 
-gpii.diff.helper.rightValue.getHelperFunction = function () {
+fluid.diff.helper.rightValue.getHelperFunction = function () {
     return function (diffDef) {
-        return gpii.diff.rightValue(diffDef);
+        return fluid.diff.rightValue(diffDef);
     };
 };
 
-fluid.defaults("gpii.diff.helper.rightValue", {
-    gradeNames: ["gpii.handlebars.helper"],
+fluid.defaults("fluid.diff.helper.rightValue", {
+    gradeNames: ["fluid.handlebars.helper"],
     helperName: "rightValue",
     invokers: {
         "getHelper": {
-            "funcName": "gpii.diff.helper.rightValue.getHelperFunction",
+            "funcName": "fluid.diff.helper.rightValue.getHelperFunction",
             "args":     ["{that}"]
         }
     }

@@ -7,31 +7,29 @@
 /* eslint-env node */
 "use strict";
 var fluid = require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
 
-
-fluid.require("%gpii-diff");
-gpii.diff.loadTestingSupport();
+fluid.require("%fluid-diff");
+fluid.diff.loadTestingSupport();
 
 var fs = require("fs");
 
-fluid.registerNamespace("gpii.diff.diagrams");
+fluid.registerNamespace("fluid.diff.diagrams");
 
-gpii.diff.diagrams.generate = function (that) {
+fluid.diff.diagrams.generate = function (that) {
     fluid.each(that.options.diagrams, function (diagramDef) {
-        var tracebackTable = gpii.diff.generateTracebackTable(diagramDef.leftValue, diagramDef.rightValue, diagramDef.tracebackOptions);
-        var svgAsText = gpii.test.diff.diagramTracebackAsSvg(diagramDef.leftValue, diagramDef.rightValue, tracebackTable, diagramDef.diagramOptions);
+        var tracebackTable = fluid.diff.generateTracebackTable(diagramDef.leftValue, diagramDef.rightValue, diagramDef.tracebackOptions);
+        var svgAsText = fluid.test.diff.diagramTracebackAsSvg(diagramDef.leftValue, diagramDef.rightValue, tracebackTable, diagramDef.diagramOptions);
 
         var resolvedOutputPath = fluid.module.resolvePath(diagramDef.outputPath);
         fs.writeFileSync(resolvedOutputPath, svgAsText, "utf8");
     });
 };
 
-fluid.defaults("gpii.diff.diagrams", {
+fluid.defaults("fluid.diff.diagrams", {
     gradeNames: ["fluid.component"],
     diagrams: {
         wikipediaDefault: {
-            outputPath: "%gpii-diff/docs/diagrams/wikipedia-full-traceback.svg",
+            outputPath: "%fluid-diff/docs/diagrams/wikipedia-full-traceback.svg",
             leftValue: ["G", "A", "C"],
             rightValue: ["A", "G", "C", "A", "T"],
             diagramOptions: {
@@ -45,7 +43,7 @@ fluid.defaults("gpii.diff.diagrams", {
             tracebackOptions: { tracebackStrategy: "full"}
         },
         wikipediaFullGA: {
-            outputPath: "%gpii-diff/docs/diagrams/wikipedia-full-traceback-ga.svg",
+            outputPath: "%fluid-diff/docs/diagrams/wikipedia-full-traceback-ga.svg",
             leftValue: ["G", "A", "C"],
             rightValue: ["A", "G", "C", "A", "T"],
             diagramOptions: {
@@ -59,7 +57,7 @@ fluid.defaults("gpii.diff.diagrams", {
             tracebackOptions: { tracebackStrategy: "full"}
         },
         wikipediaFullGC: {
-            outputPath: "%gpii-diff/docs/diagrams/wikipedia-full-traceback-gc.svg",
+            outputPath: "%fluid-diff/docs/diagrams/wikipedia-full-traceback-gc.svg",
             leftValue: ["G", "A", "C"],
             rightValue: ["A", "G", "C", "A", "T"],
             diagramOptions: {
@@ -73,7 +71,7 @@ fluid.defaults("gpii.diff.diagrams", {
             tracebackOptions: { tracebackStrategy: "full"}
         },
         wikipediaFullAC: {
-            outputPath: "%gpii-diff/docs/diagrams/wikipedia-full-traceback-ac.svg",
+            outputPath: "%fluid-diff/docs/diagrams/wikipedia-full-traceback-ac.svg",
             leftValue: ["G", "A", "C"],
             rightValue: ["A", "G", "C", "A", "T"],
             diagramOptions: {
@@ -87,7 +85,7 @@ fluid.defaults("gpii.diff.diagrams", {
             tracebackOptions: { tracebackStrategy: "full"}
         },
         wikipediaFullHeatMap: {
-            outputPath: "%gpii-diff/docs/diagrams/wikipedia-full-traceback-heat-map.svg",
+            outputPath: "%fluid-diff/docs/diagrams/wikipedia-full-traceback-heat-map.svg",
             leftValue: ["G", "A", "C"],
             rightValue: ["A", "G", "C", "A", "T"],
             diagramOptions: {
@@ -101,7 +99,7 @@ fluid.defaults("gpii.diff.diagrams", {
             tracebackOptions: { tracebackStrategy: "full"}
         },
         wikipediaSingle: {
-            outputPath: "%gpii-diff/docs/diagrams/wikipedia-single-traceback.svg",
+            outputPath: "%fluid-diff/docs/diagrams/wikipedia-single-traceback.svg",
             leftValue: ["G", "A", "C"],
             rightValue: ["A", "G", "C", "A", "T"],
             diagramOptions: {
@@ -117,10 +115,10 @@ fluid.defaults("gpii.diff.diagrams", {
     },
     listeners: {
         "onCreate.generateDiagrams": {
-            funcName: "gpii.diff.diagrams.generate",
+            funcName: "fluid.diff.diagrams.generate",
             args:     ["{that}"]
         }
     }
 });
 
-gpii.diff.diagrams();
+fluid.diff.diagrams();

@@ -2,7 +2,7 @@
 "use strict";
 var fluid = fluid || require("infusion");
 
-fluid.defaults("gpii.test.diff.testDefs.objectsEqual", {
+fluid.defaults("fluid.test.diff.testDefs.objectsEqual", {
     gradeNames: ["fluid.component"],
     mergePolicy: {
         "testDefs.objects": "nomerge, noexpand"

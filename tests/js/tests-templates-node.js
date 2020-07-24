@@ -6,10 +6,9 @@
 /* eslint-env node */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
 
-fluid.require("%gpii-handlebars");
+fluid.require("%fluid-handlebars");
 
 require("./tests-templates-common");
 
-gpii.tests.diff.templates.node();
+fluid.tests.diff.templates.node();

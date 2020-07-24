@@ -2,7 +2,7 @@
 "use strict";
 var fluid = fluid || require("infusion");
 
-fluid.defaults("gpii.test.diff.testDefs.arraysEqual", {
+fluid.defaults("fluid.test.diff.testDefs.arraysEqual", {
     gradeNames: ["fluid.component"],
     testDefs: {
         arrays: {

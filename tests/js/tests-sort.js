@@ -1,28 +1,27 @@
 /* eslint-env node */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii = fluid.registerNamespace("gpii");
 
 var jqUnit = jqUnit || require("node-jqunit");
 
-typeof require !== "undefined" && fluid.require("%gpii-diff");
+typeof require !== "undefined" && fluid.require("%fluid-diff");
 
 jqUnit.module("Unit tests for LCS sort function...");
 
-fluid.registerNamespace("gpii.test.diff.sort");
-gpii.test.diff.sort.runAllTests = function (that) {
-    fluid.each(that.options.testDefs, gpii.test.diff.sort.runSingleTest);
+fluid.registerNamespace("fluid.test.diff.sort");
+fluid.test.diff.sort.runAllTests = function (that) {
+    fluid.each(that.options.testDefs, fluid.test.diff.sort.runSingleTest);
 };
 
-gpii.test.diff.sort.runSingleTest = function (testDef) {
+fluid.test.diff.sort.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
-        var result = fluid.copy(testDef.input).sort(gpii.diff.sortByLengthThenTightnessThenIndex);
+        var result = fluid.copy(testDef.input).sort(fluid.diff.sortByLengthThenTightnessThenIndex);
         jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
     });
 
 };
 
-fluid.defaults("gpii.test.diff.sort", {
+fluid.defaults("fluid.test.diff.sort", {
     gradeNames: ["fluid.component"],
     // We have to do this so that we can specify "undefined" in our expected output, otherwise it is removed by the framework.
     mergePolicy: {
@@ -67,10 +66,10 @@ fluid.defaults("gpii.test.diff.sort", {
     },
     listeners: {
         "onCreate.runTests": {
-            funcName: "gpii.test.diff.sort.runAllTests",
+            funcName: "fluid.test.diff.sort.runAllTests",
             args:     ["{that}"]
         }
     }
 });
 
-gpii.test.diff.sort();
+fluid.test.diff.sort();

@@ -2,7 +2,7 @@
 "use strict";
 var fluid = fluid || require("infusion");
 
-fluid.defaults("gpii.test.diff.testDefs.compareMarkdown", {
+fluid.defaults("fluid.test.diff.testDefs.compareMarkdown", {
     gradeNames: ["fluid.component"],
     // We need to preserve `undefined` values in our comparisons.
     mergePolicy: {

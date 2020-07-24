@@ -2,21 +2,20 @@
 /* eslint-env node */
 "use strict";
 var fluid = require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
 
-fluid.require("%gpii-testem");
+fluid.require("%fluid-testem");
 require("../index");
 require("./js/lib/harness");
 
-var testemComponent = gpii.testem.instrumentation({
+var testemComponent = fluid.testem.instrumentation({
     coveragePort: 7015,
-    coverageDir: "%gpii-diff/coverage",
+    coverageDir: "%fluid-diff/coverage",
     sourceDirs: {
-        src: "%gpii-diff/src"
+        src: "%fluid-diff/src"
     },
     contentDirs: {
-        "tests": "%gpii-diff/tests",
-        "node_modules": "%gpii-diff/node_modules"
+        "tests": "%fluid-diff/tests",
+        "node_modules": "%fluid-diff/node_modules"
     },
     testPages:   [
         "tests/static/tests-arraysEqual.html",
@@ -39,7 +38,7 @@ var testemComponent = gpii.testem.instrumentation({
     ],
     components: {
         express: {
-            type: "gpii.tests.diff.harness"
+            type: "fluid.tests.diff.harness"
         }
     }
 });

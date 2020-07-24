@@ -6,27 +6,26 @@
 /* eslint-env node */
 "use strict";
 var fluid = require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
 
-fluid.require("%gpii-express");
-fluid.require("%gpii-handlebars");
-fluid.require("%gpii-diff");
+fluid.require("%fluid-express");
+fluid.require("%fluid-handlebars");
+fluid.require("%fluid-diff");
 
-var stringPayload = gpii.diff.compare("A string with no edits.", "An updated string with some minor edits.");
-var arrayPayload  = gpii.diff.compare(["bacon", "lettuce", "tomato"], ["chicken", "avocado", "lettuce", "tomato"]);
+var stringPayload = fluid.diff.compare("A string with no edits.", "An updated string with some minor edits.");
+var arrayPayload  = fluid.diff.compare(["bacon", "lettuce", "tomato"], ["chicken", "avocado", "lettuce", "tomato"]);
 
-fluid.defaults("gpii.tests.diff.harness", {
-    gradeNames:  ["gpii.testem.coverage.express", "gpii.express"],
+fluid.defaults("fluid.tests.diff.harness", {
+    gradeNames:  ["fluid.testem.coverage.express", "fluid.express"],
     baseUrl: {
         expander: {
             funcName: "fluid.stringTemplate",
             args: ["http://localhost:%port/", { port: "{that}.options.port"}]
         }
     },
-    templateDirs: ["%gpii-diff/tests/templates", "%gpii-diff/src/templates"],
+    templateDirs: ["%fluid-diff/tests/templates", "%fluid-diff/src/templates"],
     components: {
         corsHeaders: {
-            type: "gpii.express.middleware.headerSetter",
+            type: "fluid.express.middleware.headerSetter",
             options: {
                 priority: "first",
                 headers: {
@@ -39,7 +38,7 @@ fluid.defaults("gpii.tests.diff.harness", {
             }
         },
         handlebars: {
-            type: "gpii.express.hb",
+            type: "fluid.express.hb",
             options: {
                 templateDirs: "{harness}.options.templateDirs",
                 components: {
@@ -47,16 +46,16 @@ fluid.defaults("gpii.tests.diff.harness", {
                         options: {
                             components: {
                                 isDiffArray: {
-                                    type: "gpii.diff.helper.isDiffArray"
+                                    type: "fluid.diff.helper.isDiffArray"
                                 },
                                 hasChanged: {
-                                    type: "gpii.diff.helper.hasChanged"
+                                    type: "fluid.diff.helper.hasChanged"
                                 },
                                 leftValue: {
-                                    type: "gpii.diff.helper.leftValue"
+                                    type: "fluid.diff.helper.leftValue"
                                 },
                                 rightValue: {
-                                    type: "gpii.diff.helper.rightValue"
+                                    type: "fluid.diff.helper.rightValue"
                                 }
                             }
                         }
@@ -65,7 +64,7 @@ fluid.defaults("gpii.tests.diff.harness", {
             }
         },
         dispatcher: {
-            type: "gpii.handlebars.dispatcherMiddleware",
+            type: "fluid.handlebars.dispatcherMiddleware",
             options: {
                 priority: "after:handlebars",
                 path: ["/dispatcher/:template", "/dispatcher"],
@@ -79,7 +78,7 @@ fluid.defaults("gpii.tests.diff.harness", {
             }
         },
         inline: {
-            type: "gpii.handlebars.inlineTemplateBundlingMiddleware",
+            type: "fluid.handlebars.inlineTemplateBundlingMiddleware",
             options: {
                 path: "/hbs",
                 templateDirs: "{harness}.options.templateDirs"

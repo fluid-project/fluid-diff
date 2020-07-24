@@ -6,9 +6,7 @@
  */
 "use strict";
 var fluid = fluid || require("infusion");
-var gpii  = fluid.registerNamespace("gpii");
-
-fluid.registerNamespace("gpii.diff");
+fluid.registerNamespace("fluid.diff");
 
 /*
 
@@ -16,14 +14,14 @@ fluid.registerNamespace("gpii.diff");
     the same `load` method on both node and the browser.
 
 */
-gpii.diff.cheerioBrowser = {
+fluid.diff.cheerioBrowser = {
     load: function (htmlString) {
         return $(htmlString);
     }
 };
 
 var MarkDownIt = typeof require !== "undefined" ? require("markdown-it") : window.markdownit;
-var cheerio    = typeof require !== "undefined" ? require("cheerio") : gpii.diff.cheerioBrowser;
+var cheerio    = typeof require !== "undefined" ? require("cheerio") : fluid.diff.cheerioBrowser;
 
 /**
  *
@@ -31,7 +29,7 @@ var cheerio    = typeof require !== "undefined" ? require("cheerio") : gpii.diff
  *
  * The optional configuration options passed to this function can include  the following parameters.
  * `markdownItOptions` - Configuration options to pass to MarkdownIt.  See their docs for supported options.
- * `lcsOptions` - Options to control the "diff" operation, see the docs for gpii.diff.longestCommonSequences.
+ * `lcsOptions` - Options to control the "diff" operation, see the docs for fluid.diff.longestCommonSequences.
  *
  * @param {String} leftMarkdown - A string containing markdown.
  * @param {String} rightMarkdown - A string to compare to `leftMarkdown`.
@@ -39,15 +37,15 @@ var cheerio    = typeof require !== "undefined" ? require("cheerio") : gpii.diff
  * @return {Array} - An array of segments representing everything that has changed (or not changed).
  *
  */
-gpii.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, options) {
+fluid.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, options) {
     var markdownItOptions = fluid.get(options, "markdownItOptions");
     if (leftMarkdown === undefined || rightMarkdown === undefined || typeof leftMarkdown !== "string" || typeof rightMarkdown !== "string") {
-        return gpii.diff.singleValueDiff(leftMarkdown, rightMarkdown);
+        return fluid.diff.singleValueDiff(leftMarkdown, rightMarkdown);
     }
     else {
-        var leftString = gpii.diff.markdownToText(leftMarkdown, markdownItOptions);
-        var rightString = gpii.diff.markdownToText(rightMarkdown, markdownItOptions);
-        return gpii.diff.compareStrings(leftString, rightString, options);
+        var leftString = fluid.diff.markdownToText(leftMarkdown, markdownItOptions);
+        var rightString = fluid.diff.markdownToText(rightMarkdown, markdownItOptions);
+        return fluid.diff.compareStrings(leftString, rightString, options);
     }
 };
 
@@ -60,7 +58,7 @@ gpii.diff.compareMarkdown = function (leftMarkdown, rightMarkdown, options) {
  * @return {String} - The textual content.
  *
  */
-gpii.diff.markdownToText = function (markdown, markdownItOptions) {
+fluid.diff.markdownToText = function (markdown, markdownItOptions) {
     var mdRenderer = new MarkDownIt(markdownItOptions);
     var html = mdRenderer.render(markdown);
     var htmlWithHarderBreaks = html.replace(/<br ?\/?>(?![\r\n])/mig,"<br/>\n");
