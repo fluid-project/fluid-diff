@@ -104,6 +104,18 @@ fluid.defaults("fluid.test.diff.testDefs.objectsEqual", {
                 leftValue: { foo: {} },
                 rightValue: { foo: null},
                 expected: false
+            },
+            nullValuesShallowEqual: {
+                message: "Shallow null values on both sides should be reported as equal.",
+                leftValue: null,
+                rightValue: null,
+                expected: true
+            },
+            nullValuesDeepEqual: {
+                message: "Deep null values on both sides should be reported as equal.",
+                leftValue: { foo: null },
+                rightValue: { foo: null},
+                expected: true
             }
         }
     }
