@@ -9,7 +9,7 @@ if (typeof require !== "undefined") {
     require("./testDefs-compareStrings");
 };
 
-jqUnit.module("Unit tests for string diff function...");
+jqUnit.module("Unit tests for string diff function.");
 
 fluid.registerNamespace("fluid.test.diff.compareStrings");
 fluid.test.diff.compareStrings.runAllTests = function (that) {
@@ -19,7 +19,7 @@ fluid.test.diff.compareStrings.runAllTests = function (that) {
 fluid.test.diff.compareStrings.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
         var result = fluid.diff.compareStrings(testDef.leftValue, testDef.rightValue, testDef.options);
-        jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
+        jqUnit.assertDeepEq("The results should be as expected.", testDef.expected, result);
     });
 };
 

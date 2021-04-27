@@ -17,7 +17,7 @@ if (typeof require !== "undefined") {
 fluid.registerNamespace("fluid.test.diff.compare");
 fluid.test.diff.compare.runAllTests = function (that) {
     fluid.each(that.options.testDefs, function (testDefs, key) {
-        jqUnit.module("Unit tests for fluid.diff.compare function (" + key + ")...");
+        jqUnit.module("Unit tests for fluid.diff.compare function (" + key + ").");
         fluid.each(testDefs, fluid.test.diff.compare.runSingleTest);
     });
 };
@@ -32,7 +32,7 @@ fluid.test.diff.compare.runSingleTest = function (testDef) {
         else {
             var result = fluid.diff.compare(testDef.leftValue, testDef.rightValue, testDef.options);
             if (testDef.expected) {
-                jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
+                jqUnit.assertDeepEq("The results should be as expected.", testDef.expected, result);
             }
             else {
                 jqUnit.assert("The comparison should complete as expected.");
@@ -46,13 +46,13 @@ fluid.defaults("fluid.test.diff.compare", {
     testDefs: {
         markdown: {
             markdownAsString: {
-                message:    "Markdown should be treated like a string by default...",
+                message:    "Markdown should be treated like a string by default.",
                 leftValue:  "**bold**",
                 rightValue: "*italic*",
                 expected:   [{ value: "**bold**", type: "removed"}, { value: "*italic*", type: "added"}]
             },
             markdownAsMarkdown: {
-                message:   "We should be able to compare markdown as markdown using an additional argument...",
+                message:   "We should be able to compare markdown as markdown using an additional argument.",
                 leftValue: "**bold**",
                 rightValue: "*italic*",
                 options: {

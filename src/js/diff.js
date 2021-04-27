@@ -812,7 +812,7 @@ fluid.diff.equals = function (leftElement, rightElement) {
         return false;
     }
     // Now that undefined and Array values have been dealt with, anything remaining of type "object" can be handled as such.
-    else if (typeof leftElement === "object") {
+    else if (typeof leftElement === "object" && leftElement !== null) {
         return fluid.diff.objectsEqual(leftElement, rightElement);
     }
     else {
@@ -939,7 +939,7 @@ fluid.diff.arraysEqual = function (leftArray, rightArray) {
             else if (leftValue === null && rightValue === null) {
                 return true;
             }
-            else if (typeof leftValue === "object") {
+            else if (typeof leftValue === "object" && leftValue !== null) {
                 return fluid.diff.objectsEqual(leftValue, rightValue);
             }
             else {
@@ -960,7 +960,13 @@ fluid.diff.arraysEqual = function (leftArray, rightArray) {
  *
  */
 fluid.diff.objectsEqual = function (leftObject, rightObject) {
-    if (typeof leftObject !== typeof rightObject) {
+    if (leftObject === null && rightObject === null) {
+        return true;
+    }
+    else if ((leftObject === null && rightObject !== null) || (leftObject !== null && rightObject === null)) {
+        return false;
+    }
+    else if (typeof leftObject !== typeof rightObject) {
         return false;
     }
     else {
@@ -981,7 +987,7 @@ fluid.diff.objectsEqual = function (leftObject, rightObject) {
                         return false;
                     }
                 }
-                else if (typeof leftValue === "object") {
+                else if (typeof leftValue === "object" && leftValue !== null) {
                     if (!fluid.diff.objectsEqual(leftValue, rightValue)) {
                         return false;
                     }
@@ -1071,7 +1077,7 @@ fluid.diff.compare = function (leftElement, rightElement, options) {
         if (typeof firstDefinedElement === "string") {
             return compareStringsAsMarkdown ? fluid.diff.compareMarkdown(leftElement, rightElement, options) : fluid.diff.compareStrings(leftElement, rightElement, options);
         }
-        else if (typeof firstDefinedElement === "object") {
+        else if (typeof firstDefinedElement === "object" && firstDefinedElement !== null) {
             return fluid.diff.compareObjects(leftElement, rightElement, options);
         }
         else {

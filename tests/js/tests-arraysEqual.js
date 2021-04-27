@@ -9,7 +9,7 @@ if (typeof require !== "undefined") {
     require("./testDefs-arraysEqual");
 }
 
-jqUnit.module("Unit tests for string diff function...");
+jqUnit.module("Unit tests for string diff function.");
 
 fluid.registerNamespace("fluid.test.diff.arraysEqual");
 fluid.test.diff.arraysEqual.runAllTests = function (that) {
@@ -27,7 +27,7 @@ fluid.test.diff.arraysEqual.runSingleTest = function (testDef) {
         }
         else {
             var result = fluid.diff.arraysEqual(testDef.leftValue, testDef.rightValue);
-            jqUnit.assertEquals("The results should be as expected...", testDef.expected, result);
+            jqUnit.assertEquals("The results should be as expected.", testDef.expected, result);
         }
     });
 };
@@ -37,7 +37,7 @@ fluid.defaults("fluid.test.diff.arraysEqual", {
     testDefs: {
         nonArrays: {
             nonArrayValues: {
-                message:       "Non-arrays should result in an error...",
+                message:       "Non-arrays should result in an error.",
                 leftValue:      true,
                 rightValue:      false,
                 expectedError: "Cannot compare non-arrays"

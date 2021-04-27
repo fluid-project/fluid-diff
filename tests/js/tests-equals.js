@@ -13,7 +13,7 @@ if (typeof require !== "undefined") {
 fluid.registerNamespace("fluid.test.diff.equals");
 fluid.test.diff.equals.runAllTests = function (that) {
     fluid.each(that.options.testDefs, function (testDefs, key) {
-        jqUnit.module("Unit tests for fluid.diff.equals function (" + key + ")...");
+        jqUnit.module("Unit tests for fluid.diff.equals function (" + key + ").");
         fluid.each(testDefs, fluid.test.diff.equals.runSingleTest);
     });
 };
@@ -27,7 +27,7 @@ fluid.test.diff.equals.runSingleTest = function (testDef) {
         }
         else {
             var result = fluid.diff.equals(testDef.leftValue, testDef.rightValue);
-            jqUnit.assertEquals("The results should be as expected...", testDef.expected, result);
+            jqUnit.assertEquals("The results should be as expected.", testDef.expected, result);
         }
     });
 };

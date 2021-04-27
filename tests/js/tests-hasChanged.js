@@ -13,7 +13,7 @@ if (typeof require !== "undefined") {
     require("./lib/diagramTracebackTable");
 }
 
-jqUnit.module("Unit tests for 'hasChanged' diff function...");
+jqUnit.module("Unit tests for 'hasChanged' diff function.");
 
 fluid.registerNamespace("fluid.test.diff.hasChanged");
 fluid.test.diff.hasChanged.runAllTests = function (that) {
