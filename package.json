@@ -4,7 +4,8 @@
     "description": "A library for describing the differences between two JSON structures.",
     "main": "index.js",
     "scripts": {
-        "pretest": "node node_modules/rimraf/bin.js reports/* coverage/*",
+        "lint": "fluid-lint-all",
+        "pretest": "npx rimraf reports/* coverage/*",
         "test": "npm run test:node && npm run test:browser",
         "test:node": "node node_modules/nyc/bin/nyc.js node tests/node-tests.js",
         "test:browser": "node node_modules/testem/testem.js --file tests/testem.js ci --skip Safari,PhantomJS --launch Chrome",
@@ -18,21 +19,19 @@
     "license": "BSD-3-Clause",
     "homepage": "https://github.com/fluid-project/fluid-diff#readme",
     "dependencies": {
-        "fluid-handlebars": "2.1.3",
-        "infusion": "3.0.0-dev.20200604T195400Z.dddc6a2.FLUID-6145"
+        "fluid-handlebars": "2.1.5",
+        "infusion": "3.0.0-dev.20210421T131019Z.2d15978fb.FLUID-6580"
     },
     "devDependencies": {
-        "cheerio": "1.0.0-rc.3",
-        "eslint": "7.5.0",
-        "eslint-config-fluid": "1.4.0",
-        "fluid-grunt-lint-all": "1.0.8",
+        "cheerio": "1.0.0-rc.6",
+        "eslint": "7.25.0",
+        "eslint-config-fluid": "2.0.0",
         "fluid-launcher": "1.0.0",
-        "fluid-testem": "2.1.13",
-        "grunt": "1.2.1",
-        "markdown-it": "11.0.0",
-        "node-jqunit": "1.1.8",
+        "fluid-lint-all": "1.1.1",
+        "fluid-testem": "2.1.14",
+        "markdown-it": "12.0.6",
+        "node-jqunit": "1.1.9",
         "nyc": "15.1.0",
-        "rimraf": "3.0.2",
         "svg.js": "2.7.1",
         "svgdom": "0.0.21"
     }

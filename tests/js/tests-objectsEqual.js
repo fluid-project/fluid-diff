@@ -9,7 +9,7 @@ if (typeof require !== "undefined") {
     require("./testDefs-objectsEqual");
 }
 
-jqUnit.module("Unit tests for object equality function...");
+jqUnit.module("Unit tests for object equality function.");
 
 fluid.registerNamespace("fluid.test.diff.objectsEqual");
 fluid.test.diff.objectsEqual.runAllTests = function (that) {
@@ -25,7 +25,7 @@ fluid.test.diff.objectsEqual.runSingleTest = function (testDef) {
         }
         else {
             var result = fluid.diff.objectsEqual(testDef.leftValue, testDef.rightValue);
-            jqUnit.assertEquals("The results should be as expected...", testDef.expected, result);
+            jqUnit.assertEquals("The results should be as expected.", testDef.expected, result);
         }
     });
 };

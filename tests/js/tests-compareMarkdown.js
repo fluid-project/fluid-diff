@@ -12,7 +12,7 @@ if (typeof require !== "undefined") {
     require("./lib/diagramTracebackTable");
 };
 
-jqUnit.module("Unit tests for markdown diff function...");
+jqUnit.module("Unit tests for markdown diff function.");
 
 fluid.registerNamespace("fluid.test.diff.compareMarkdown");
 fluid.test.diff.compareMarkdown.runAllTests = function (that) {
@@ -23,10 +23,10 @@ fluid.test.diff.compareMarkdown.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
         var result = fluid.diff.compareMarkdown(testDef.leftValue, testDef.rightValue, testDef.options);
         if (testDef.expected) {
-            jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
+            jqUnit.assertDeepEq("The results should be as expected.", testDef.expected, result);
         }
         else {
-            jqUnit.assert("The comparison should complete as expected...");
+            jqUnit.assert("The comparison should complete as expected.");
         }
     });
 };

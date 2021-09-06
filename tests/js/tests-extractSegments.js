@@ -12,7 +12,7 @@ if (typeof require !== "undefined") {
 
 fluid.registerNamespace("fluid.test.diff.extractSegments");
 fluid.test.diff.extractSegments.runAllTests = function (that) {
-    jqUnit.module("Unit tests for fluid.diff.extractSegments function...");
+    jqUnit.module("Unit tests for fluid.diff.extractSegments function.");
     fluid.each(that.options.testDefs, fluid.test.diff.extractSegments.runSingleTest);
 };
 
@@ -25,7 +25,7 @@ fluid.test.diff.extractSegments.runSingleTest = function (testDef) {
         }
         else {
             var result = fluid.diff.extractSegments(testDef.input);
-            jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
+            jqUnit.assertDeepEq("The results should be as expected.", testDef.expected, result);
         }
     });
 };

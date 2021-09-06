@@ -13,7 +13,7 @@ if (typeof require !== "undefined") {
     require("./lib/diagramTracebackTable");
 }
 
-jqUnit.module("Unit tests for 'single value' diff function...");
+jqUnit.module("Unit tests for 'single value' diff function.");
 
 fluid.registerNamespace("fluid.test.diff.generateTracebackTable");
 fluid.test.diff.generateTracebackTable.runAllTests = function (that) {
@@ -24,7 +24,7 @@ fluid.test.diff.generateTracebackTable.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
         var tracebackTable = fluid.diff.generateTracebackTable(testDef.leftValue, testDef.rightValue);
         // console.log(fluid.test.diff.diagramTracebackAsText(testDef.leftValue, testDef.rightValue, tracebackTable));
-        jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, tracebackTable);
+        jqUnit.assertDeepEq("The results should be as expected.", testDef.expected, tracebackTable);
     });
 
 };

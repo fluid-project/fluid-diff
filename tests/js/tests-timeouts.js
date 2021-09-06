@@ -9,7 +9,7 @@ if (typeof require !== "undefined") {
     fluid.diff.loadTestingSupport();
 }
 
-jqUnit.module("Testing traceback function timeouts...");
+jqUnit.module("Testing traceback function timeouts.");
 
 fluid.registerNamespace("fluid.tests.diff.timeouts");
 fluid.tests.diff.timeouts.runAllTests = function (that) {

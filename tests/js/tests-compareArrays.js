@@ -10,7 +10,7 @@ if (typeof require !== "undefined") {
     require("./testDefs-compareArrays");
 }
 
-jqUnit.module("Unit tests for array diff function...");
+jqUnit.module("Unit tests for array diff function.");
 
 
 fluid.registerNamespace("fluid.test.diff.compareArrays");
@@ -27,7 +27,7 @@ fluid.test.diff.compareArrays.runSingleTest = function (testDef) {
         }
         else {
             var result = fluid.diff.compareArrays(testDef.leftValue, testDef.rightValue);
-            jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
+            jqUnit.assertDeepEq("The results should be as expected.", testDef.expected, result);
         }
     });
 };

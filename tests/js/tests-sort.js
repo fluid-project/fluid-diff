@@ -6,7 +6,7 @@ var jqUnit = jqUnit || require("node-jqunit");
 
 typeof require !== "undefined" && fluid.require("%fluid-diff");
 
-jqUnit.module("Unit tests for LCS sort function...");
+jqUnit.module("Unit tests for LCS sort function.");
 
 fluid.registerNamespace("fluid.test.diff.sort");
 fluid.test.diff.sort.runAllTests = function (that) {
@@ -16,7 +16,7 @@ fluid.test.diff.sort.runAllTests = function (that) {
 fluid.test.diff.sort.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
         var result = fluid.copy(testDef.input).sort(fluid.diff.sortByLengthThenTightnessThenIndex);
-        jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
+        jqUnit.assertDeepEq("The results should be as expected.", testDef.expected, result);
     });
 
 };
@@ -29,7 +29,7 @@ fluid.defaults("fluid.test.diff.sort", {
     },
     testDefs: {
         longest: {
-            message:  "The longest match should win...",
+            message:  "The longest match should win.",
             input:    [
                 [{leftIndex:0, rightIndex: 0}, { leftIndex: 1, rightIndex: 1}],
                 [{leftIndex:0, rightIndex: 0}, { leftIndex: 1, rightIndex: 1}, { leftIndex: 2, rightIndex: 2}, { leftIndex: 3, rightIndex: 3}],
@@ -42,7 +42,7 @@ fluid.defaults("fluid.test.diff.sort", {
             ]
         },
         tightest: {
-            message:  "If both are equally long, the 'tightest' match should win...",
+            message:  "If both are equally long, the 'tightest' match should win.",
             input:    [
                 [{leftIndex:0, rightIndex: 0}, { leftIndex: 1, rightIndex: 1}],
                 [{leftIndex:0, rightIndex: 0}, { leftIndex: 2, rightIndex: 2}]
@@ -53,7 +53,7 @@ fluid.defaults("fluid.test.diff.sort", {
             ]
         },
         earliest: {
-            message:  "If both are equally long and equally tight, the earliest match should win...",
+            message:  "If both are equally long and equally tight, the earliest match should win.",
             input:    [
                 [{leftIndex:0, rightIndex: 0}, { leftIndex: 1, rightIndex: 1}],
                 [{leftIndex:1, rightIndex: 1}, { leftIndex: 2, rightIndex: 2}]

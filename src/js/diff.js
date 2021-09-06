@@ -812,7 +812,7 @@ fluid.diff.equals = function (leftElement, rightElement) {
         return false;
     }
     // Now that undefined and Array values have been dealt with, anything remaining of type "object" can be handled as such.
-    else if (typeof leftElement === "object") {
+    else if (fluid.isPlainObject(leftElement,true)) {
         return fluid.diff.objectsEqual(leftElement, rightElement);
     }
     else {
@@ -939,7 +939,7 @@ fluid.diff.arraysEqual = function (leftArray, rightArray) {
             else if (leftValue === null && rightValue === null) {
                 return true;
             }
-            else if (typeof leftValue === "object") {
+            else if (fluid.isPlainObject(leftValue, true)) {
                 return fluid.diff.objectsEqual(leftValue, rightValue);
             }
             else {
@@ -960,8 +960,11 @@ fluid.diff.arraysEqual = function (leftArray, rightArray) {
  *
  */
 fluid.diff.objectsEqual = function (leftObject, rightObject) {
-    if (typeof leftObject !== typeof rightObject) {
+    if (fluid.diff.valuesAreObviouslyDifferent(leftObject, rightObject)) {
         return false;
+    }
+    else if (leftObject === null && rightObject === null) {
+        return true;
     }
     else {
         var leftKeys = Object.keys(leftObject);
@@ -973,7 +976,7 @@ fluid.diff.objectsEqual = function (leftObject, rightObject) {
                 var key = leftKeys[a];
                 var leftValue = leftObject[key];
                 var rightValue = rightObject[key];
-                if (typeof leftValue !== typeof rightValue) {
+                if (fluid.diff.valuesAreObviouslyDifferent(leftValue, rightValue)) {
                     return false;
                 }
                 else if (Array.isArray(leftValue)) {
@@ -981,7 +984,7 @@ fluid.diff.objectsEqual = function (leftObject, rightObject) {
                         return false;
                     }
                 }
-                else if (typeof leftValue === "object") {
+                else if (fluid.isPlainObject(leftValue, true)) {
                     if (!fluid.diff.objectsEqual(leftValue, rightValue)) {
                         return false;
                     }
@@ -993,6 +996,27 @@ fluid.diff.objectsEqual = function (leftObject, rightObject) {
 
             return true;
         }
+    }
+};
+
+/**
+ *
+ * Evaluate two values to decide whether we should compare them more deeply, or if they are obviously different.
+ *
+ * @param {Any} leftValue - The first value.
+ * @param {Any} rightValue - The second value to compare to `leftValue`.
+ * @return {Boolean} - Returns `true` if the objects are obviously different, `false` otherwise.
+ *
+ */
+fluid.diff.valuesAreObviouslyDifferent = function (leftValue, rightValue) {
+    if (leftValue === null ^ rightValue === null) {
+        return true;
+    }
+    else if (typeof leftValue !== typeof rightValue) {
+        return true;
+    }
+    else {
+        return false;
     }
 };
 
@@ -1071,7 +1095,7 @@ fluid.diff.compare = function (leftElement, rightElement, options) {
         if (typeof firstDefinedElement === "string") {
             return compareStringsAsMarkdown ? fluid.diff.compareMarkdown(leftElement, rightElement, options) : fluid.diff.compareStrings(leftElement, rightElement, options);
         }
-        else if (typeof firstDefinedElement === "object") {
+        else if (fluid.isPlainObject(firstDefinedElement, true)) {
             return fluid.diff.compareObjects(leftElement, rightElement, options);
         }
         else {

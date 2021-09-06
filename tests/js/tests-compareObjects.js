@@ -11,7 +11,7 @@ if (typeof require !== "undefined") {
     require("./testDefs-compareObjects");
 }
 
-jqUnit.module("Unit tests for object diff function...");
+jqUnit.module("Unit tests for object diff function.");
 
 fluid.registerNamespace("fluid.test.diff.compareObjects");
 fluid.test.diff.compareObjects.runAllTests = function (that) {
@@ -21,7 +21,7 @@ fluid.test.diff.compareObjects.runAllTests = function (that) {
 fluid.test.diff.compareObjects.runSingleTest = function (testDef) {
     jqUnit.test(testDef.message, function () {
         var result = fluid.diff.compareObjects(testDef.leftValue, testDef.rightValue, testDef.options);
-        jqUnit.assertDeepEq("The results should be as expected...", testDef.expected, result);
+        jqUnit.assertDeepEq("The results should be as expected.", testDef.expected, result);
     });
 };
 
